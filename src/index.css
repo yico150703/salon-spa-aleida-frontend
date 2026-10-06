@@ -2038,17 +2038,47 @@ body {
   z-index: 2;
 }
 
-.hero-badge {
-  display: inline-block;
-  background: rgba(200, 162, 106, 0.18);
-  border: 1px solid #C8A26A;
-  color: #DFC394;
-  padding: 6px 18px;
-  border-radius: 30px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  margin-bottom: 22px;
+.navbar-logo-img {
+  height: 38px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  background: #FFFFFF;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid #EFEBE9;
+}
+
+.hero-logo-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.hero-logo-pill {
+  background: #FFFFFF;
+  border: 2px solid #C8A26A;
+  border-radius: 40px;
+  padding: 10px 32px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hero-logo-pill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 35px rgba(200, 162, 106, 0.4);
+}
+
+.hero-logo-img {
+  height: 56px;
+  width: auto;
+  max-width: 260px;
+  object-fit: contain;
+  display: block;
 }
 
 .hero-headline {

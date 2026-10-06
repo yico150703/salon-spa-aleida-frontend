@@ -153,7 +153,7 @@ export default function Portal({ onAddAppointment, onSwitchToAdmin, showToast, e
       <nav className="belle-navbar">
         <div className="belle-navbar-inner">
           <div className="belle-logo-brand">
-            <span className="logo-symbol">ALEIDA</span>
+            <img src="/logo_aleida.png" alt="Aleida" className="navbar-logo-img" />
             <div className="logo-texts">
               <strong className="logo-title">Salon Spa Aleida</strong>
               <small className="logo-sub">San Isidro • Belleza & Bienestar</small>
@@ -187,8 +187,10 @@ export default function Portal({ onAddAppointment, onSwitchToAdmin, showToast, e
       <header className="belle-hero-presentation" id="inicio">
         <div className="hero-overlay"></div>
         <div className="hero-content">
-          <div className="hero-badge">
-            <span>CENTRO EXCLUSIVO DE BELLEZA & BIENESTAR EN SAN ISIDRO</span>
+          <div className="hero-logo-wrapper">
+            <div className="hero-logo-pill">
+              <img src="/logo_aleida.png" alt="Aleida Salon Spa" className="hero-logo-img" />
+            </div>
           </div>
 
           <h1 className="hero-headline">
