@@ -65,7 +65,7 @@ export default function ClientFileModal({ isOpen, onClose, cliente, onSaveClient
             </div>
 
             <div className="alert-box success" style={{ fontSize: '0.82rem' }}>
-              ℹ️ <strong>Trazabilidad RF01:</strong> Toda actualización queda registrada en el padrón centralizado para las especialistas y el módulo de citas.
+              [TRAZABILIDAD RF01] <strong>Padrón Centralizado:</strong> Toda actualización queda registrada para las especialistas y el módulo de citas.
             </div>
           </div>
 

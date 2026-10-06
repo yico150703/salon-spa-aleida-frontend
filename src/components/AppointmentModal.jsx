@@ -44,7 +44,7 @@ export default function AppointmentModal({
     }
 
     if (hasConflict) {
-      alert(`⚠️ Conflicto de horario: ${especialista} ya tiene una cita agendada a las ${hora}. Seleccione otro horario.`);
+      alert(`[CONFLICTO DE HORARIO] ${especialista} ya tiene una cita agendada a las ${hora}. Seleccione otro horario.`);
       return;
     }
 
@@ -96,14 +96,14 @@ export default function AppointmentModal({
               className={`btn-pill ${mode === 'reprogramar' ? 'active' : ''}`}
               onClick={() => setMode('reprogramar')}
             >
-              🔄 Reprogramar Horario
+              [CAMBIAR] Reprogramar Horario
             </button>
             <button 
               type="button" 
               className={`btn-pill ${mode === 'cancelar' ? 'active' : ''}`}
               onClick={() => setMode('cancelar')}
             >
-              ❌ Cancelar Cita
+              [ANULAR] Cancelar Cita
             </button>
           </div>
         )}
@@ -174,7 +174,7 @@ export default function AppointmentModal({
 
                 {hasConflict && (
                   <div className="alert-box warning">
-                    ⚠️ <strong>Conflicto de Horario Detectado:</strong> {especialista} ya tiene otra cita ocupando el bloque de las {hora}. Seleccione otra terapeuta o un horario libre.
+                    [ALERTA] <strong>Conflicto de Horario Detectado:</strong> {especialista} ya tiene otra cita ocupando el bloque de las {hora}. Seleccione otra terapeuta o un horario libre.
                   </div>
                 )}
               </>

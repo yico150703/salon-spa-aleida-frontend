@@ -91,11 +91,11 @@ export default function CashAuditModal({ isOpen, onClose, saldoTeorico, onConfir
 
           {Math.abs(diferencia) < 0.01 ? (
             <div className="alert-box success">
-              ✨ <strong>¡Cuadre Perfecto!</strong> Cumple con la meta del <strong>98% de exactitud en arqueo diario (OBJ-02)</strong>. Sin faltantes ni sobrantes.
+              [CONFORME] <strong>¡Cuadre Perfecto!</strong> Cumple con la meta del <strong>98% de exactitud en arqueo diario (OBJ-02)</strong>. Sin faltantes ni sobrantes.
             </div>
           ) : (
             <div className="alert-box warning">
-              ⚠️ Se detecta una discrepancia de S/ {diferencia.toFixed(2)}. Verifique comprobantes emitidos antes de emitir el Reporte Z.
+              [DISCREPANCIA] Se detecta una discrepancia de S/ {diferencia.toFixed(2)}. Verifique comprobantes emitidos antes de emitir el Reporte Z.
             </div>
           )}
         </div>

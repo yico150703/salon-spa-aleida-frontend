@@ -72,7 +72,7 @@ export default function ElectronicReceiptModal({ isOpen, onClose, ventaData, tip
         <div className="modal-footer" style={{ justifyContent: 'center', gap: '12px' }}>
           <button className="btn-outline" onClick={onClose}>Cerrar</button>
           <button className="btn-action primary" onClick={() => window.print()}>
-            🖨️ Imprimir Comprobante
+            Imprimir Comprobante
           </button>
         </div>
       </div>

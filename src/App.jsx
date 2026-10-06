@@ -127,7 +127,7 @@ export default function App() {
       }
       return ins;
     }));
-    showToast(`📦 Recepción de mercadería: +${cantidad} unidades ingresadas a inventario.`);
+    showToast(`[RECEPCION] Ingreso de mercadería: +${cantidad} unidades registradas en inventario.`);
   };
 
   return (
@@ -160,14 +160,14 @@ export default function App() {
             style={{ fontSize: '0.78rem', padding: '6px 12px' }}
             onClick={() => setIsLayerInspectorOpen(true)}
           >
-            🔍 Inspector de Capas
+            Inspector de Capas
           </button>
           <button 
             className="btn-action" 
             style={{ background: '#37474F', color: '#ECEFF1', fontSize: '0.78rem', padding: '6px 12px' }}
             onClick={() => setIsRequirementsGuideOpen(true)}
           >
-            📋 Guía RF01 - RF12
+            Guía RF01 - RF12
           </button>
         </div>
       </header>

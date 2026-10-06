@@ -174,7 +174,7 @@ export default function LayerInspectorModal({ isOpen, onClose, currentAction = '
 
         <div className="modal-footer">
           <small style={{ color: 'var(--color-text-muted)' }}>
-            ✓ Conforme al Principio de Independencia: La Capa de Presentación jamás se conecta directamente a la Base de Datos.
+            [CONFORME] Principio de Independencia: La Capa de Presentación jamás se conecta directamente a la Base de Datos.
           </small>
           <button className="btn-action primary" onClick={onClose}>Entendido</button>
         </div>

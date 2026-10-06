@@ -126,7 +126,7 @@ export default function RequirementsGuideModal({ isOpen, onClose, onSelectTab })
                       <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', margin: '4px 0 0' }}>{rf.desc}</p>
                     </td>
                     <td><span className={`tag ${rf.prioridad === 'Alta' ? 'in-progress' : 'confirmed'}`}>{rf.prioridad}</span></td>
-                    <td><span className="tag attended">✓ 100% Funcional</span></td>
+                    <td><span className="tag attended">[OK] 100% Operativo</span></td>
                     <td>
                       <button 
                         className="btn-table primary"

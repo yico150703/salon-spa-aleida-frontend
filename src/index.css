@@ -1391,3 +1391,498 @@ body {
   margin-top: 6px;
 }
 
+/* ==========================================================================
+   SIMPLYBOOK.ME BELLE THEME V2 STYLES (INSPIRACIÓN BELLEDEMO)
+   Estética de Lujo, Paleta Soft Rose / Arena / Carbón / Oro, Sin Emojis
+   ========================================================================== */
+
+.belle-theme-container {
+  min-height: 100vh;
+  background: #FAF8F5;
+  color: #2D2424;
+  font-family: var(--font-body);
+}
+
+.belle-header {
+  background: linear-gradient(135deg, #2C221E 0%, #4A3831 60%, #382A24 100%);
+  color: #FFFFFF;
+  padding: 48px 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.belle-header-content {
+  max-width: 1050px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.belle-brand .belle-tag {
+  display: inline-block;
+  background: rgba(200, 162, 106, 0.25);
+  color: #DFC394;
+  border: 1px solid #C8A26A;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.belle-brand h1 {
+  font-family: var(--font-heading);
+  font-size: 2.6rem;
+  font-weight: 600;
+  color: #FAF8F5;
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+
+.belle-brand p {
+  color: #D7CCC8;
+  font-size: 0.95rem;
+}
+
+.belle-header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* Wizard Section */
+.belle-wizard-section {
+  max-width: 1050px;
+  margin: -24px auto 60px;
+  padding: 0 20px;
+}
+
+.belle-wizard-card {
+  background: #FFFFFF;
+  border-radius: 14px;
+  box-shadow: 0 10px 35px rgba(44, 34, 30, 0.08);
+  border: 1px solid rgba(200, 162, 106, 0.2);
+  overflow: hidden;
+}
+
+/* Step Bar Navigation (Belle Style) */
+.belle-steps-nav {
+  display: flex;
+  background: #F5EFEB;
+  border-bottom: 1px solid #E6D7CD;
+  overflow-x: auto;
+}
+
+.step-item {
+  flex: 1;
+  min-width: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 12px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: #795548;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.86rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.step-item .step-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #D7CCC8;
+  color: #4E342E;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.step-item.active {
+  background: #FFFFFF;
+  color: #3E2723;
+  border-bottom-color: #C8A26A;
+}
+
+.step-item.active .step-num {
+  background: #C8A26A;
+  color: #FFFFFF;
+}
+
+.step-item.completed {
+  color: #4E342E;
+}
+
+.step-item.completed .step-num {
+  background: #8D6E63;
+  color: #FFFFFF;
+}
+
+/* Wizard Step Content */
+.wizard-step-content {
+  padding: 32px;
+}
+
+.step-title-box {
+  margin-bottom: 24px;
+}
+
+.step-title-box h2 {
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  color: #3E2723;
+  margin-bottom: 6px;
+}
+
+.step-title-box p {
+  color: #6D4C41;
+  font-size: 0.9rem;
+}
+
+/* Category Tabs (Belle Filters) */
+.belle-category-tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.cat-pill {
+  background: #F5EFEB;
+  border: 1px solid #D7CCC8;
+  color: #5D4037;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cat-pill:hover {
+  background: #EFEBE9;
+  border-color: #BCAAA4;
+}
+
+.cat-pill.active {
+  background: #3E2723;
+  color: #FFFFFF;
+  border-color: #3E2723;
+}
+
+/* Service Rows (Belle List Style) */
+.belle-services-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.belle-service-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background: #FFFFFF;
+  border: 1.5px solid #EFEBE9;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.belle-service-row:hover {
+  border-color: #C8A26A;
+  box-shadow: 0 4px 15px rgba(200, 162, 106, 0.12);
+  transform: translateY(-2px);
+}
+
+.belle-service-row.selected {
+  border-color: #C8A26A;
+  background: #FDFBF7;
+  box-shadow: 0 0 0 1px #C8A26A;
+}
+
+.service-row-main {
+  flex: 1;
+  padding-right: 20px;
+}
+
+.service-row-main h3 {
+  font-family: var(--font-heading);
+  font-size: 1.22rem;
+  color: #2D2424;
+  margin-bottom: 6px;
+}
+
+.service-row-main p {
+  color: #795548;
+  font-size: 0.86rem;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.service-row-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.meta-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: #5D4037;
+  background: #F5EFEB;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.meta-tag.category {
+  background: #ECEFF1;
+  color: #37474F;
+}
+
+.service-row-action {
+  text-align: right;
+  min-width: 140px;
+}
+
+.service-row-price {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #2D2424;
+  margin-bottom: 10px;
+}
+
+/* Therapists Grid (Belle Step 2) */
+.belle-therapists-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
+  margin-bottom: 30px;
+}
+
+.therapist-card {
+  display: flex;
+  gap: 16px;
+  padding: 18px;
+  background: #FFFFFF;
+  border: 1.5px solid #EFEBE9;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  align-items: center;
+}
+
+.therapist-card:hover {
+  border-color: #C8A26A;
+  transform: translateY(-2px);
+}
+
+.therapist-card.selected {
+  border-color: #C8A26A;
+  background: #FDFBF7;
+  box-shadow: 0 0 0 1px #C8A26A;
+}
+
+.therapist-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #D7CCC8 0%, #BCAAA4 100%);
+  color: #3E2723;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.therapist-info h4 {
+  font-size: 1rem;
+  color: #2D2424;
+  margin-bottom: 4px;
+}
+
+.therapist-info p {
+  font-size: 0.8rem;
+  color: #795548;
+}
+
+/* Date and Time Selection Layout (Belle Step 3) */
+.belle-datetime-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 28px;
+  margin-bottom: 30px;
+}
+
+@media (max-width: 768px) {
+  .belle-datetime-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.date-picker-box, .slots-picker-box {
+  background: #FAF8F5;
+  border: 1px solid #E6D7CD;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.date-picker-box h4, .slots-picker-box h4 {
+  font-size: 0.95rem;
+  color: #3E2723;
+  margin-bottom: 14px;
+  font-weight: 600;
+}
+
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.slot-btn {
+  padding: 12px 8px;
+  border-radius: 8px;
+  background: #FFFFFF;
+  border: 1.5px solid #D7CCC8;
+  color: #3E2723;
+  font-weight: 600;
+  font-size: 0.86rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.slot-btn:hover:not(.disabled) {
+  border-color: #C8A26A;
+  background: #FFF8E1;
+}
+
+.slot-btn.selected {
+  background: #3E2723;
+  color: #FFFFFF;
+  border-color: #3E2723;
+}
+
+.slot-btn.disabled {
+  background: #EEEEEE;
+  border-color: #E0E0E0;
+  color: #9E9E9E;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Intake Form (Belle Step 4) */
+.intake-form .form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 600px) {
+  .intake-form .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.intake-notice {
+  background: #F5EFEB;
+  border-left: 4px solid #C8A26A;
+  padding: 14px 18px;
+  border-radius: 4px;
+  font-size: 0.84rem;
+  color: #5D4037;
+  margin-top: 14px;
+}
+
+/* Summary Card (Belle Step 5) */
+.booking-summary-card {
+  background: #FDFBF7;
+  border: 1.5px solid #C8A26A;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.summary-header {
+  border-bottom: 1px solid #E6D7CD;
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+}
+
+.summary-header h3 {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  color: #3E2723;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 0.92rem;
+}
+
+.summary-row.total {
+  border-top: 1.5px dashed #C8A26A;
+  margin-top: 10px;
+  padding-top: 12px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #2D2424;
+}
+
+.cancellation-policy-box {
+  background: #FFF8E1;
+  border: 1px solid #FFE082;
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-size: 0.82rem;
+  color: #6D4C41;
+  margin-bottom: 24px;
+}
+
+.wizard-footer-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #EFEBE9;
+  padding-top: 24px;
+  margin-top: 10px;
+}
+
+/* Confirmation Success State */
+.confirmation-success-card {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.confirmation-badge {
+  display: inline-block;
+  background: #E8F5E9;
+  color: #2E7D32;
+  border: 1px solid #A5D6A7;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}
+

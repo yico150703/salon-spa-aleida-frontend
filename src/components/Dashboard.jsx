@@ -3,6 +3,11 @@ import CashAuditModal from './CashAuditModal';
 import ElectronicReceiptModal from './ElectronicReceiptModal';
 import ClientFileModal from './ClientFileModal';
 import AppointmentModal from './AppointmentModal';
+import { 
+  CalendarIcon, UsersIcon, UserIcon, CreditCardIcon, SlashIcon, LockIcon, 
+  BoxIcon, TagIcon, ShieldIcon, ChartIcon, TargetIcon, SearchIcon, 
+  DollarIcon
+} from './Icons';
 
 export default function Dashboard({ 
   citas, 
@@ -99,13 +104,13 @@ export default function Dashboard({
     setReceiptType('boleta');
     setIsReceiptOpen(true);
 
-    showToast(`✅ Boleta electrónica emitida con éxito a ${posClient} por S/ ${totalFacturado.toFixed(2)}.`);
+    showToast(`[VENTA] Boleta electrónica emitida con éxito a ${posClient} por S/ ${totalFacturado.toFixed(2)}.`);
   };
 
   const handleExecuteAnnulment = (e) => {
     e.preventDefault();
     if (annulPin !== '1234') {
-      showToast('❌ Acceso denegado: PIN de autorización gerencial incorrecto.');
+      showToast('[ERROR] Acceso denegado: PIN de autorización gerencial incorrecto.');
       return;
     }
 
@@ -127,7 +132,7 @@ export default function Dashboard({
     setReceiptType('nota_credito');
     setIsReceiptOpen(true);
 
-    showToast(`✅ Anulación aprobada por Gerencia. Se emitió ${newNC.nc} para ${annulTicket}.`);
+    showToast(`[ANULACION] Aprobada por Gerencia. Se emitió ${newNC.nc} para ${annulTicket}.`);
   };
 
   const handleOpenClientFile = (cliente) => {
@@ -145,31 +150,31 @@ export default function Dashboard({
         </div>
         <nav className="sidebar-menu">
           <button className={activeTab === 'agenda' ? 'active' : ''} onClick={() => setActiveTab('agenda')}>
-            <span>📅</span> Agenda de Citas <small className="cu-badge">CU01</small>
+            <span><CalendarIcon size={16} /></span> Agenda de Citas <small className="cu-badge">CU01</small>
           </button>
           <button className={activeTab === 'clientes' ? 'active' : ''} onClick={() => setActiveTab('clientes')}>
-            <span>👥</span> Padrón de Clientes <small className="cu-badge">CU02</small>
+            <span><UsersIcon size={16} /></span> Padrón de Clientes <small className="cu-badge">CU02</small>
           </button>
           <button className={activeTab === 'caja' ? 'active' : ''} onClick={() => setActiveTab('caja')}>
-            <span>💵</span> Punto de Venta <small className="cu-badge">CU03</small>
+            <span><CreditCardIcon size={16} /></span> Punto de Venta <small className="cu-badge">CU03</small>
           </button>
           <button className={activeTab === 'anulaciones' ? 'active' : ''} onClick={() => setActiveTab('anulaciones')}>
-            <span>🚫</span> Anulación de Venta <small className="cu-badge">CU04</small>
+            <span><SlashIcon size={16} /></span> Anulación de Venta <small className="cu-badge">CU04</small>
           </button>
           <button className={activeTab === 'operaciones-caja' ? 'active' : ''} onClick={() => setActiveTab('operaciones-caja')}>
-            <span>🔒</span> Operaciones de Caja <small className="cu-badge">CU05</small>
+            <span><LockIcon size={16} /></span> Operaciones de Caja <small className="cu-badge">CU05</small>
           </button>
           <button className={activeTab === 'compras' ? 'active' : ''} onClick={() => setActiveTab('compras')}>
-            <span>📦</span> Compras & Insumos <small className="cu-badge">CU06</small>
+            <span><BoxIcon size={16} /></span> Compras & Insumos <small className="cu-badge">CU06</small>
           </button>
           <button className={activeTab === 'catalogo' ? 'active' : ''} onClick={() => setActiveTab('catalogo')}>
-            <span>🏷️</span> Catálogo de Servicios <small className="cu-badge">CU07</small>
+            <span><TagIcon size={16} /></span> Catálogo de Servicios <small className="cu-badge">CU07</small>
           </button>
           <button className={activeTab === 'usuarios' ? 'active' : ''} onClick={() => setActiveTab('usuarios')}>
-            <span>🔐</span> Usuarios y Roles <small className="cu-badge">CU08</small>
+            <span><ShieldIcon size={16} /></span> Usuarios y Roles <small className="cu-badge">CU08</small>
           </button>
           <button className={activeTab === 'reportes' ? 'active' : ''} onClick={() => setActiveTab('reportes')}>
-            <span>📊</span> Reportes Gerenciales <small className="cu-badge">CU09</small>
+            <span><ChartIcon size={16} /></span> Reportes Gerenciales <small className="cu-badge">CU09</small>
           </button>
         </nav>
         <div className="sidebar-user">
@@ -190,10 +195,10 @@ export default function Dashboard({
           </div>
           <div className="header-status">
             <button className="btn-action primary" onClick={onOpenLayerInspector}>
-              🔍 Inspector de Arquitectura
+              Inspector de Arquitectura
             </button>
             <button className="btn-action" style={{ background: '#E3F2FD', color: '#0288D1' }} onClick={onOpenRequirementsGuide}>
-              📋 Guía de Requerimientos (RFs)
+              Guía de Requerimientos (RFs)
             </button>
             <span className="badge-status open">
               <span className="status-dot"></span> Caja Turno: <strong>S/ {(caja.apertura + caja.efectivo + caja.digital - caja.egresos).toFixed(2)}</strong>
@@ -204,7 +209,7 @@ export default function Dashboard({
         {/* KPI Cards: The 4 Realistic SMART Objectives */}
         <div className="kpi-grid">
           <div className="kpi-card">
-            <div className="kpi-icon blue">📅</div>
+            <div className="kpi-icon blue"><CalendarIcon size={20} /></div>
             <div className="kpi-data">
               <span className="kpi-title">Puntualidad en Citas</span>
               <strong className="kpi-val">88.5%</strong>
@@ -212,7 +217,7 @@ export default function Dashboard({
             </div>
           </div>
           <div className="kpi-card">
-            <div className="kpi-icon green">💰</div>
+            <div className="kpi-icon green"><DollarIcon size={20} /></div>
             <div className="kpi-data">
               <span className="kpi-title">Exactitud Arqueo Caja</span>
               <strong className="kpi-val">98.2%</strong>
@@ -220,7 +225,7 @@ export default function Dashboard({
             </div>
           </div>
           <div className="kpi-card">
-            <div className="kpi-icon purple">📦</div>
+            <div className="kpi-icon purple"><BoxIcon size={20} /></div>
             <div className="kpi-data">
               <span className="kpi-title">Disponibilidad Insumos</span>
               <strong className="kpi-val">96.5%</strong>
@@ -228,7 +233,7 @@ export default function Dashboard({
             </div>
           </div>
           <div className="kpi-card">
-            <div className="kpi-icon red">💎</div>
+            <div className="kpi-icon red"><TargetIcon size={20} /></div>
             <div className="kpi-data">
               <span className="kpi-title">Retención de Clientes</span>
               <strong className="kpi-val">74.0%</strong>
@@ -285,7 +290,7 @@ export default function Dashboard({
                             handleOpenClientFile(cli);
                           }}
                         >
-                          👤 Ver Ficha RF01
+                          Ver Ficha RF01
                         </button>
                       </td>
                       <td>{c.servicio}</td>
@@ -319,7 +324,7 @@ export default function Dashboard({
                                 setIsReceiptOpen(true);
                               }}
                             >
-                              Ver Boleta ✓
+                              Ver Boleta
                             </button>
                           ) : (
                             <button className="btn-table primary" onClick={() => handleChargeFromAgenda(c)}>
@@ -513,7 +518,7 @@ export default function Dashboard({
 
                 {posPaymentMethod.includes('Yape') && (
                   <div style={{ textAlign: 'center', marginTop: '16px', background: '#F3E5F5', padding: '12px', borderRadius: '8px' }}>
-                    <strong>📱 Código QR de Cobro Digital Generado</strong><br />
+                    <strong>[QR DIGITAL] Código QR de Cobro Digital Generado</strong><br />
                     <small>Cliente escanea y confirma recepción instantánea.</small>
                   </div>
                 )}
@@ -655,7 +660,7 @@ export default function Dashboard({
                     className="btn-action primary" 
                     onClick={() => setIsCashAuditOpen(true)}
                   >
-                    🧮 Abrir Calculadora de Arqueo Físico (RF08)
+                    Abrir Calculadora de Arqueo Físico (RF08)
                   </button>
                 </div>
               </div>
@@ -663,7 +668,7 @@ export default function Dashboard({
               <div className="pos-checkout">
                 <h3>Auditoría de Cuadre & Meta del Negocio</h3>
                 <div style={{ background: '#E8F5E9', border: '1px solid #A5D6A7', padding: '16px', borderRadius: '8px', marginBottom: '14px' }}>
-                  <strong style={{ color: 'var(--color-success)' }}>🎯 Cumplimiento de Meta SMART (OBJ-02):</strong>
+                  <strong style={{ color: 'var(--color-success)' }}>Cumplimiento de Meta SMART (OBJ-02):</strong>
                   <p style={{ fontSize: '0.85rem', color: '#2E7D32', marginTop: '4px' }}>
                     El sistema mantiene una exactitud de cuadre del <strong>98.2% (Meta ≥ 98%)</strong>. Al finalizar la jornada, la calculadora concilia billete por billete con el Reporte Z oficial.
                   </p>
@@ -698,7 +703,7 @@ export default function Dashboard({
                 onClick={() => {
                   const proveedor = prompt('Proveedor:', "L'Oréal Professionnel Perú");
                   const insumo = prompt('Insumo a reponer:', 'Tinte Profesional 6.1 (12 tubos)');
-                  if (proveedor && insumo) showToast(`📦 Orden de Compra generada a ${proveedor} por ${insumo}.`);
+                  if (proveedor && insumo) showToast(`[ORDEN DE COMPRA] Generada a ${proveedor} por ${insumo}.`);
                 }}
               >
                 + Generar Orden de Compra
@@ -725,9 +730,9 @@ export default function Dashboard({
                       <td>{ins.stock_min} unid.</td>
                       <td>
                         {ins.alerta ? (
-                          <span className="tag in-progress">Stock Crítico ⚠️</span>
+                          <span className="tag in-progress">Stock Crítico [ALERTA]</span>
                         ) : (
-                          <span className="tag attended">Abastecido ✓</span>
+                          <span className="tag attended">Abastecido [OK]</span>
                         )}
                       </td>
                       <td>
@@ -841,12 +846,12 @@ export default function Dashboard({
                 </small>
               </div>
               <button className="btn-action success" onClick={() => showToast('Exportando reporte ejecutivo en PDF...')}>
-                📥 Descargar Reporte Ejecutivo PDF
+                Descargar Reporte Ejecutivo PDF
               </button>
             </div>
             <div className="kpi-grid">
               <div className="kpi-card">
-                <div className="kpi-icon blue">🎯</div>
+                <div className="kpi-icon blue"><TargetIcon size={20} /></div>
                 <div className="kpi-data">
                   <span className="kpi-title">OBJ-01 Puntualidad y Citas</span>
                   <strong className="kpi-val">88.5%</strong>
@@ -854,7 +859,7 @@ export default function Dashboard({
                 </div>
               </div>
               <div className="kpi-card">
-                <div className="kpi-icon green">🎯</div>
+                <div className="kpi-icon green"><TargetIcon size={20} /></div>
                 <div className="kpi-data">
                   <span className="kpi-title">OBJ-02 Cuadre de Caja</span>
                   <strong className="kpi-val">98.2%</strong>
@@ -862,7 +867,7 @@ export default function Dashboard({
                 </div>
               </div>
               <div className="kpi-card">
-                <div className="kpi-icon purple">🎯</div>
+                <div className="kpi-icon purple"><TargetIcon size={20} /></div>
                 <div className="kpi-data">
                   <span className="kpi-title">OBJ-03 Insumos Críticos</span>
                   <strong className="kpi-val">96.5%</strong>
@@ -870,7 +875,7 @@ export default function Dashboard({
                 </div>
               </div>
               <div className="kpi-card">
-                <div className="kpi-icon red">🎯</div>
+                <div className="kpi-icon red"><TargetIcon size={20} /></div>
                 <div className="kpi-data">
                   <span className="kpi-title">OBJ-04 Fidelización Clientes</span>
                   <strong className="kpi-val">74.0%</strong>
@@ -889,7 +894,7 @@ export default function Dashboard({
         saldoTeorico={caja.apertura + caja.efectivo + caja.digital - caja.egresos}
         onConfirmCierre={(totalFisico, dif) => {
           onCloseCaja(totalFisico);
-          showToast(`🔒 Arqueo completado. Saldo físico S/ ${totalFisico.toFixed(2)}. Reporte Z generado.`);
+          showToast(`[CAJA] Arqueo completado. Saldo físico S/ ${totalFisico.toFixed(2)}. Reporte Z generado.`);
         }}
       />
 
