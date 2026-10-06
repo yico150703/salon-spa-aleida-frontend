@@ -132,52 +132,13 @@ export default function App() {
 
   return (
     <div className="app-root">
-      {/* Top Prototype Navigation & Didactic Controls Bar */}
-      <header className="prototype-bar">
-        <div className="prototype-brand">
-          <span className="proto-tag">ARQUITECTURA 4 CAPAS (SEC 3.8)</span>
-          <strong>Salon Spa Aleida v2.0</strong>
-        </div>
-
-        <div className="view-switcher">
-          <button
-            className={`switch-btn ${view === 'portal' ? 'active' : ''}`}
-            onClick={() => setView('portal')}
-          >
-            Vista Cliente (Portal & Reservas)
-          </button>
-          <button
-            className={`switch-btn ${view === 'admin' ? 'active' : ''}`}
-            onClick={() => setView('admin')}
-          >
-            Vista Administración (Dashboard 9 CUs)
-          </button>
-        </div>
-
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button 
-            className="btn-action primary" 
-            style={{ fontSize: '0.78rem', padding: '6px 12px' }}
-            onClick={() => setIsLayerInspectorOpen(true)}
-          >
-            Inspector de Capas
-          </button>
-          <button 
-            className="btn-action" 
-            style={{ background: '#37474F', color: '#ECEFF1', fontSize: '0.78rem', padding: '6px 12px' }}
-            onClick={() => setIsRequirementsGuideOpen(true)}
-          >
-            Guía RF01 - RF12
-          </button>
-        </div>
-      </header>
-
       {/* Main Views */}
       {view === 'portal' ? (
         <Portal
           onAddAppointment={handleAddAppointment}
           onSwitchToAdmin={() => setView('admin')}
           showToast={showToast}
+          existingCitas={citas}
         />
       ) : (
         <Dashboard
@@ -199,6 +160,7 @@ export default function App() {
           onReceiveStock={handleReceiveStock}
           onOpenLayerInspector={() => setIsLayerInspectorOpen(true)}
           onOpenRequirementsGuide={() => setIsRequirementsGuideOpen(true)}
+          onSwitchToPortal={() => setView('portal')}
           showToast={showToast}
         />
       )}

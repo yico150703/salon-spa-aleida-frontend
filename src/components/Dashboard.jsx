@@ -29,6 +29,7 @@ export default function Dashboard({
   onReceiveStock,
   onOpenLayerInspector,
   onOpenRequirementsGuide,
+  onSwitchToPortal,
   showToast 
 }) {
   const [activeTab, setActiveTab] = useState('agenda');
@@ -194,6 +195,9 @@ export default function Dashboard({
             <input type="text" placeholder="Buscar cliente por DNI, nombre o cita..." />
           </div>
           <div className="header-status">
+            <button className="btn-outline" onClick={onSwitchToPortal} style={{ borderColor: 'var(--color-border)', color: 'var(--color-text)' }}>
+              Ver Página Principal
+            </button>
             <button className="btn-action primary" onClick={onOpenLayerInspector}>
               Inspector de Arquitectura
             </button>
@@ -205,42 +209,6 @@ export default function Dashboard({
             </span>
           </div>
         </header>
-
-        {/* KPI Cards: The 4 Realistic SMART Objectives */}
-        <div className="kpi-grid">
-          <div className="kpi-card">
-            <div className="kpi-icon blue"><CalendarIcon size={20} /></div>
-            <div className="kpi-data">
-              <span className="kpi-title">Puntualidad en Citas</span>
-              <strong className="kpi-val">88.5%</strong>
-              <small className="kpi-sub positive">OBJ-01: Meta ≥ 88% (-35% inasistencias)</small>
-            </div>
-          </div>
-          <div className="kpi-card">
-            <div className="kpi-icon green"><DollarIcon size={20} /></div>
-            <div className="kpi-data">
-              <span className="kpi-title">Exactitud Arqueo Caja</span>
-              <strong className="kpi-val">98.2%</strong>
-              <small className="kpi-sub positive">OBJ-02: Meta ≥ 98% (-90% descuadres)</small>
-            </div>
-          </div>
-          <div className="kpi-card">
-            <div className="kpi-icon purple"><BoxIcon size={20} /></div>
-            <div className="kpi-data">
-              <span className="kpi-title">Disponibilidad Insumos</span>
-              <strong className="kpi-val">96.5%</strong>
-              <small className="kpi-sub positive">OBJ-03: Meta ≥ 95% (-80% quiebres)</small>
-            </div>
-          </div>
-          <div className="kpi-card">
-            <div className="kpi-icon red"><TargetIcon size={20} /></div>
-            <div className="kpi-data">
-              <span className="kpi-title">Retención de Clientes</span>
-              <strong className="kpi-val">74.0%</strong>
-              <small className="kpi-sub positive">OBJ-04: Meta ≥ 70% (+25% recompra)</small>
-            </div>
-          </div>
-        </div>
 
         {/* TAB 1: AGENDA DE CITAS (CU01 / RF02, RF03) */}
         {activeTab === 'agenda' && (
