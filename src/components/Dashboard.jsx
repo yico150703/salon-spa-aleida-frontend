@@ -886,6 +886,31 @@ export default function Dashboard({
                 />
               </div>
             </div>
+
+            {/* Diagrama 2: Actores vs Casos de Uso */}
+            <div style={{ marginTop: '24px', background: '#FFFFFF', padding: '20px', borderRadius: '12px', border: '1px solid #EFEBE9' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+                <div>
+                  <strong style={{ fontSize: '1rem', color: '#2D2424' }}>Diagrama de Negocio: Actores vs Casos de Uso (CUN)</strong>
+                  <p style={{ fontSize: '0.82rem', color: '#795548', margin: '2px 0 0' }}>Mapeo de interacción de Actores Externos y Trabajadores del Negocio frente a los 9 Casos de Uso.</p>
+                </div>
+                <a 
+                  href="/Casos_de_Uso_vs_Actores.png" 
+                  download="Casos_de_Uso_vs_Actores.png"
+                  className="btn-action primary"
+                  style={{ textDecoration: 'none', fontSize: '0.8rem' }}
+                >
+                  Descargar Diagrama Actores vs CUs (PNG)
+                </a>
+              </div>
+              <div style={{ textAlign: 'center', background: '#FAF8F5', padding: '10px', borderRadius: '8px', border: '1px solid #E0E0E0' }}>
+                <img 
+                  src="/Casos_de_Uso_vs_Actores.png" 
+                  alt="Matriz de Asociación: Actores del Negocio vs Casos de Uso" 
+                  style={{ maxWidth: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }} 
+                />
+              </div>
+            </div>
           </section>
         )}
       </main>

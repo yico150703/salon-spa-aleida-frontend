@@ -758,7 +758,15 @@ export default function Portal({ onAddAppointment, onSwitchToAdmin, showToast, e
                 className="footer-admin-btn"
                 style={{ textDecoration: 'none' }}
               >
-                Descargar Diagrama Objetivos vs CUs (PNG)
+                Diagrama Objetivos vs CUs (PNG)
+              </a>
+              <a 
+                href="/Casos_de_Uso_vs_Actores.png" 
+                download="Casos_de_Uso_vs_Actores.png"
+                className="footer-admin-btn"
+                style={{ textDecoration: 'none' }}
+              >
+                Diagrama Actores vs CUs (PNG)
               </a>
               <button 
                 className="footer-admin-btn"
