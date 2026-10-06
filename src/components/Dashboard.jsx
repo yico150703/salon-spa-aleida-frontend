@@ -813,9 +813,19 @@ export default function Dashboard({
                   Monitoreo estadístico de los 4 objetivos estratégicos con porcentajes reales para la toma de decisiones gerenciales.
                 </small>
               </div>
-              <button className="btn-action success" onClick={() => showToast('Exportando reporte ejecutivo en PDF...')}>
-                Descargar Reporte Ejecutivo PDF
-              </button>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <a 
+                  href="/Objetivos_vs_Casos_de_Uso.png" 
+                  download="Objetivos_vs_Casos_de_Uso.png"
+                  className="btn-action primary"
+                  style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', fontSize: '0.82rem' }}
+                >
+                  Descargar Diagrama Objetivos vs CUs (PNG)
+                </a>
+                <button className="btn-action success" onClick={() => showToast('Exportando reporte ejecutivo en PDF...')}>
+                  Descargar Reporte Ejecutivo PDF
+                </button>
+              </div>
             </div>
             <div className="kpi-grid">
               <div className="kpi-card">
@@ -849,6 +859,31 @@ export default function Dashboard({
                   <strong className="kpi-val">74.0%</strong>
                   <small className="kpi-sub positive">Meta: ≥ 70% (+25% retorno &lt;45d)</small>
                 </div>
+              </div>
+            </div>
+
+            {/* Diagrama Preview Card */}
+            <div style={{ marginTop: '24px', background: '#FFFFFF', padding: '20px', borderRadius: '12px', border: '1px solid #EFEBE9' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                <div>
+                  <strong style={{ fontSize: '1rem', color: '#2D2424' }}>Diagrama Arquitectónico: Matriz de Trazabilidad Cruzada</strong>
+                  <p style={{ fontSize: '0.82rem', color: '#795548', margin: '2px 0 0' }}>Mapeo formal de los 4 Objetivos Realistas SMART vs los 9 Casos de Uso del Negocio (CUN / RF01-RF12).</p>
+                </div>
+                <a 
+                  href="/Objetivos_vs_Casos_de_Uso.png" 
+                  download="Objetivos_vs_Casos_de_Uso.png"
+                  className="btn-action primary"
+                  style={{ textDecoration: 'none', fontSize: '0.8rem' }}
+                >
+                  Descargar Imagen en Alta Resolución
+                </a>
+              </div>
+              <div style={{ textAlign: 'center', background: '#FAF8F5', padding: '10px', borderRadius: '8px', border: '1px solid #E0E0E0' }}>
+                <img 
+                  src="/Objetivos_vs_Casos_de_Uso.png" 
+                  alt="Matriz de Trazabilidad: Objetivos vs Casos de Uso" 
+                  style={{ maxWidth: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }} 
+                />
               </div>
             </div>
           </section>

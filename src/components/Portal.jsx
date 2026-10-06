@@ -752,6 +752,14 @@ export default function Portal({ onAddAppointment, onSwitchToAdmin, showToast, e
               <a href="#inicio">Inicio</a>
               <a href="#servicios">Servicios</a>
               <a href="#reservar-cita">Reservar una Cita</a>
+              <a 
+                href="/Objetivos_vs_Casos_de_Uso.png" 
+                download="Objetivos_vs_Casos_de_Uso.png"
+                className="footer-admin-btn"
+                style={{ textDecoration: 'none' }}
+              >
+                Descargar Diagrama Objetivos vs CUs (PNG)
+              </a>
               <button 
                 className="footer-admin-btn"
                 onClick={onSwitchToAdmin}
