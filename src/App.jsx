@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import Portal from './components/Portal';
 import Dashboard from './components/Dashboard';
+import LayerInspectorModal from './components/LayerInspectorModal';
+import RequirementsGuideModal from './components/RequirementsGuideModal';
 import { api, initialMockState } from './api';
 
 export default function App() {
   const [view, setView] = useState('portal'); // 'portal' | 'admin'
   const [toastMessage, setToastMessage] = useState(null);
 
+  // Didactic Modals
+  const [isLayerInspectorOpen, setIsLayerInspectorOpen] = useState(false);
+  const [isRequirementsGuideOpen, setIsRequirementsGuideOpen] = useState(false);
+
+  // Global State
   const [citas, setCitas] = useState(initialMockState.citas);
   const [clientes, setClientes] = useState(initialMockState.clientes);
   const [caja, setCaja] = useState(initialMockState.caja);
@@ -15,7 +22,7 @@ export default function App() {
   const [usuarios, setUsuarios] = useState(initialMockState.usuarios);
 
   useEffect(() => {
-    // Intentar sincronizar con backend Flask si está activo
+    // Sincronización automática con el Backend Flask en Render o local
     api.getCitas().then(data => {
       if (data && data.length) setCitas(data);
     });
@@ -31,12 +38,43 @@ export default function App() {
     }, 3800);
   };
 
+  // RF02: Agendar nueva cita
   const handleAddAppointment = async (newCita) => {
     const citaWithId = { id: citas.length + 1, ...newCita };
     setCitas([citaWithId, ...citas]);
     await api.createCita(newCita);
   };
 
+  // RF03: Reprogramar cita
+  const handleReprogramCita = (citaId, nuevaFecha, nuevaHora) => {
+    setCitas(citas.map(c => {
+      if (c.id === citaId) {
+        return { ...c, fecha: nuevaFecha, hora: nuevaHora, estado: 'Confirmada' };
+      }
+      return c;
+    }));
+  };
+
+  // RF03: Cancelar cita con motivo
+  const handleCancelCita = (citaId, motivo) => {
+    setCitas(citas.map(c => {
+      if (c.id === citaId) {
+        return { ...c, estado: 'Cancelada', motivo_cancelacion: motivo };
+      }
+      return c;
+    }));
+  };
+
+  // RF01: Actualizar o guardar cliente
+  const handleSaveClient = (updatedClient) => {
+    setClientes(clientes.map(cl => cl.dni === updatedClient.dni ? updatedClient : cl));
+  };
+
+  const handleAddClient = (newClient) => {
+    setClientes([newClient, ...clientes]);
+  };
+
+  // RF04, RF05: Procesar venta y cobro
   const handleProcessPayment = async (ventaData) => {
     const { cliente, monto, medio_pago } = ventaData;
     
@@ -49,7 +87,7 @@ export default function App() {
     }
     setCaja(newCaja);
 
-    // Marcar cita atendida
+    // Actualizar cita a atendida
     setCitas(citas.map(c => {
       if (c.cliente.toLowerCase() === cliente.toLowerCase()) {
         return { ...c, cobrado: true, estado: 'Atendida' };
@@ -60,6 +98,7 @@ export default function App() {
     await api.processVenta(ventaData);
   };
 
+  // RF06: Anulación de venta con reversión en caja
   const handleProcessAnnulment = async (monto) => {
     const newCaja = { ...caja };
     newCaja.digital = Math.max(0, newCaja.digital - monto);
@@ -67,45 +106,68 @@ export default function App() {
     await api.processAnulacion({ monto });
   };
 
-  const handleAddClient = (newClient) => {
-    setClientes([newClient, ...clientes]);
-  };
-
+  // RF07: Registrar egreso
   const handleExpense = (monto) => {
     const newCaja = { ...caja, egresos: caja.egresos + monto };
     setCaja(newCaja);
   };
 
-  const handleCloseCaja = () => {
-    // Reset or balance acknowledgment
+  // RF08: Cierre de caja
+  const handleCloseCaja = (totalFisico) => {
+    const newCaja = { ...caja, arqueo_fisico: totalFisico, estado: 'Cerrada' };
+    setCaja(newCaja);
+  };
+
+  // RF09: Recepcionar mercadería e incrementar stock
+  const handleReceiveStock = (insumoId, cantidad) => {
+    setInsumos(insumos.map(ins => {
+      if (ins.id === insumoId) {
+        const nuevoStock = ins.stock + cantidad;
+        return { ...ins, stock: nuevoStock, alerta: nuevoStock <= ins.stock_min };
+      }
+      return ins;
+    }));
+    showToast(`📦 Recepción de mercadería: +${cantidad} unidades ingresadas a inventario.`);
   };
 
   return (
     <div className="app-root">
-      {/* Top Prototype Switcher Bar */}
+      {/* Top Prototype Navigation & Didactic Controls Bar */}
       <header className="prototype-bar">
         <div className="prototype-brand">
-          <span className="proto-tag">REACT + FLASK</span>
+          <span className="proto-tag">ARQUITECTURA 4 CAPAS (SEC 3.8)</span>
           <strong>Salon Spa Aleida v2.0</strong>
         </div>
+
         <div className="view-switcher">
           <button
             className={`switch-btn ${view === 'portal' ? 'active' : ''}`}
             onClick={() => setView('portal')}
           >
-            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-              <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0m3.5 7.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5z"/>
-            </svg>
             Vista Cliente (Portal & Reservas)
           </button>
           <button
             className={`switch-btn ${view === 'admin' ? 'active' : ''}`}
             onClick={() => setView('admin')}
           >
-            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-              <path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"/>
-            </svg>
             Vista Administración (Dashboard 9 CUs)
+          </button>
+        </div>
+
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button 
+            className="btn-action primary" 
+            style={{ fontSize: '0.78rem', padding: '6px 12px' }}
+            onClick={() => setIsLayerInspectorOpen(true)}
+          >
+            🔍 Inspector de Capas
+          </button>
+          <button 
+            className="btn-action" 
+            style={{ background: '#37474F', color: '#ECEFF1', fontSize: '0.78rem', padding: '6px 12px' }}
+            onClick={() => setIsRequirementsGuideOpen(true)}
+          >
+            📋 Guía RF01 - RF12
           </button>
         </div>
       </header>
@@ -125,12 +187,18 @@ export default function App() {
           insumos={insumos}
           catalogo={catalogo}
           usuarios={usuarios}
-          onChargeAppointment={() => setView('admin')}
+          onAddCita={handleAddAppointment}
+          onReprogramCita={handleReprogramCita}
+          onCancelCita={handleCancelCita}
           onProcessPayment={handleProcessPayment}
           onAddClient={handleAddClient}
+          onSaveClient={handleSaveClient}
           onProcessAnnulment={handleProcessAnnulment}
           onExpense={handleExpense}
           onCloseCaja={handleCloseCaja}
+          onReceiveStock={handleReceiveStock}
+          onOpenLayerInspector={() => setIsLayerInspectorOpen(true)}
+          onOpenRequirementsGuide={() => setIsRequirementsGuideOpen(true)}
           showToast={showToast}
         />
       )}
@@ -141,6 +209,18 @@ export default function App() {
           {toastMessage}
         </div>
       )}
+
+      {/* Modales Didácticos Globales */}
+      <LayerInspectorModal 
+        isOpen={isLayerInspectorOpen}
+        onClose={() => setIsLayerInspectorOpen(false)}
+      />
+
+      <RequirementsGuideModal
+        isOpen={isRequirementsGuideOpen}
+        onClose={() => setIsRequirementsGuideOpen(false)}
+        onSelectTab={() => setView('admin')}
+      />
     </div>
   );
 }
