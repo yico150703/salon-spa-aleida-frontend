@@ -1,13 +1,106 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CashAuditModal from './CashAuditModal';
 import ElectronicReceiptModal from './ElectronicReceiptModal';
 import ClientFileModal from './ClientFileModal';
 import AppointmentModal from './AppointmentModal';
+import { PersonalManager, CatalogoManager, AperturasCaja } from './UseCaseModules';
 import { 
   CalendarIcon, UsersIcon, UserIcon, CreditCardIcon, SlashIcon, LockIcon, 
   BoxIcon, TagIcon, ShieldIcon, ChartIcon, TargetIcon, SearchIcon, 
   DollarIcon
 } from './Icons';
+
+// Matriz de Control de Acceso Basada en Roles (RBAC) para Salon Spa Aleida
+const ROLE_PERMISSIONS = {
+  Administrador: {
+    nombre: 'Administrador',
+    badgeText: 'Administrador',
+    badgeFull: 'Administrador · Control Total',
+    badgeClass: 'rol-admin',
+    descripcion: 'Control total de los 10 Casos de Uso del Sistema, gestión de personal, finanzas y configuración.',
+    defaultTab: 'agenda',
+    sections: [
+      {
+        label: 'Clientes & Citas',
+        tabs: [
+          { id: 'clientes', label: 'Registrar Cliente', code: 'DS_CU03', icon: UsersIcon },
+          { id: 'agenda', label: 'Agendar Cita', code: 'DS_CU04', icon: CalendarIcon },
+          { id: 'reprogramar', label: 'Reprogramar Cita', code: 'DS_CU05', icon: CalendarIcon }
+        ]
+      },
+      {
+        label: 'Caja & Ventas',
+        tabs: [
+          { id: 'apertura', label: 'Aperturar Caja', code: 'DS_CU07', icon: LockIcon },
+          { id: 'caja', label: 'Procesar Venta', code: 'DS_CU08', icon: CreditCardIcon },
+          { id: 'anulaciones', label: 'Anular Venta', code: 'DS_CU09', icon: SlashIcon },
+          { id: 'operaciones-caja', label: 'Arqueo & Cierre', code: 'DS_CU10', icon: ChartIcon }
+        ]
+      },
+      {
+        label: 'Administración & Estrategia',
+        tabs: [
+          { id: 'personal', label: 'Registrar Personal', code: 'DS_CU02', icon: UserIcon },
+          { id: 'catalogo', label: 'Catálogo Servicios', code: 'DS_CU06', icon: TagIcon },
+          { id: 'compras', label: 'Compras & Insumos', code: '+', icon: BoxIcon },
+          { id: 'reportes', label: 'Reportes & Metas', code: '+', icon: ShieldIcon }
+        ]
+      }
+    ]
+  },
+
+  Recepcionista: {
+    nombre: 'Recepcionista',
+    badgeText: 'Recepcionista',
+    badgeFull: 'Recepción & Atención al Cliente',
+    badgeClass: 'rol-recepcion',
+    descripcion: 'Gestión de pacientes, agendamiento en mostrador, reprogramaciones y consulta de catálogo.',
+    defaultTab: 'agenda',
+    sections: [
+      {
+        label: 'Clientes & Citas (Recepción)',
+        tabs: [
+          { id: 'agenda', label: 'Agenda & Citas del Día', code: 'DS_CU04', icon: CalendarIcon },
+          { id: 'clientes', label: 'Registrar & Ver Clientes', code: 'DS_CU03', icon: UsersIcon },
+          { id: 'reprogramar', label: 'Reprogramar Citas', code: 'DS_CU05', icon: CalendarIcon }
+        ]
+      },
+      {
+        label: 'Consultas de Servicios',
+        tabs: [
+          { id: 'catalogo', label: 'Catálogo & Tarifario', code: 'DS_CU06', icon: TagIcon }
+        ]
+      }
+    ]
+  },
+
+  Cajero: {
+    nombre: 'Cajero',
+    badgeText: 'Cajero',
+    badgeFull: 'Caja & Facturación Oficial',
+    badgeClass: 'rol-cajero',
+    descripcion: 'Cobranzas en mostrador, emisión de boletas, notas de crédito autorizadas y arqueo de caja.',
+    defaultTab: 'caja',
+    sections: [
+      {
+        label: 'Operaciones de Caja (Cajero)',
+        tabs: [
+          { id: 'caja', label: 'Terminal POS & Cobros', code: 'DS_CU08', icon: CreditCardIcon },
+          { id: 'apertura', label: 'Aperturar Turno', code: 'DS_CU07', icon: LockIcon },
+          { id: 'anulaciones', label: 'Notas de Crédito', code: 'DS_CU09', icon: SlashIcon },
+          { id: 'operaciones-caja', label: 'Arqueo & Cierre', code: 'DS_CU10', icon: ChartIcon }
+        ]
+      },
+      {
+        label: 'Apoyo a Cobranzas',
+        tabs: [
+          { id: 'agenda', label: 'Citas por Cobrar', code: 'DS_CU04', icon: CalendarIcon },
+          { id: 'clientes', label: 'Buscar Cliente / DNI', code: 'DS_CU03', icon: UsersIcon }
+        ]
+      }
+    ]
+  }
+};
 
 export default function Dashboard({ 
   citas, 
@@ -16,6 +109,8 @@ export default function Dashboard({
   insumos, 
   catalogo, 
   usuarios, 
+  currentUser,
+  cajaAbierta,
   onAddCita,
   onReprogramCita,
   onCancelCita,
@@ -27,12 +122,34 @@ export default function Dashboard({
   onExpense, 
   onCloseCaja,
   onReceiveStock,
+  onAddPersonal,
+  onAddServicio,
+  onAperturaCaja,
   onOpenLayerInspector,
   onOpenRequirementsGuide,
   onSwitchToPortal,
+  onSwitchToBooking,
+  onChangeRole,
   showToast 
 }) {
-  const [activeTab, setActiveTab] = useState('agenda');
+  // Resolver configuración de rol
+  const userRoleKey = currentUser?.rol?.toLowerCase().includes('recep')
+    ? 'Recepcionista'
+    : currentUser?.rol?.toLowerCase().includes('caje')
+    ? 'Cajero'
+    : 'Administrador';
+
+  const roleConfig = ROLE_PERMISSIONS[userRoleKey] || ROLE_PERMISSIONS.Administrador;
+  const allowedTabs = roleConfig.sections.flatMap(s => s.tabs.map(t => t.id));
+
+  const [activeTab, setActiveTab] = useState(roleConfig.defaultTab);
+
+  // Auto-ajustar tab si no está permitido para el rol activo
+  useEffect(() => {
+    if (!allowedTabs.includes(activeTab)) {
+      setActiveTab(roleConfig.defaultTab);
+    }
+  }, [userRoleKey]);
 
   // Modals state
   const [isCashAuditOpen, setIsCashAuditOpen] = useState(false);
@@ -143,46 +260,81 @@ export default function Dashboard({
 
   return (
     <div className="admin-layout">
-      {/* Sidebar with 9 Use Cases */}
+      {/* Sidebar — 10 Casos de Uso del Sistema */}
+      {/* Sidebar — Dinámico con Control de Acceso por Roles (RBAC) */}
       <aside className="admin-sidebar">
         <div className="sidebar-brand">
           <span className="brand-badge">SPA</span>
           <span>Salon Spa Aleida</span>
         </div>
+
+        {/* Menú de Navegación según Rol */}
         <nav className="sidebar-menu">
-          <button className={activeTab === 'agenda' ? 'active' : ''} onClick={() => setActiveTab('agenda')}>
-            <span><CalendarIcon size={16} /></span> Agenda de Citas <small className="cu-badge">CU01</small>
-          </button>
-          <button className={activeTab === 'clientes' ? 'active' : ''} onClick={() => setActiveTab('clientes')}>
-            <span><UsersIcon size={16} /></span> Padrón de Clientes <small className="cu-badge">CU02</small>
-          </button>
-          <button className={activeTab === 'caja' ? 'active' : ''} onClick={() => setActiveTab('caja')}>
-            <span><CreditCardIcon size={16} /></span> Punto de Venta <small className="cu-badge">CU03</small>
-          </button>
-          <button className={activeTab === 'anulaciones' ? 'active' : ''} onClick={() => setActiveTab('anulaciones')}>
-            <span><SlashIcon size={16} /></span> Anulación de Venta <small className="cu-badge">CU04</small>
-          </button>
-          <button className={activeTab === 'operaciones-caja' ? 'active' : ''} onClick={() => setActiveTab('operaciones-caja')}>
-            <span><LockIcon size={16} /></span> Operaciones de Caja <small className="cu-badge">CU05</small>
-          </button>
-          <button className={activeTab === 'compras' ? 'active' : ''} onClick={() => setActiveTab('compras')}>
-            <span><BoxIcon size={16} /></span> Compras & Insumos <small className="cu-badge">CU06</small>
-          </button>
-          <button className={activeTab === 'catalogo' ? 'active' : ''} onClick={() => setActiveTab('catalogo')}>
-            <span><TagIcon size={16} /></span> Catálogo de Servicios <small className="cu-badge">CU07</small>
-          </button>
-          <button className={activeTab === 'usuarios' ? 'active' : ''} onClick={() => setActiveTab('usuarios')}>
-            <span><ShieldIcon size={16} /></span> Usuarios y Roles <small className="cu-badge">CU08</small>
-          </button>
-          <button className={activeTab === 'reportes' ? 'active' : ''} onClick={() => setActiveTab('reportes')}>
-            <span><ChartIcon size={16} /></span> Reportes Gerenciales <small className="cu-badge">CU09</small>
-          </button>
+          {roleConfig.sections.map((section, sIdx) => (
+            <React.Fragment key={sIdx}>
+              <div className="sidebar-section-label">{section.label}</div>
+              {section.tabs.map(tab => {
+                const TabIcon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    id={`tab-${tab.id}`}
+                    className={activeTab === tab.id ? 'active' : ''}
+                    onClick={() => setActiveTab(tab.id)}
+                  >
+                    <span><TabIcon size={16} /></span>
+                    {tab.label}
+                    <small className="cu-badge">{tab.code}</small>
+                  </button>
+                );
+              })}
+            </React.Fragment>
+          ))}
         </nav>
+
+        {/* Switcher de Roles para Evaluación / Pruebas */}
+        {onChangeRole && (
+          <div className="sidebar-role-switcher">
+            <span className="role-switcher-title">Probar Otro Rol (RBAC):</span>
+            <div className="role-switcher-grid">
+              <button 
+                type="button"
+                id="role-switch-admin"
+                className={`btn-role-chip ${userRoleKey === 'Administrador' ? 'active' : ''}`}
+                onClick={() => onChangeRole('Administrador')}
+                title="Administrador: 11 módulos"
+              >
+                Admin
+              </button>
+              <button 
+                type="button"
+                id="role-switch-recepcion"
+                className={`btn-role-chip ${userRoleKey === 'Recepcionista' ? 'active' : ''}`}
+                onClick={() => onChangeRole('Recepcionista')}
+                title="Recepcionista: 4 módulos de atención y citas"
+              >
+                Recepción
+              </button>
+              <button 
+                type="button"
+                id="role-switch-cajero"
+                className={`btn-role-chip ${userRoleKey === 'Cajero' ? 'active' : ''}`}
+                onClick={() => onChangeRole('Cajero')}
+                title="Cajero: 6 módulos de caja y cobranzas"
+              >
+                Cajero
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="sidebar-user">
-          <div className="user-avatar">CR</div>
+          <div className="user-avatar">
+            {currentUser ? currentUser.nombre.split(' ').map(n=>n[0]).join('').slice(0,2) : 'US'}
+          </div>
           <div className="user-info">
-            <strong>Camila Ramos</strong>
-            <small>Recepcionista Principal</small>
+            <strong>{currentUser ? currentUser.nombre : 'Usuario'}</strong>
+            <small>{roleConfig.badgeText}</small>
           </div>
         </div>
       </aside>
@@ -196,13 +348,21 @@ export default function Dashboard({
           </div>
           <div className="header-status">
             <button className="btn-outline" onClick={onSwitchToPortal} style={{ borderColor: 'var(--color-border)', color: 'var(--color-text)' }}>
-              Ver Página Principal
+              Portal Web
+            </button>
+            <button 
+              className="btn-outline" 
+              onClick={onSwitchToBooking} 
+              style={{ borderColor: 'var(--color-gold)', color: 'var(--color-gold)', fontWeight: 600 }}
+              title="Abrir la página oficial de reservas en pantalla completa"
+            >
+              Página Reservar Cita
             </button>
             <button className="btn-action primary" onClick={onOpenLayerInspector}>
-              Inspector de Arquitectura
+              Inspector Arquitectura
             </button>
             <button className="btn-action" style={{ background: '#E3F2FD', color: '#0288D1' }} onClick={onOpenRequirementsGuide}>
-              Guía de Requerimientos (RFs)
+              Guía RFs
             </button>
             <span className="badge-status open">
               <span className="status-dot"></span> Caja Turno: <strong>S/ {(caja.apertura + caja.efectivo + caja.digital - caja.egresos).toFixed(2)}</strong>
@@ -210,15 +370,48 @@ export default function Dashboard({
           </div>
         </header>
 
-        {/* TAB 1: AGENDA DE CITAS (CU01 / RF02, RF03) */}
+        {/* Guardia de Seguridad por Rol */}
+        {!allowedTabs.includes(activeTab) && (
+          <div className="role-restricted-pane">
+            <div className="role-restricted-card">
+              <span className="restricted-icon">
+                <LockIcon size={32} color="#C8A26A" />
+              </span>
+              <h3>Acceso Restringido para el Rol {roleConfig.nombre}</h3>
+              <p>
+                Este módulo requiere privilegios que no corresponden a su perfil operativo (<strong>{roleConfig.nombre}</strong>).
+                Conforme a la matriz de roles y seguridad (DS_CU01), cada usuario solo puede acceder a las funciones asignadas a su cargo.
+              </p>
+              <div className="restricted-allowed-chips">
+                <span>Módulos autorizados para su perfil:</span>
+                <div className="chips-row">
+                  {allowedTabs.map(tId => (
+                    <button key={tId} className="chip-tab-redirect" onClick={() => setActiveTab(tId)}>
+                      {tId.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <button 
+                className="btn-action primary" 
+                onClick={() => setActiveTab(roleConfig.defaultTab)} 
+                style={{ marginTop: '16px' }}
+              >
+                Ir a Mi Módulo Principal ({roleConfig.defaultTab.toUpperCase()})
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* TAB DS_CU04 + DS_CU05: AGENDA DE CITAS */}
         {activeTab === 'agenda' && (
           <section className="admin-tab">
             <div className="tab-header">
               <div>
-                <span className="badge-tag gold">CASO DE USO CU01 • REQUISITOS RF02, RF03</span>
-                <h3>Agenda de Citas & Control de Sillones</h3>
+                <span className="badge-tag gold">DS_CU04 · Agendar Cita de Spa &nbsp;|&nbsp; DS_CU05 · Reprogramar Cita</span>
+                <h3>Agenda de Citas &amp; Control de Sillones</h3>
                 <small style={{ color: 'var(--color-text-muted)' }}>
-                  Valida en tiempo real la disponibilidad de especialistas (RF02) y permite reprogramar, cancelar y registrar estados de atención (RF03).
+                  Valida disponibilidad de especialistas (DS_CU04) y permite reprogramar, cancelar y registrar estados de atención (DS_CU05).
                 </small>
               </div>
               <button className="btn-action primary" onClick={() => { setEditingAppt(null); setIsApptModalOpen(true); }}>
@@ -315,40 +508,27 @@ export default function Dashboard({
           </section>
         )}
 
-        {/* TAB 2: PADRON DE CLIENTES (CU02 / RF01) */}
+        {/* TAB DS_CU03: REGISTRAR CLIENTE */}
         {activeTab === 'clientes' && (
           <section className="admin-tab">
             <div className="tab-header">
               <div>
-                <span className="badge-tag gold">CASO DE USO CU02 • REQUISITO RF01</span>
-                <h3>Padrón Centralizado de Clientes & Fichas Clínicas</h3>
+                <span className="badge-tag gold">DS_CU03 · Registrar Cliente · Actor: Recepcionista</span>
+                <h3>Padrón Centralizado de Clientes &amp; Fichas Estéticas</h3>
                 <small style={{ color: 'var(--color-text-muted)' }}>
-                  Almacena el historial estético, visitas acumuladas, sensibilidad dérmica y preferencias personalizadas de cada clienta.
+                  Almacena historial estético, visitas acumuladas, sensibilidad dérmica y preferencias personalizadas.
                 </small>
               </div>
               <button className="btn-action primary" onClick={() => {
                 const dni = prompt('DNI del cliente:');
-                if (dni) {
-                  const nombre = prompt('Nombre completo:');
-                  if (nombre) onAddClient({ dni, nombre, telefono: '987654321', preferencias: 'Nueva ficha estética', visitas: 1 });
-                }
+                if (dni) { const nombre = prompt('Nombre completo:'); if (nombre) onAddClient({ dni, nombre, telefono: '987654321', preferencias: 'Nueva ficha estética', visitas: 1 }); }
               }}>
-                + Nuevo Cliente
+                + Nuevo Cliente (DS_CU03)
               </button>
             </div>
             <div className="agenda-table-wrapper">
               <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>DNI</th>
-                    <th>Nombres y Apellidos</th>
-                    <th>Teléfono</th>
-                    <th>Historial Estético & Alergias</th>
-                    <th>Visitas</th>
-                    <th>Última Atención</th>
-                    <th>Acción</th>
-                  </tr>
-                </thead>
+                <thead><tr><th>DNI</th><th>Nombres y Apellidos</th><th>Teléfono</th><th>Historial Estético</th><th>Visitas</th><th>Última Atención</th><th>Acción</th></tr></thead>
                 <tbody>
                   {clientes.map(cl => (
                     <tr key={cl.dni}>
@@ -358,16 +538,68 @@ export default function Dashboard({
                       <td>{cl.preferencias}</td>
                       <td>{cl.visitas}</td>
                       <td>{cl.ultima_visita}</td>
+                      <td><button className="btn-table primary" onClick={() => handleOpenClientFile(cl)}>Abrir Expediente</button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {/* TAB DS_CU05: REPROGRAMAR CITA */}
+        {activeTab === 'reprogramar' && (
+          <section className="admin-tab">
+            <div className="tab-header">
+              <div>
+                <span className="badge-tag gold">DS_CU05 · Reprogramar Cita · Actor: Recepcionista</span>
+                <h3>Reprogramar o Cancelar Citas</h3>
+                <small style={{ color: 'var(--color-text-muted)' }}>
+                  Permite modificar fecha/hora de citas confirmadas o cancelarlas con motivo registrado.
+                </small>
+              </div>
+            </div>
+            <div className="agenda-table-wrapper">
+              <table className="data-table">
+                <thead><tr><th>Horario</th><th>Cliente</th><th>Servicio</th><th>Estado</th><th>Acción DS_CU05</th></tr></thead>
+                <tbody>
+                  {citas.filter(c => c.estado !== 'Atendida' && c.estado !== 'Cancelada').map(c => (
+                    <tr key={c.id}>
+                      <td><strong>{c.hora}</strong><br/><small>{c.fecha}</small></td>
+                      <td>{c.cliente}</td><td>{c.servicio}</td>
+                      <td><span className={`tag ${c.estado === 'Confirmada' ? 'confirmed' : 'in-progress'}`}>{c.estado}</span></td>
                       <td>
-                        <button className="btn-table primary" onClick={() => handleOpenClientFile(cl)}>
-                          Abrir Expediente RF01
-                        </button>
+                        <div style={{display:'flex',gap:'6px'}}>
+                          <button className="btn-table" onClick={() => { setEditingAppt(c); setIsApptModalOpen(true); }}>Reprogramar</button>
+                          <button className="btn-table" style={{color:'var(--color-danger)'}} onClick={() => { const m=prompt('Motivo de cancelación:'); if(m){onCancelCita(c.id,m);showToast(`Cita de ${c.cliente} cancelada.`);} }}>Cancelar</button>
+                        </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
+          </section>
+        )}
+
+        {/* TAB DS_CU02: REGISTRAR PERSONAL */}
+        {activeTab === 'personal' && (
+          <section className="admin-tab">
+            <PersonalManager usuarios={usuarios} onAddPersonal={onAddPersonal} showToast={showToast} />
+          </section>
+        )}
+
+        {/* TAB DS_CU06: CATALOGO DE SERVICIOS */}
+        {activeTab === 'catalogo' && (
+          <section className="admin-tab">
+            <CatalogoManager catalogo={catalogo} onAddServicio={onAddServicio} showToast={showToast} />
+          </section>
+        )}
+
+        {/* TAB DS_CU07: APERTURAR TURNO DE CAJA */}
+        {activeTab === 'apertura' && (
+          <section className="admin-tab">
+            <AperturasCaja onApertura={onAperturaCaja} cajaAbierta={cajaAbierta} showToast={showToast} />
           </section>
         )}
 

@@ -10,7 +10,7 @@ export default function ElectronicReceiptModal({ isOpen, onClose, ventaData, tip
           <div className="receipt-header">
             <h3>SALON SPA ALEIDA S.A.C.</h3>
             <p>RUC: 20608192831</p>
-            <p>Av. Conquistadores 450, San Isidro - Lima</p>
+            <p>Av. Conquistadores 450, Lima</p>
             <p>Telf: (01) 421-9876 | spa.aleida@gmail.com</p>
             <hr />
             <h4>
