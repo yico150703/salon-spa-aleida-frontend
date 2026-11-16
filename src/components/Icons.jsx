@@ -172,3 +172,17 @@ export const XIcon = ({ size = 16, color = "currentColor" }) => (
     <line x1="6" y1="6" x2="18" y2="18"></line>
   </svg>
 );
+
+export const LotusHarmonyIcon = ({ size = 32, color = "#4A7C59" }) => (
+  <svg width={size} height={size} viewBox="0 0 100 100" fill="none">
+    <circle cx="50" cy="50" r="45" fill="#EBF4EE" stroke="#A3C9B2" strokeWidth="2" strokeDasharray="3 3"/>
+    <path d="M50 18 C36 32 30 54 50 80 C70 54 64 32 50 18 Z" fill={color} />
+    <path d="M50 36 C28 46 18 64 34 80 C46 74 50 64 50 36 Z" fill="#5E8B75" opacity="0.9" />
+    <path d="M50 36 C72 46 82 64 66 80 C54 74 50 64 50 36 Z" fill="#5E8B75" opacity="0.9" />
+    <path d="M50 52 C24 56 14 74 30 86 C44 82 48 72 50 52 Z" fill="#6B9E7F" opacity="0.85" />
+    <path d="M50 52 C76 56 86 74 70 86 C56 82 52 72 50 52 Z" fill="#6B9E7F" opacity="0.85" />
+    <path d="M20 85 C36 91 64 91 80 85 C72 90 50 93 28 90 Z" fill="#3D6352" />
+    <circle cx="50" cy="46" r="3.5" fill="#D4AF37" />
+  </svg>
+);
+

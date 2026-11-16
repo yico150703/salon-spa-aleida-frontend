@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Aura de serenidad / círculo de luz suave -->
+  <circle cx="50" cy="50" r="46" fill="#EBF4EE" stroke="#A3C9B2" stroke-width="1.8" stroke-dasharray="3 3"/>
+  <circle cx="50" cy="50" r="41" fill="#F4FAF6" stroke="#4A7C59" stroke-width="1.2" opacity="0.6"/>
+
+  <!-- Pétalos de loto (armonía y paz) -->
+  <path d="M50 18 C36 32 30 54 50 80 C70 54 64 32 50 18 Z" fill="url(#gradLotusCenterIcon)" />
+  <path d="M50 36 C28 46 18 64 34 80 C46 74 50 64 50 36 Z" fill="url(#gradLotusLeftIcon)" opacity="0.9" />
+  <path d="M50 36 C72 46 82 64 66 80 C54 74 50 64 50 36 Z" fill="url(#gradLotusRightIcon)" opacity="0.9" />
+
+  <!-- Pétalos laterales inferiores -->
+  <path d="M50 52 C24 56 14 74 30 86 C44 82 48 72 50 52 Z" fill="#6B9E7F" opacity="0.85" />
+  <path d="M50 52 C76 56 86 74 70 86 C56 82 52 72 50 52 Z" fill="#6B9E7F" opacity="0.85" />
+
+  <!-- Hoja zen de soporte -->
+  <path d="M20 85 C36 91 64 91 80 85 C72 90 50 93 28 90 Z" fill="#3D6352" />
+  
+  <!-- Punto focal dorado de armonía -->
+  <circle cx="50" cy="46" r="3.5" fill="#D4AF37" />
+  <circle cx="50" cy="36" r="2" fill="#FFF8E7" />
+
+  <defs>
+    <linearGradient id="gradLotusCenterIcon" x1="50" y1="18" x2="50" y2="80" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4A7C59"/>
+      <stop offset="60%" stop-color="#5E8B75"/>
+      <stop offset="100%" stop-color="#8BB89C"/>
+    </linearGradient>
+    <linearGradient id="gradLotusLeftIcon" x1="18" y1="36" x2="50" y2="80" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#5E8B75"/>
+      <stop offset="100%" stop-color="#A2CBB2"/>
+    </linearGradient>
+    <linearGradient id="gradLotusRightIcon" x1="82" y1="36" x2="50" y2="80" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#5E8B75"/>
+      <stop offset="100%" stop-color="#A2CBB2"/>
+    </linearGradient>
+  </defs>
+</svg>

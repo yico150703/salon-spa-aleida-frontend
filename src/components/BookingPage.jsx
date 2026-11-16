@@ -209,9 +209,12 @@ export default function BookingPage({
             >
               <span>←</span> Volver al Portal
             </button>
-            <div className="booking-header-brand" onClick={onBackToHome} style={{ cursor: 'pointer' }}>
-              <span className="brand-name">Salon Spa Aleida</span>
-              <span className="brand-tagline">Reserva Oficial en Línea</span>
+            <div className="booking-header-brand" onClick={onBackToHome} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <img src="/logo_zen_icon.svg" alt="Paz y Armonía" style={{ width: '42px', height: '42px' }} />
+              <div>
+                <span className="brand-name">Salon Spa Aleida</span>
+                <span className="brand-tagline">Paz, Armonía &amp; Reserva Oficial</span>
+              </div>
             </div>
           </div>
 

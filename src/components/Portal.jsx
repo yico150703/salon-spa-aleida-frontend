@@ -205,10 +205,10 @@ export default function Portal({
       <nav className="belle-navbar">
         <div className="belle-navbar-inner">
           <div className="belle-logo-brand">
-            <img src="/logo_aleida.png" alt="Aleida" className="navbar-logo-img" />
+            <img src="/logo_zen_icon.svg" alt="Paz y Armonía" className="navbar-logo-img" style={{ height: '44px', width: '44px' }} />
             <div className="logo-texts">
               <strong className="logo-title">Salon Spa Aleida</strong>
-              <small className="logo-sub">Belleza &amp; Bienestar</small>
+              <small className="logo-sub">Paz, Armonía &amp; Bienestar</small>
             </div>
           </div>
 
@@ -242,8 +242,8 @@ export default function Portal({
           <div className="hero-logo-wrapper">
             <div className="hero-brand-crest">
               <span className="crest-tag">LIMA · SALON &amp; SPA</span>
-              <img src="/logo_aleida.png" alt="Aleida Salon Spa" className="hero-logo-img-grand" />
-              <span className="crest-sub">BIENESTAR INTEGRAL &amp; ALTA ESTÉTICA</span>
+              <img src="/logo_paz_armonia.svg" alt="Aleida Salon Spa - Paz y Armonía" className="hero-logo-img-grand" style={{ maxWidth: '380px', height: 'auto', background: 'rgba(255,255,255,0.85)', padding: '12px 24px', borderRadius: '24px', boxShadow: '0 10px 30px rgba(74, 124, 89, 0.2)' }} />
+              <span className="crest-sub">PAZ, ARMONÍA &amp; BIENESTAR INTEGRAL</span>
             </div>
           </div>
 

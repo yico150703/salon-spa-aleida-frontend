@@ -57,11 +57,11 @@ export default function LoginScreen({ onLogin }) {
       <div className="login-container">
         {/* Brand Panel */}
         <div className="login-brand">
-          <div className="login-brand__logo">
-            <span className="login-brand__icon"><LockIcon size={24} color="#C8A26A" /></span>
+          <div className="login-brand__logo" style={{ background: 'transparent', boxShadow: 'none' }}>
+            <img src="/logo_zen_icon.svg" alt="Paz y Armonía" style={{ width: '64px', height: '64px' }} />
           </div>
           <h1 className="login-brand__name">Salon Spa Aleida</h1>
-          <p className="login-brand__tagline">Sistema de Gestión Integral</p>
+          <p className="login-brand__tagline">Paz, Armonía &amp; Gestión Integral</p>
           <div className="login-brand__divider" />
           <div className="login-brand__features">
             <div className="login-feature">
