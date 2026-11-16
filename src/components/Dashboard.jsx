@@ -127,6 +127,7 @@ export default function Dashboard({
   onAperturaCaja,
   onSwitchToPortal,
   onSwitchToBooking,
+  onSwitchToMovil,
   onChangeRole,
   showToast 
 }) {
@@ -354,6 +355,14 @@ export default function Dashboard({
               title="Abrir la página oficial de reservas en pantalla completa"
             >
               Página Reservar Cita
+            </button>
+            <button 
+              className="btn-outline" 
+              onClick={onSwitchToMovil} 
+              style={{ borderColor: '#4A7C59', color: '#1B3D2B', fontWeight: 600, background: '#EBF5F0' }}
+              title="Abrir la App Móvil de la Especialista (Simulador Smartphone)"
+            >
+              📱 Móvil Especialistas
             </button>
             <span className="badge-status open">
               <span className="status-dot"></span> Caja Turno: <strong>S/ {(caja.apertura + caja.efectivo + caja.digital - caja.egresos).toFixed(2)}</strong>

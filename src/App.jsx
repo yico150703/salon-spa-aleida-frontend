@@ -4,6 +4,7 @@ import Dashboard from './components/Dashboard';
 import BookingPage from './components/BookingPage';
 import LoginScreen from './components/LoginScreen';
 import LandingPage from './components/landing/LandingPage';
+import SpecialistMobileApp from './components/SpecialistMobileApp';
 import { api, initialMockState } from './api';
 
 export default function App() {
@@ -11,8 +12,11 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState(null); // null = no autenticado
   const [view, setView] = useState(() => {
     const requested = new URLSearchParams(window.location.search).get('vista');
-    return requested === 'reservar' ? 'reservar' : (requested === 'admin' ? 'admin' : 'portal');
-  }); // 'portal' | 'reservar' | 'admin'
+    if (requested === 'reservar') return 'reservar';
+    if (requested === 'admin') return 'admin';
+    if (requested === 'movil') return 'movil';
+    return 'portal';
+  }); // 'portal' | 'reservar' | 'admin' | 'movil'
   const [preselectedService, setPreselectedService] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
 
@@ -86,6 +90,12 @@ export default function App() {
   const handleCancelCita = (citaId, motivo) => {
     setCitas(citas.map(c =>
       c.id === citaId ? { ...c, estado: 'Cancelada', motivo_cancelacion: motivo } : c
+    ));
+  };
+
+  const handleUpdateCitaEstado = (citaId, nuevoEstado) => {
+    setCitas(citas.map(c =>
+      c.id === citaId ? { ...c, estado: nuevoEstado } : c
     ));
   };
 
@@ -173,6 +183,9 @@ export default function App() {
             <button className="user-session-bar__btn" onClick={() => setView('reservar')} id="btn-ir-reservar">
               Página Reservar Cita
             </button>
+            <button className="user-session-bar__btn" onClick={() => setView('movil')} id="btn-ir-movil" style={{ background: '#1B3D2B', color: '#D4AF37', border: '1px solid #D4AF37' }}>
+              📱 App Móvil Especialista
+            </button>
             {view !== 'admin' && (
               <button className="user-session-bar__btn" onClick={() => setView('admin')} id="btn-ir-admin">
                 Panel Administrativo
@@ -191,6 +204,7 @@ export default function App() {
         <LandingPage
           onAddAppointment={handleAddAppointment}
           onSwitchToAdmin={() => setView('admin')}
+          onSwitchToMovil={() => setView('movil')}
           onNavigateToBooking={(service = null) => {
             setPreselectedService(service);
             setView('reservar');
@@ -207,6 +221,7 @@ export default function App() {
           onAddAppointment={handleAddAppointment}
           onBackToHome={() => setView('portal')}
           onSwitchToAdmin={() => setView('admin')}
+          onSwitchToMovil={() => setView('movil')}
           showToast={showToast}
           existingCitas={citas}
           preselectedService={preselectedService}
@@ -238,10 +253,22 @@ export default function App() {
           onAperturaCaja={handleAperturaCaja}
           onSwitchToPortal={() => setView('portal')}
           onSwitchToBooking={() => setView('reservar')}
+          onSwitchToMovil={() => setView('movil')}
           onChangeRole={(newRol) => {
             setCurrentUser(prev => ({ ...prev, rol: newRol }));
             showToast(`Rol cambiado a: ${newRol}`);
           }}
+          showToast={showToast}
+        />
+      )}
+
+      {view === 'movil' && (
+        <SpecialistMobileApp
+          citas={citas}
+          onUpdateCitaEstado={handleUpdateCitaEstado}
+          onSwitchToPortal={() => setView('portal')}
+          onSwitchToAdmin={() => setView('admin')}
+          onSwitchToBooking={() => setView('reservar')}
           showToast={showToast}
         />
       )}

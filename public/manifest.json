@@ -1,0 +1,17 @@
+{
+  "short_name": "Spa Aleida",
+  "name": "Salon Spa Aleida - Santuario de Belleza",
+  "icons": [
+    {
+      "src": "/logo_zen_icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512"
+    }
+  ],
+  "start_url": "/?vista=reservar",
+  "background_color": "#1B3D2B",
+  "theme_color": "#1B3D2B",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/"
+}
