@@ -3,14 +3,23 @@ import Portal from './components/Portal';
 import Dashboard from './components/Dashboard';
 import BookingPage from './components/BookingPage';
 import LoginScreen from './components/LoginScreen';
+import LandingPage from './components/landing/LandingPage';
 import LayerInspectorModal from './components/LayerInspectorModal';
 import RequirementsGuideModal from './components/RequirementsGuideModal';
 import { api, initialMockState } from './api';
 
+// Landing pública en ruta propia. Vercel reescribe todo a index.html, así que
+// basta con leer la ruta del navegador.
+const IS_LANDING_PATH = /^\/bienvenida\/?$/.test(window.location.pathname);
+
 export default function App() {
   // DS_CU01: Autenticación
   const [currentUser, setCurrentUser] = useState(null); // null = no autenticado
-  const [view, setView] = useState('portal'); // 'portal' | 'reservar' | 'admin'
+  // La landing pública puede enviar directo al agendamiento con ?vista=reservar
+  const [view, setView] = useState(() => {
+    const requested = new URLSearchParams(window.location.search).get('vista');
+    return requested === 'reservar' ? 'reservar' : 'portal';
+  }); // 'portal' | 'reservar' | 'admin'
   const [preselectedService, setPreselectedService] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
 
@@ -30,6 +39,7 @@ export default function App() {
   const [cajaAbierta, setCajaAbierta] = useState(false);
 
   useEffect(() => {
+    if (IS_LANDING_PATH) return;
     api.getCitas().then(data => { if (data && data.length) setCitas(data); });
     api.getCaja().then(data => { if (data && data.total_teorico) setCaja(data); });
   }, []);
@@ -146,6 +156,11 @@ export default function App() {
   };
 
   // ─── RENDER ───────────────────────────────────────────────────────────────
+
+  // Landing pública: ruta propia, independiente del portal y del panel admin
+  if (IS_LANDING_PATH) {
+    return <LandingPage />;
+  }
 
   // DS_CU01: Mostrar login si no está autenticado y está en vista admin
   if (!currentUser && view === 'admin') {
