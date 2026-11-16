@@ -205,10 +205,10 @@ export default function Portal({
       <nav className="belle-navbar">
         <div className="belle-navbar-inner">
           <div className="belle-logo-brand">
-            <img src="/logo_zen_icon.svg" alt="Paz y Armonía" className="navbar-logo-img" style={{ height: '44px', width: '44px' }} />
+            <img src="/logo_zen_icon.svg" alt="Salon Spa Aleida" className="navbar-logo-img" style={{ height: '36px', width: '36px' }} />
             <div className="logo-texts">
               <strong className="logo-title">Salon Spa Aleida</strong>
-              <small className="logo-sub">Paz, Armonía &amp; Bienestar</small>
+              <small className="logo-sub">Belleza &amp; Bienestar</small>
             </div>
           </div>
 
@@ -240,10 +240,16 @@ export default function Portal({
         <div className="hero-overlay"></div>
         <div className="hero-content">
           <div className="hero-logo-wrapper">
-            <div className="hero-brand-crest">
-              <span className="crest-tag">LIMA · SALON &amp; SPA</span>
-              <img src="/logo_paz_armonia.svg" alt="Aleida Salon Spa - Paz y Armonía" className="hero-logo-img-grand" style={{ maxWidth: '380px', height: 'auto', background: 'rgba(255,255,255,0.85)', padding: '12px 24px', borderRadius: '24px', boxShadow: '0 10px 30px rgba(74, 124, 89, 0.2)' }} />
-              <span className="crest-sub">PAZ, ARMONÍA &amp; BIENESTAR INTEGRAL</span>
+            <div className="hero-brand-crest" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+              <span className="crest-tag" style={{ background: '#2B573C', color: '#DCEFE3', padding: '4px 14px', borderRadius: '14px', fontSize: '0.78rem', letterSpacing: '0.12em', fontWeight: '600' }}>
+                LIMA · SALON &amp; SPA
+              </span>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: 'rgba(255, 255, 255, 0.94)', border: '1.5px solid #4A7C59', borderRadius: '30px', padding: '8px 22px', boxShadow: '0 8px 20px rgba(0, 0, 0, 0.15)' }}>
+                <img src="/logo_zen_icon.svg" alt="Salon Spa Aleida" style={{ width: '30px', height: '30px' }} />
+                <span style={{ fontFamily: 'var(--font-heading)', fontSize: '1.2rem', color: '#183023', fontWeight: '700', letterSpacing: '0.04em' }}>
+                  Salon Spa Aleida
+                </span>
+              </div>
             </div>
           </div>
 
