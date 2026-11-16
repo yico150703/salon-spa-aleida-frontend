@@ -963,6 +963,30 @@
   color: var(--lp-soft);
 }
 
+.footerBottomRight {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.staffLink {
+  color: var(--lp-muted);
+  border-bottom: 1px solid var(--lp-border);
+  padding-bottom: 1px;
+  transition: color 0.18s ease, border-color 0.18s ease;
+}
+
+.staffLink:hover {
+  color: var(--lp-forest);
+  border-bottom-color: var(--lp-gold);
+}
+
+.staffLink:focus-visible {
+  outline: 2px solid var(--lp-sage);
+  outline-offset: 2px;
+}
+
 /* ================= RESPONSIVE ================= */
 @media (max-width: 1200px) {
   .heroGrid {

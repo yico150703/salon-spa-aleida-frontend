@@ -493,7 +493,12 @@ export default function LandingPage() {
             <span>
               {SALON.legalName} · RUC {SALON.ruc}
             </span>
-            <span>© {CURRENT_YEAR} {SALON.name}</span>
+            <span className={styles.footerBottomRight}>
+              <span>© {CURRENT_YEAR} {SALON.name}</span>
+              <a className={styles.staffLink} href="/portal">
+                Acceso del personal
+              </a>
+            </span>
           </div>
         </div>
       </footer>
