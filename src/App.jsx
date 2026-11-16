@@ -8,18 +8,12 @@ import LayerInspectorModal from './components/LayerInspectorModal';
 import RequirementsGuideModal from './components/RequirementsGuideModal';
 import { api, initialMockState } from './api';
 
-// La portada pública vive en la raíz; el portal de clientes queda en /portal.
-// Vercel reescribe todo a index.html, así que basta con leer la ruta.
-const PATHNAME = window.location.pathname.replace(/\/+$/, '');
-const IS_LANDING_PATH = PATHNAME === '' || PATHNAME === '/bienvenida';
-
 export default function App() {
   // DS_CU01: Autenticación
   const [currentUser, setCurrentUser] = useState(null); // null = no autenticado
-  // La landing pública puede enviar directo al agendamiento con ?vista=reservar
   const [view, setView] = useState(() => {
     const requested = new URLSearchParams(window.location.search).get('vista');
-    return requested === 'reservar' ? 'reservar' : 'portal';
+    return requested === 'reservar' ? 'reservar' : (requested === 'admin' ? 'admin' : 'portal');
   }); // 'portal' | 'reservar' | 'admin'
   const [preselectedService, setPreselectedService] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
@@ -40,7 +34,6 @@ export default function App() {
   const [cajaAbierta, setCajaAbierta] = useState(false);
 
   useEffect(() => {
-    if (IS_LANDING_PATH) return;
     api.getCitas().then(data => { if (data && data.length) setCitas(data); });
     api.getCaja().then(data => { if (data && data.total_teorico) setCaja(data); });
   }, []);
@@ -158,11 +151,6 @@ export default function App() {
 
   // ─── RENDER ───────────────────────────────────────────────────────────────
 
-  // Landing pública: ruta propia, independiente del portal y del panel admin
-  if (IS_LANDING_PATH) {
-    return <LandingPage />;
-  }
-
   // DS_CU01: Mostrar login si no está autenticado y está en vista admin
   if (!currentUser && view === 'admin') {
     return (
@@ -206,13 +194,15 @@ export default function App() {
 
       {/* Vistas principales */}
       {view === 'portal' && (
-        <Portal
+        <LandingPage
           onAddAppointment={handleAddAppointment}
           onSwitchToAdmin={() => setView('admin')}
           onNavigateToBooking={(service = null) => {
             setPreselectedService(service);
             setView('reservar');
           }}
+          onOpenLayerInspector={() => setIsLayerInspectorOpen(true)}
+          onOpenRequirementsGuide={() => setIsRequirementsGuideOpen(true)}
           showToast={showToast}
           existingCitas={citas}
           currentUser={currentUser}

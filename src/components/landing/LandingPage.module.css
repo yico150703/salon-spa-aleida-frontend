@@ -1269,3 +1269,147 @@
     text-align: left;
   }
 }
+
+/* ==========================================================================
+   FORMULARIO DE DATOS DEL CLIENTE Y CONFIRMACIÓN EN VIVO (RF01, RF02)
+   ========================================================================== */
+
+.textInput {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  background: #f9fdfa;
+  border: 1px solid var(--lp-border);
+  border-radius: 4px;
+  font-family: var(--lp-sans);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--lp-ink);
+  transition: border-color 0.18s ease, background-color 0.18s ease;
+}
+
+.textInput:focus {
+  outline: none;
+  border-color: var(--lp-sage);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(74, 124, 89, 0.14);
+}
+
+.inputGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+@media (max-width: 640px) {
+  .inputGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.btnAdminNav {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 16px;
+  background: #ebf5f0;
+  color: var(--lp-forest);
+  border: 1px solid var(--lp-border);
+  border-radius: 20px;
+  font-family: var(--lp-sans);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnAdminNav:hover {
+  background: var(--lp-forest);
+  color: #fff;
+  border-color: var(--lp-forest);
+}
+
+.btnToolNav {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 36px;
+  padding: 0 12px;
+  background: transparent;
+  color: var(--lp-muted);
+  border: 1px dashed var(--lp-border);
+  border-radius: 18px;
+  font-family: var(--lp-sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnToolNav:hover {
+  background: #fff;
+  color: var(--lp-forest);
+  border-color: var(--lp-sage);
+}
+
+.confirmedCard {
+  background: #ffffff;
+  border: 1.5px solid var(--lp-sage);
+  border-radius: 6px;
+  padding: 24px;
+  text-align: center;
+  margin-top: 20px;
+  box-shadow: 0 6px 20px rgba(74, 124, 89, 0.1);
+}
+
+.confirmedBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ebf5f0;
+  color: var(--lp-forest);
+  padding: 5px 14px;
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.confirmedTicket {
+  font-family: var(--lp-serif);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--lp-forest);
+  margin: 6px 0;
+}
+
+.confirmedDetails {
+  font-size: 14px;
+  color: var(--lp-muted);
+  margin: 8px 0 16px;
+  line-height: 1.6;
+}
+
+.btnResetBooking {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  padding: 0 18px;
+  background: #f4faf6;
+  color: var(--lp-forest);
+  border: 1px solid var(--lp-border);
+  border-radius: 4px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnResetBooking:hover {
+  background: var(--lp-forest);
+  color: #fff;
+}
+
