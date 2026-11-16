@@ -4,8 +4,6 @@ import Dashboard from './components/Dashboard';
 import BookingPage from './components/BookingPage';
 import LoginScreen from './components/LoginScreen';
 import LandingPage from './components/landing/LandingPage';
-import LayerInspectorModal from './components/LayerInspectorModal';
-import RequirementsGuideModal from './components/RequirementsGuideModal';
 import { api, initialMockState } from './api';
 
 export default function App() {
@@ -17,10 +15,6 @@ export default function App() {
   }); // 'portal' | 'reservar' | 'admin'
   const [preselectedService, setPreselectedService] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
-
-  // Modales didácticos
-  const [isLayerInspectorOpen, setIsLayerInspectorOpen] = useState(false);
-  const [isRequirementsGuideOpen, setIsRequirementsGuideOpen] = useState(false);
 
   // Estado global — datos del sistema
   const [citas, setCitas] = useState(initialMockState.citas);
@@ -201,8 +195,6 @@ export default function App() {
             setPreselectedService(service);
             setView('reservar');
           }}
-          onOpenLayerInspector={() => setIsLayerInspectorOpen(true)}
-          onOpenRequirementsGuide={() => setIsRequirementsGuideOpen(true)}
           showToast={showToast}
           existingCitas={citas}
           currentUser={currentUser}
@@ -244,8 +236,6 @@ export default function App() {
           onAddPersonal={handleAddPersonal}
           onAddServicio={handleAddServicio}
           onAperturaCaja={handleAperturaCaja}
-          onOpenLayerInspector={() => setIsLayerInspectorOpen(true)}
-          onOpenRequirementsGuide={() => setIsRequirementsGuideOpen(true)}
           onSwitchToPortal={() => setView('portal')}
           onSwitchToBooking={() => setView('reservar')}
           onChangeRole={(newRol) => {
@@ -258,14 +248,6 @@ export default function App() {
 
       {/* Toast Notification */}
       {toastMessage && <div className="toast">{toastMessage}</div>}
-
-      {/* Modales didácticos */}
-      <LayerInspectorModal isOpen={isLayerInspectorOpen} onClose={() => setIsLayerInspectorOpen(false)} />
-      <RequirementsGuideModal
-        isOpen={isRequirementsGuideOpen}
-        onClose={() => setIsRequirementsGuideOpen(false)}
-        onSelectTab={() => setView('admin')}
-      />
     </div>
   );
 }
