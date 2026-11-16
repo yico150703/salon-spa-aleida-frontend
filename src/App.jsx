@@ -8,9 +8,10 @@ import LayerInspectorModal from './components/LayerInspectorModal';
 import RequirementsGuideModal from './components/RequirementsGuideModal';
 import { api, initialMockState } from './api';
 
-// Landing pública en ruta propia. Vercel reescribe todo a index.html, así que
-// basta con leer la ruta del navegador.
-const IS_LANDING_PATH = /^\/bienvenida\/?$/.test(window.location.pathname);
+// La portada pública vive en la raíz; el portal de clientes queda en /portal.
+// Vercel reescribe todo a index.html, así que basta con leer la ruta.
+const PATHNAME = window.location.pathname.replace(/\/+$/, '');
+const IS_LANDING_PATH = PATHNAME === '' || PATHNAME === '/bienvenida';
 
 export default function App() {
   // DS_CU01: Autenticación

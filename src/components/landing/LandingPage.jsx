@@ -66,7 +66,7 @@ export default function LandingPage() {
   };
 
   const goToPortalBooking = () => {
-    window.location.assign('/?vista=reservar');
+    window.location.assign('/portal?vista=reservar');
   };
 
   return (
