@@ -155,7 +155,7 @@ export default function App() {
   if (!currentUser && view === 'admin') {
     return (
       <div className="app-root">
-        <LoginScreen onLogin={handleLogin} />
+        <LoginScreen onLogin={handleLogin} onBackToHome={() => setView('portal')} />
         {toastMessage && <div className="toast">{toastMessage}</div>}
       </div>
     );

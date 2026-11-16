@@ -9,15 +9,30 @@ import React, { useState } from 'react';
 import { CalendarIcon, DollarIcon, UsersIcon, ChartIcon, UserIcon, LockIcon } from './Icons';
 
 const USUARIOS_SISTEMA = [
-  { usuario: 'admin', password: '1234', nombre: 'Aleida Mendoza', rol: 'Administrador', 
-    permisos: ['agenda', 'clientes', 'caja', 'catalogo', 'personal', 'reportes'] },
-  { usuario: 'recepcion', password: '1234', nombre: 'Camila Ramos', rol: 'Recepcionista', 
-    permisos: ['agenda', 'clientes'] },
-  { usuario: 'cajero', password: '1234', nombre: 'Javier Torres', rol: 'Cajero', 
-    permisos: ['caja'] },
+  { 
+    usuario: 'admin', 
+    password: '1234', 
+    nombre: 'Aleida Mendoza', 
+    rol: 'Administrador', 
+    permisos: ['agenda', 'clientes', 'caja', 'catalogo', 'personal', 'reportes'] 
+  },
+  { 
+    usuario: 'recepcion', 
+    password: '1234', 
+    nombre: 'Camila Ramos', 
+    rol: 'Recepcionista', 
+    permisos: ['agenda', 'clientes'] 
+  },
+  { 
+    usuario: 'cajero', 
+    password: '1234', 
+    nombre: 'Javier Torres', 
+    rol: 'Cajero', 
+    permisos: ['caja'] 
+  },
 ];
 
-export default function LoginScreen({ onLogin }) {
+export default function LoginScreen({ onLogin, onBackToHome }) {
   const [usuario, setUsuario] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -39,7 +54,7 @@ export default function LoginScreen({ onLogin }) {
         setError('Usuario o contraseña incorrectos. Verifique sus credenciales.');
         setLoading(false);
       }
-    }, 700);
+    }, 600);
   };
 
   const handleQuickLogin = (user) => {
@@ -49,45 +64,79 @@ export default function LoginScreen({ onLogin }) {
 
   return (
     <div className="login-root">
-      {/* Background decorative elements */}
+      {/* Background decorative emerald & gold ambient orbs */}
       <div className="login-bg-orb login-bg-orb--1" />
       <div className="login-bg-orb login-bg-orb--2" />
       <div className="login-bg-orb login-bg-orb--3" />
 
+      {/* Botón flotante para regresar al portal */}
+      {onBackToHome && (
+        <button 
+          type="button" 
+          onClick={onBackToHome} 
+          className="login-floating-back"
+          title="Regresar a la Página Principal"
+        >
+          <span>←</span> Volver al Portal del Spa
+        </button>
+      )}
+
       <div className="login-container">
         {/* Brand Panel */}
         <div className="login-brand">
-          <div className="login-brand__logo" style={{ background: 'transparent', boxShadow: 'none' }}>
-            <img src="/logo_zen_icon.svg" alt="Salon Spa Aleida" style={{ width: '48px', height: '48px' }} />
+          <div className="login-brand__logo">
+            <img 
+              src="/logo_zen_icon.svg" 
+              alt="Salon Spa Aleida" 
+              style={{ width: '48px', height: '48px' }} 
+            />
           </div>
           <h1 className="login-brand__name">Salon Spa Aleida</h1>
-          <p className="login-brand__tagline">Sistema de Gestión Integral</p>
+          <p className="login-brand__tagline">Portal de Gestión Administrativa</p>
           <div className="login-brand__divider" />
+          
           <div className="login-brand__features">
             <div className="login-feature">
-              <span className="login-feature__icon"><CalendarIcon size={16} color="#C8A26A" /></span>
-              <span>Agenda & Citas</span>
+              <span className="login-feature__icon"><CalendarIcon size={16} color="#D4AF37" /></span>
+              <span>Agenda de Citas & Cabinas</span>
             </div>
             <div className="login-feature">
-              <span className="login-feature__icon"><DollarIcon size={16} color="#C8A26A" /></span>
-              <span>Caja & Ventas</span>
+              <span className="login-feature__icon"><DollarIcon size={16} color="#D4AF37" /></span>
+              <span>Caja, Cobros & Comprobantes</span>
             </div>
             <div className="login-feature">
-              <span className="login-feature__icon"><UsersIcon size={16} color="#C8A26A" /></span>
-              <span>Clientes & Personal</span>
+              <span className="login-feature__icon"><UsersIcon size={16} color="#D4AF37" /></span>
+              <span>Padrón de Clientes & Personal</span>
             </div>
             <div className="login-feature">
-              <span className="login-feature__icon"><ChartIcon size={16} color="#C8A26A" /></span>
-              <span>Reportes & Catálogo</span>
+              <span className="login-feature__icon"><ChartIcon size={16} color="#D4AF37" /></span>
+              <span>Catálogo, Stock & Reportes</span>
             </div>
+          </div>
+
+          <div className="login-brand__badge">
+            <span>🍃 Santuario de Belleza & Bienestar</span>
           </div>
         </div>
 
         {/* Login Form Panel */}
         <div className="login-form-panel">
+          <div className="login-form-top-actions">
+            {onBackToHome && (
+              <button 
+                type="button" 
+                onClick={onBackToHome} 
+                className="login-top-back-btn"
+              >
+                ← Volver al Portal
+              </button>
+            )}
+            <span className="login-secure-indicator">🔒 Acceso Seguro SSL</span>
+          </div>
+
           <div className="login-form-header">
-            <h2 className="login-form-title">Iniciar Sesión</h2>
-            <p className="login-form-subtitle">DS_CU01 · Autenticar Usuario</p>
+            <h2 className="login-form-title">Acceso Administrativo</h2>
+            <p className="login-form-subtitle">DS_CU01 · Autenticación de Personal Autorizado</p>
           </div>
 
           <form onSubmit={handleSubmit} className="login-form" id="login-form">
@@ -96,12 +145,12 @@ export default function LoginScreen({ onLogin }) {
                 Usuario
               </label>
               <div className="login-input-wrapper">
-                <span className="login-input-icon"><UserIcon size={16} color="#888" /></span>
+                <span className="login-input-icon"><UserIcon size={16} color="#4A7C59" /></span>
                 <input
                   id="login-usuario"
                   type="text"
                   className="login-input"
-                  placeholder="Ingrese su usuario"
+                  placeholder="Ej: admin, recepcion o cajero"
                   value={usuario}
                   onChange={e => setUsuario(e.target.value)}
                   autoComplete="username"
@@ -115,7 +164,7 @@ export default function LoginScreen({ onLogin }) {
                 Contraseña
               </label>
               <div className="login-input-wrapper">
-                <span className="login-input-icon"><LockIcon size={16} color="#888" /></span>
+                <span className="login-input-icon"><LockIcon size={16} color="#4A7C59" /></span>
                 <input
                   id="login-password"
                   type={showPass ? 'text' : 'password'}
@@ -131,7 +180,7 @@ export default function LoginScreen({ onLogin }) {
                   className="login-show-pass"
                   onClick={() => setShowPass(!showPass)}
                   id="toggle-password-visibility"
-                  style={{ fontSize: '12px', fontWeight: 600 }}
+                  style={{ fontSize: '12px', fontWeight: 600, color: '#4A7C59' }}
                 >
                   {showPass ? 'Ocultar' : 'Ver'}
                 </button>
@@ -153,17 +202,17 @@ export default function LoginScreen({ onLogin }) {
               {loading ? (
                 <span className="login-btn-loading">
                   <span className="login-spinner" />
-                  Validando...
+                  Validando Credenciales...
                 </span>
               ) : (
-                'Acceder al Sistema'
+                'Ingresar al Panel de Gestión'
               )}
             </button>
           </form>
 
           {/* Quick Access Demo */}
           <div className="login-quick-access">
-            <p className="login-quick-title">Acceso rápido (demo):</p>
+            <p className="login-quick-title">Selección rápida de perfil (demostración):</p>
             <div className="login-quick-buttons">
               {USUARIOS_SISTEMA.map(u => (
                 <button
@@ -181,7 +230,7 @@ export default function LoginScreen({ onLogin }) {
           </div>
 
           <div className="login-footer-note">
-            <span>Sistema MCUS · Spa &amp; Salon Aleida &copy; 2026</span>
+            <span>Sistema MCUS · Spa &amp; Salon Aleida &copy; 2026 · Conexión PostgreSQL Render</span>
           </div>
         </div>
       </div>

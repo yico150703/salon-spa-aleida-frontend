@@ -49,7 +49,14 @@ export default function BookingPage({
 
   useEffect(() => {
     if (preselectedService) {
-      setSelectedService(preselectedService);
+      setSelectedService({
+        id: preselectedService.id || 1,
+        nombre: preselectedService.nombre || preselectedService.name || 'Masaje Relajante Aleida',
+        categoria: preselectedService.categoria || preselectedService.category || 'Spa & Bienestar',
+        duracion: preselectedService.duracion || preselectedService.duration || 90,
+        precio: preselectedService.precio || preselectedService.price || 280.0,
+        desc: preselectedService.desc || preselectedService.description || ''
+      });
       setCurrentStep(2); // Jump directly to specialist selection
     }
   }, [preselectedService]);

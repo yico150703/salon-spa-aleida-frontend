@@ -1,9 +1,11 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Award,
+  Calendar,
   Check,
-  ChevronDown,
   Clock,
+  Heart,
+  Layers,
   Lock,
   Mail,
   MapPin,
@@ -11,184 +13,98 @@ import {
   MessageCircle,
   Phone,
   ShieldCheck,
+  Sparkles,
+  Star,
+  UserCheck,
   X,
-  Layers,
-  FileText,
-  UserCheck
+  ArrowRight,
+  FileText
 } from 'lucide-react';
 
 import styles from './LandingPage.module.css';
 import {
   formatDuration,
   formatSoles,
-  getMonthLabel,
-  getWeek,
   HOME_IMAGES,
   SALON,
   SERVICES,
   SPECIALISTS,
-  TIME_SLOTS,
 } from '../../data/salonData';
 
 const CURRENT_YEAR = new Date().getFullYear();
 
 export default function LandingPage({
-  onAddAppointment,
   onSwitchToAdmin,
   onNavigateToBooking,
   onOpenLayerInspector,
   onOpenRequirementsGuide,
   showToast,
-  existingCitas = [],
   currentUser
 }) {
-  const week = useMemo(() => getWeek(), []);
-  const firstOpenDay = week.find((day) => !day.closed) ?? week[0];
-  const monthLabel = useMemo(() => getMonthLabel(), []);
+  const [categoryFilter, setCategoryFilter] = useState('Todos');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const [serviceId, setServiceId] = useState(SERVICES[0].id);
-  const [specialistId, setSpecialistId] = useState(SPECIALISTS[0].id);
-  const [dateIso, setDateIso] = useState(firstOpenDay.iso);
-  const [time, setTime] = useState('10:30');
-  const [menuOpen, setMenuOpen] = useState(false);
+  const categories = ['Todos', 'Spa & Bienestar', 'Estética Facial', 'Cuidado Capilar', 'Manicura & Pedicura'];
 
-  // Datos del Cliente (RF01 - Padrón de Clientes)
-  const [clientName, setClientName] = useState('');
-  const [clientDni, setClientDni] = useState('');
-  const [clientPhone, setClientPhone] = useState('');
-  const [clientNotes, setClientNotes] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [bookingConfirmed, setBookingConfirmed] = useState(false);
-  const [ticketCode, setTicketCode] = useState('');
+  const filteredServices = categoryFilter === 'Todos'
+    ? SERVICES
+    : SERVICES.filter((s) => s.category === categoryFilter);
 
-  const bookingRef = useRef(null);
-  const serviceSelectRef = useRef(null);
-
-  const service =
-    SERVICES.find((item) => item.id === serviceId) ?? SERVICES[0];
-  const specialist =
-    SPECIALISTS.find((item) => item.id === specialistId) ?? SPECIALISTS[0];
-  const selectedDay =
-    week.find((day) => day.iso === dateIso) ?? firstOpenDay;
-
-  // Validación de no-colisión de horario en tiempo real (RF02)
-  const isTimeOccupied = (slotTime) => {
-    return existingCitas.some((c) => {
-      const matchFecha = c.fecha === dateIso;
-      const matchHora = c.hora?.includes(slotTime) || slotTime?.includes(c.hora);
-      const matchEsp = c.especialista?.toLowerCase().includes(specialist.name.toLowerCase().split(' ')[0]);
-      return matchFecha && matchHora && matchEsp && c.estado !== 'Cancelada';
-    });
-  };
-
-  const selectService = (id, { scroll = false } = {}) => {
-    setServiceId(id);
-    if (!scroll) return;
-    bookingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    window.setTimeout(() => serviceSelectRef.current?.focus(), 340);
-  };
-
-  // Confirmar cita y persistir en PostgreSQL en Render
-  const handleConfirmBooking = async (e) => {
-    if (e) e.preventDefault();
-
-    if (!clientName.trim() || !clientPhone.trim()) {
-      if (showToast) {
-        showToast('Por favor ingrese su Nombre y Teléfono para confirmar su cita.');
-      } else {
-        alert('Por favor ingrese su Nombre y Teléfono para confirmar su cita.');
-      }
-      return;
-    }
-
-    if (isTimeOccupied(time)) {
-      if (showToast) {
-        showToast(`Conflicto de horario: ${specialist.name} ya tiene un turno reservado a las ${time}.`);
-      }
-      return;
-    }
-
-    setIsSubmitting(true);
-    const code = 'ALE-' + Math.floor(10000 + Math.random() * 90000);
-    setTicketCode(code);
-
-    try {
-      if (onAddAppointment) {
-        await onAddAppointment({
-          cliente: clientName.trim(),
-          dni: clientDni.trim() || 'Canal Web',
-          telefono: clientPhone.trim(),
-          preferencias: clientNotes.trim() || 'Reserva vía portal público',
-          servicio: service.name,
-          especialista: specialist.name,
-          fecha: dateIso,
-          hora: time,
-          monto: service.price,
-          estado: 'Confirmada',
-          cobrado: false,
-          codigoReserva: code
-        });
-      }
-
-      setBookingConfirmed(true);
-      if (showToast) {
-        showToast(`¡Cita confirmada #${code}! Te esperamos el ${selectedDay.label} a las ${time}.`);
-      }
-    } catch (err) {
-      console.error('Error al agendar cita:', err);
-    } finally {
-      setIsSubmitting(false);
+  const handleBookService = (service) => {
+    if (onNavigateToBooking) {
+      onNavigateToBooking({
+        id: service.id,
+        nombre: service.name,
+        categoria: service.category,
+        duracion: service.duration,
+        precio: service.price,
+        desc: service.description
+      });
     }
   };
 
-  const handleResetBooking = () => {
-    setBookingConfirmed(false);
-    setTicketCode('');
-    setClientName('');
-    setClientDni('');
-    setClientPhone('');
-    setClientNotes('');
+  const handleGeneralBooking = () => {
+    if (onNavigateToBooking) {
+      onNavigateToBooking();
+    }
   };
-
-  // Desglose Tributario (IGV 18%)
-  const subtotal = useMemo(() => Number((service.price / 1.18).toFixed(2)), [service.price]);
-  const igv = useMemo(() => Number((service.price - subtotal).toFixed(2)), [service.price, subtotal]);
 
   return (
     <div className={styles.page}>
-      {/* 1. TOP NAVBAR CON NAVEGACIÓN Y ACCESO ADMINISTRATIVO */}
+      {/* 1. TOP NAVBAR ELEGANTE */}
       <header className={styles.nav}>
         <div className={styles.navInner}>
           <a className={styles.brand} href="#inicio" aria-label="Salon Spa Aleida">
             <span className={styles.brandMark}>
               <img
-                src={SALON.logo}
-                alt=""
-                width="32"
-                height="32"
+                src="/logo_zen_icon.svg"
+                alt="Salon Spa Aleida"
+                width="34"
+                height="34"
                 decoding="async"
               />
             </span>
-            <span>
+            <div className={styles.brandTextWrapper}>
               <span className={styles.brandName}>{SALON.name}</span>
-              <span className={styles.brandSub}>Belleza &amp; Bienestar</span>
-            </span>
+              <span className={styles.brandSub}>Santuario de Belleza &amp; Bienestar</span>
+            </div>
           </a>
 
           <nav className={styles.navLinks} aria-label="Secciones">
+            <a href="#inicio">Inicio</a>
             <a href="#servicios">Servicios</a>
-            <a href="#reserva">Reservar Cita</a>
+            <a href="#filosofia">Filosofía</a>
             <a href="#especialistas">Especialistas</a>
             <a href="#contacto">Contacto</a>
           </nav>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className={styles.navActions}>
             {onOpenLayerInspector && (
               <button
                 type="button"
                 className={styles.btnToolNav}
                 onClick={onOpenLayerInspector}
-                title="Inspeccionar Arquitectura por Capas (Sección 3.8)"
+                title="Inspeccionar Arquitectura por Capas"
               >
                 <Layers size={14} /> 4 Capas
               </button>
@@ -199,472 +115,425 @@ export default function LandingPage({
                 type="button"
                 className={styles.btnToolNav}
                 onClick={onOpenRequirementsGuide}
-                title="Guía Didáctica de Casos de Uso (CU01-CU09)"
+                title="Guía Didáctica de Casos de Uso"
               >
                 <FileText size={14} /> Requisitos
               </button>
             )}
 
+            {/* BOTÓN DE ACCESO ADMINISTRATIVO REFINADO */}
             <button
               type="button"
               className={styles.btnAdminNav}
               onClick={onSwitchToAdmin}
-              title="Acceder al Panel de Gestión (Recepción, Caja, Ventas y Reportes)"
+              title="Acceso al Panel de Gestión y Administración"
+              id="btn-nav-acceso-admin"
             >
-              <UserCheck size={15} /> Acceso Administrativo
+              <UserCheck size={15} />
+              <span>Acceso Administrativo</span>
             </button>
 
-            <a className={`${styles.btn} ${styles.btnSage}`} href="#reserva">
-              Reservar
-            </a>
+            {/* BOTÓN DEDICADO DE RESERVAR CITA */}
+            <button
+              type="button"
+              className={styles.btnReservarPill}
+              onClick={handleGeneralBooking}
+              id="btn-nav-reservar-cita"
+            >
+              <Calendar size={15} />
+              <span>Reservar Cita</span>
+            </button>
 
+            {/* TOGGLE MENÚ MÓVIL */}
             <button
               type="button"
               className={styles.menuToggle}
-              aria-expanded={menuOpen}
-              aria-controls="landing-mobile-menu"
-              aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
-              onClick={() => setMenuOpen((open) => !open)}
+              aria-expanded={mobileMenuOpen}
+              aria-label={mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
-              {menuOpen ? <X size={18} aria-hidden="true" /> : <Menu size={18} aria-hidden="true" />}
+              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
 
-        {menuOpen && (
-          <nav className={styles.mobileMenu} id="landing-mobile-menu" aria-label="Secciones">
-            <a href="#servicios" onClick={() => setMenuOpen(false)}>Servicios</a>
-            <a href="#reserva" onClick={() => setMenuOpen(false)}>Reservar Cita</a>
-            <a href="#especialistas" onClick={() => setMenuOpen(false)}>Especialistas</a>
-            <a href="#contacto" onClick={() => setMenuOpen(false)}>Contacto</a>
-            <button
-              type="button"
-              className={styles.btnAdminNav}
-              style={{ width: '100%', justifyContent: 'center', marginTop: '10px' }}
-              onClick={() => {
-                setMenuOpen(false);
-                onSwitchToAdmin();
-              }}
-            >
-              Acceso Administrativo (Staff)
-            </button>
+        {/* MENÚ MÓVIL DESPLEGABLE */}
+        {mobileMenuOpen && (
+          <nav className={styles.mobileMenu} aria-label="Menú Móvil">
+            <a href="#inicio" onClick={() => setMobileMenuOpen(false)}>Inicio</a>
+            <a href="#servicios" onClick={() => setMobileMenuOpen(false)}>Servicios &amp; Tratamientos</a>
+            <a href="#filosofia" onClick={() => setMobileMenuOpen(false)}>Filosofía &amp; Experiencia</a>
+            <a href="#especialistas" onClick={() => setMobileMenuOpen(false)}>Especialistas</a>
+            <a href="#contacto" onClick={() => setMobileMenuOpen(false)}>Contacto</a>
+            
+            <div className={styles.mobileMenuBtns}>
+              <button
+                type="button"
+                className={styles.btnReservarPill}
+                style={{ width: '100%', justifyContent: 'center' }}
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleGeneralBooking();
+                }}
+              >
+                <Calendar size={16} /> Reservar Cita en Línea
+              </button>
+
+              <button
+                type="button"
+                className={styles.btnAdminNav}
+                style={{ width: '100%', justifyContent: 'center' }}
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onSwitchToAdmin();
+                }}
+              >
+                <UserCheck size={16} /> Acceso Administrativo (Staff)
+              </button>
+            </div>
           </nav>
         )}
       </header>
 
-      {/* 2. HERO PRINCIPAL */}
+      {/* 2. HERO PRINCIPAL REFINADO (FOTOGRAFÍA ALINEADA Y SIMÉTRICA) */}
       <section className={styles.hero} id="inicio">
         <div className={styles.heroInner}>
           <div className={styles.heroGrid}>
-            <figure className={styles.heroPhoto}>
-              <img
-                src={HOME_IMAGES.hero.src}
-                alt={HOME_IMAGES.hero.alt}
-                width="760"
-                height="250"
-                decoding="async"
-              />
-            </figure>
-
+            
+            {/* Columna Izquierda: Mensaje & Llamado a la Acción */}
             <div className={styles.heroText}>
+              <div className={styles.heroKicker}>
+                <Sparkles size={14} color="#D4AF37" />
+                <span>Santuario de Belleza &amp; Bienestar Integral</span>
+              </div>
+
               <h1>
                 Renueva tu Belleza,
                 <br />
                 Equilibra tu Bienestar
               </h1>
+
               <p className={styles.heroLead}>
-                Combinamos rituales terapéuticos botánicos, tratamientos faciales
-                antiedad y estilismo capilar personalizado en un ambiente de calma
-                y cuidado integral.
+                Déjate envolver por rituales terapéuticos botánicos, tratamientos faciales 
+                antiedad de alta gama y estilismo capilar personalizado en un santuario 
+                diseñado para desconectar del estrés y reconectar con tu paz interior.
               </p>
+
               <div className={styles.heroCta}>
-                <a className={`${styles.btn} ${styles.btnSage}`} href="#reserva">
-                  Reservar una Cita
-                </a>
-                <a
-                  className={`${styles.btn}`}
-                  href="#servicios"
-                  style={{ background: '#fff', border: '1px solid var(--lp-border)', color: 'var(--lp-forest)' }}
-                >
-                  Ver Tratamientos
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. CARTA DE SERVICIOS */}
-      <section className={styles.catalogue} id="servicios">
-        <div className={styles.wrap}>
-          <div className={styles.catalogueHead}>
-            <h2>Carta de Servicios &amp; Tratamientos</h2>
-          </div>
-
-          <div className={styles.catalogueGrid}>
-            <aside className={styles.atmosphere}>
-              <figure className={styles.aTall}>
-                <img
-                  src={HOME_IMAGES.cabin.src}
-                  alt={HOME_IMAGES.cabin.alt}
-                  width="300"
-                  height="392"
-                  decoding="async"
-                  loading="lazy"
-                />
-              </figure>
-              <figure className={styles.aWide}>
-                <img
-                  src={HOME_IMAGES.stillLife.src}
-                  alt={HOME_IMAGES.stillLife.alt}
-                  width="300"
-                  height="208"
-                  decoding="async"
-                  loading="lazy"
-                />
-              </figure>
-            </aside>
-
-            <div className={styles.menu} role="list">
-              {SERVICES.map((item) => {
-                const isSelected = item.id === serviceId;
-
-                return (
-                  <article
-                    key={item.id}
-                    className={styles.treat}
-                    role="listitem"
-                    data-selected={isSelected}
-                    onClick={() => selectService(item.id, { scroll: true })}
-                  >
-                    <span className={styles.treatCheck} aria-hidden="true">
-                      <Check size={12} strokeWidth={3} />
-                    </span>
-
-                    <div className={styles.treatMain}>
-                      <h3>{item.name}</h3>
-                      <p className={styles.treatDesc}>{item.description}</p>
-                    </div>
-
-                    <div className={styles.treatDur}>
-                      <Clock size={16} aria-hidden="true" />
-                      {formatDuration(item.duration)}
-                    </div>
-
-                    <div className={styles.treatPrice}>
-                      {formatSoles(item.price)}
-                    </div>
-
-                    <button
-                      type="button"
-                      className={styles.treatBtn}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        selectService(item.id, { scroll: true });
-                      }}
-                    >
-                      Seleccionar
-                      <span className={styles.visuallyHidden}>: {item.name}</span>
-                    </button>
-                  </article>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. MÓDULO DE RESERVA EN VIVO (CONECTADO A POSTGRESQL EN RENDER) */}
-      <section className={styles.booking} id="reserva" ref={bookingRef}>
-        <div className={styles.wrap}>
-          <h2>Reserva tu Cita en Línea</h2>
-          <div className={styles.goldRule} aria-hidden="true" />
-
-          {bookingConfirmed ? (
-            <div className={styles.confirmedCard}>
-              <div className={styles.confirmedBadge}>
-                <Check size={16} /> ¡RESERVA CONFIRMADA EXITOSAMENTE!
-              </div>
-              <h3 className={styles.confirmedTicket}>Código de Reserva: {ticketCode}</h3>
-              <p className={styles.confirmedDetails}>
-                Estimada/o <strong>{clientName}</strong>, tu cita para <strong>{service.name}</strong> con <strong>{specialist.name}</strong> ha quedado registrada en el sistema oficial para el día <strong>{selectedDay.label}</strong> a las <strong>{time}</strong>.
-              </p>
-              <p style={{ fontSize: '13px', color: 'var(--lp-soft)', marginBottom: '16px' }}>
-                ✓ Datos sincronizados con la Base de Datos PostgreSQL en Render (CU01 / RF02).
-              </p>
-              <button type="button" className={styles.btnResetBooking} onClick={handleResetBooking}>
-                Agendar otra cita
-              </button>
-            </div>
-          ) : (
-            <div className={styles.bookingGrid}>
-              {/* Formulario de Selección y Datos del Cliente */}
-              <div>
-                {/* 1. Selección de Servicio */}
-                <div className={styles.field}>
-                  <label className={styles.fieldLabel} htmlFor="landing-service">
-                    1. Tratamiento o Servicio
-                  </label>
-                  <div className={styles.selectWrap}>
-                    <select
-                      id="landing-service"
-                      ref={serviceSelectRef}
-                      value={serviceId}
-                      onChange={(event) => setServiceId(event.target.value)}
-                    >
-                      {SERVICES.map((item) => (
-                        <option key={item.id} value={item.id}>
-                          {item.name} ({formatSoles(item.price)} · {formatDuration(item.duration)})
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className={styles.selectChevron} size={18} aria-hidden="true" />
-                  </div>
-                </div>
-
-                {/* 2. Selección de Especialista */}
-                <div className={styles.field} id="especialistas">
-                  <span className={styles.fieldLabel} id="landing-specialist-label">
-                    2. Especialista o Terapeuta
-                  </span>
-                  <div
-                    className={styles.specialistList}
-                    role="radiogroup"
-                    aria-labelledby="landing-specialist-label"
-                  >
-                    {SPECIALISTS.map((person) => {
-                      const isSelected = person.id === specialistId;
-
-                      return (
-                        <label
-                          key={person.id}
-                          className={styles.specialist}
-                          data-selected={isSelected}
-                        >
-                          <input
-                            type="radio"
-                            name="landing-specialist"
-                            value={person.id}
-                            checked={isSelected}
-                            onChange={() => setSpecialistId(person.id)}
-                            className={styles.visuallyHidden}
-                          />
-                          <img
-                            src={person.photo}
-                            alt={person.photoAlt}
-                            width="44"
-                            height="44"
-                            decoding="async"
-                            loading="lazy"
-                          />
-                          <span className={styles.spText}>
-                            <span className={styles.spName}>{person.name}</span>
-                            <span className={styles.spRole}>{person.role}</span>
-                          </span>
-                          <span className={styles.radio} aria-hidden="true" />
-                        </label>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* 3. Selección de Fecha */}
-                <div className={styles.field}>
-                  <div className={styles.fieldRow}>
-                    <span className={styles.fieldLabel} id="landing-date-label">
-                      3. Fecha de Atención
-                    </span>
-                    <span className={styles.month}>{monthLabel}</span>
-                  </div>
-                  <div className={styles.dates} role="group" aria-labelledby="landing-date-label">
-                    {week.map((day) => (
-                      <button
-                        key={day.iso}
-                        type="button"
-                        className={styles.date}
-                        data-selected={day.iso === dateIso}
-                        disabled={day.closed}
-                        aria-pressed={day.iso === dateIso}
-                        onClick={() => setDateIso(day.iso)}
-                      >
-                        <span className={styles.dateDow}>{day.weekDay}</span>
-                        <span className={styles.dateNum}>{day.dayNumber}</span>
-                        {day.closed && <span className={styles.dateNote}>Cerrado</span>}
-                        <span className={styles.visuallyHidden}>{day.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 4. Selección de Horario */}
-                <div className={styles.field}>
-                  <span className={styles.fieldLabel} id="landing-time-label">
-                    4. Horario Libre Disponible
-                  </span>
-                  <div className={styles.times} role="group" aria-labelledby="landing-time-label">
-                    {TIME_SLOTS.map((slot) => {
-                      const occupied = isTimeOccupied(slot.time) || slot.occupied;
-                      return (
-                        <button
-                          key={slot.time}
-                          type="button"
-                          className={styles.time}
-                          data-selected={slot.time === time}
-                          disabled={occupied}
-                          aria-pressed={slot.time === time}
-                          title={occupied ? 'Horario ocupado' : undefined}
-                          onClick={() => setTime(slot.time)}
-                        >
-                          {slot.time} {occupied && '(Ocupado)'}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* 5. Datos Personales del Cliente (RF01 - Padrón) */}
-                <div className={styles.field} style={{ borderTop: '1px solid var(--lp-border-soft)', paddingTop: '16px', marginTop: '20px' }}>
-                  <span className={styles.fieldLabel}>
-                    5. Datos del Cliente (Ficha de Cita)
-                  </span>
-                  <div className={styles.inputGrid}>
-                    <input
-                      type="text"
-                      className={styles.textInput}
-                      placeholder="Nombre y Apellidos *"
-                      value={clientName}
-                      onChange={(e) => setClientName(e.target.value)}
-                      required
-                    />
-                    <input
-                      type="text"
-                      className={styles.textInput}
-                      placeholder="DNI o Documento"
-                      value={clientDni}
-                      onChange={(e) => setClientDni(e.target.value)}
-                    />
-                  </div>
-                  <div className={styles.inputGrid} style={{ marginTop: '10px' }}>
-                    <input
-                      type="tel"
-                      className={styles.textInput}
-                      placeholder="Teléfono Celular / WhatsApp *"
-                      value={clientPhone}
-                      onChange={(e) => setClientPhone(e.target.value)}
-                      required
-                    />
-                    <input
-                      type="text"
-                      className={styles.textInput}
-                      placeholder="Observaciones / Preferencia de aroma"
-                      value={clientNotes}
-                      onChange={(e) => setClientNotes(e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Resumen de Reserva en Tiempo Real */}
-              <aside className={styles.summary} aria-live="polite">
-                <h3>Tu Reserva</h3>
-                <div className={styles.goldRule} aria-hidden="true" />
-
-                <div className={styles.sumRow}>
-                  <span className={styles.sumLabel}>Tratamiento</span>
-                  <p className={styles.sumValue}>{service.name}</p>
-                </div>
-
-                <div className={styles.sumRow}>
-                  <span className={styles.sumLabel}>Especialista</span>
-                  <p className={styles.sumValue}>{specialist.name}</p>
-                </div>
-
-                <div className={styles.sumLines}>
-                  <div className={styles.sumLine}>
-                    <span className={styles.sumLabel}>Fecha</span>
-                    <p className={styles.sumValue}>{selectedDay.label}</p>
-                  </div>
-                  <div className={styles.sumLine}>
-                    <span className={styles.sumLabel}>Horario</span>
-                    <p className={styles.sumValue}>{time}</p>
-                  </div>
-                  <div className={styles.sumLine}>
-                    <span className={styles.sumLabel}>Duración</span>
-                    <p className={styles.sumValue}>{formatDuration(service.duration)}</p>
-                  </div>
-                  <div className={styles.sumLine}>
-                    <span className={styles.sumLabel}>Base Imponible</span>
-                    <p className={styles.sumValue}>S/ {subtotal.toFixed(2)}</p>
-                  </div>
-                  <div className={styles.sumLine}>
-                    <span className={styles.sumLabel}>IGV (18%)</span>
-                    <p className={styles.sumValue}>S/ {igv.toFixed(2)}</p>
-                  </div>
-                </div>
-
-                <div className={styles.sumTotal}>
-                  <span className={styles.sumLabel}>Total a Pagar</span>
-                  <span className={styles.totalVal}>{formatSoles(service.price)}</span>
-                </div>
-
                 <button
                   type="button"
-                  className={`${styles.btn} ${styles.btnContinue}`}
-                  onClick={handleConfirmBooking}
-                  disabled={isSubmitting}
+                  className={styles.heroPrimaryBtn}
+                  onClick={handleGeneralBooking}
+                  id="btn-hero-reservar"
                 >
-                  {isSubmitting ? 'Guardando en Base de Datos...' : 'Confirmar y Agendar Cita'}
+                  <Calendar size={18} />
+                  <span>Reservar Cita Online</span>
+                  <ArrowRight size={16} />
                 </button>
 
-                <p style={{ fontSize: '11.5px', color: 'var(--lp-soft)', textAlign: 'center', marginTop: '10px' }}>
-                  🔒 Transacción segura · Guardado directo en PostgreSQL en Render
-                </p>
-              </aside>
+                <a href="#servicios" className={styles.heroSecondaryBtn}>
+                  <span>Ver Tratamientos</span>
+                </a>
+              </div>
+
+              <div className={styles.heroTrustRow}>
+                <span>
+                  <Check size={15} color="#A3D9B5" /> Terapeutas Colegiadas
+                </span>
+                <span>
+                  <Check size={15} color="#A3D9B5" /> Cabinas Climatizadas
+                </span>
+                <span>
+                  <Star size={15} color="#D4AF37" fill="#D4AF37" /> 4.9/5 (850+ reseñas)
+                </span>
+              </div>
             </div>
-          )}
+
+            {/* Columna Derecha: Fotografía recta, elegante y proporcional */}
+            <div className={styles.heroPhotoWrapper}>
+              <figure className={styles.heroPhoto}>
+                <img
+                  src={HOME_IMAGES.hero.src}
+                  alt={HOME_IMAGES.hero.alt}
+                  width="600"
+                  height="470"
+                  decoding="async"
+                  fetchPriority="high"
+                />
+                <div className={styles.heroPhotoBadge}>
+                  <div className={styles.heroBadgeIcon}>
+                    <Heart size={20} color="#D4AF37" />
+                  </div>
+                  <div className={styles.heroPhotoBadgeText}>
+                    <span className={styles.heroPhotoBadgeTitle}>100% Extractos Botánicos</span>
+                    <span className={styles.heroPhotoBadgeSub}>Aceites puros prensados en frío y cosmética biológica</span>
+                  </div>
+                </div>
+              </figure>
+            </div>
+
+          </div>
         </div>
       </section>
 
-      {/* 5. FRANJA DE CONFIANZA & BIOSEGURIDAD */}
+      {/* 3. FILOSOFÍA DE BIENESTAR: PAZ, ARMONÍA & CUIDADO BOTÁNICO */}
+      <section className={styles.philosophy} id="filosofia">
+        <div className={styles.wrap}>
+          <div className={styles.sectionHeader}>
+            <span className={styles.sectionKicker}>NUESTRA ESENCIA</span>
+            <h2>Un Santuario Pensado para tu Tranquilidad</h2>
+            <div className={styles.goldRule} aria-hidden="true" />
+            <p className={styles.sectionLead}>
+              Cada detalle de nuestro espacio ha sido concebido para brindarte una pausa reparadora 
+              lejos del ajetreo urbano, combinando ciencia dermocosmética y bienestar holístico.
+            </p>
+          </div>
+
+          <div className={styles.philosophyGrid}>
+            <div className={styles.philosophyCard}>
+              <div className={styles.philosophyIcon}>
+                <Sparkles size={24} color="#4A7C59" />
+              </div>
+              <h3>Rituales Botánicos &amp; Esencias</h3>
+              <p>
+                Utilizamos aceites esenciales franceses de lavanda, romero y argán puro 
+                con técnicas descontracturantes que alivian tensiones corporales profundas.
+              </p>
+            </div>
+
+            <div className={styles.philosophyCard}>
+              <div className={styles.philosophyIcon}>
+                <ShieldCheck size={24} color="#4A7C59" />
+              </div>
+              <h3>Dermocosmética de Alta Gama</h3>
+              <p>
+                Tratamientos faciales con micropartículas de oro coloidal, ácido hialurónico 
+                purificado y colágeno para una piel luminosa, tersa e hidratada.
+              </p>
+            </div>
+
+            <div className={styles.philosophyCard}>
+              <div className={styles.philosophyIcon}>
+                <Award size={24} color="#4A7C59" />
+              </div>
+              <h3>Cabinas Privadas Climatizadas</h3>
+              <p>
+                Ambientes insonorizados con control térmico, toallas de algodón orgánico, 
+                cromoterapia suave y música binaural para una inmersión sensitiva total.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. CARTA DE SERVICIOS & TRATAMIENTOS EXCLUSIVOS */}
+      <section className={styles.catalogue} id="servicios">
+        <div className={styles.wrap}>
+          <div className={styles.sectionHeader}>
+            <span className={styles.sectionKicker}>MENÚ EXCLUSIVO</span>
+            <h2>Carta de Tratamientos &amp; Experiencias</h2>
+            <div className={styles.goldRule} aria-hidden="true" />
+            <p className={styles.sectionLead}>
+              Selecciona tu servicio preferido y haz clic en &ldquo;Reservar Cita&rdquo; para asegurar tu turno en línea.
+            </p>
+          </div>
+
+          {/* Filtros por Categoría */}
+          <div className={styles.categoryTabs}>
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                className={`${styles.categoryTab} ${categoryFilter === cat ? styles.categoryTabActive : ''}`}
+                onClick={() => setCategoryFilter(cat)}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Grilla de Servicios */}
+          <div className={styles.servicesGrid}>
+            {filteredServices.map((item) => (
+              <article key={item.id} className={styles.serviceCard}>
+                <div className={styles.serviceCardTop}>
+                  <span className={styles.serviceCategoryBadge}>{item.category}</span>
+                  <div className={styles.serviceDuration}>
+                    <Clock size={15} />
+                    <span>{formatDuration(item.duration)}</span>
+                  </div>
+                </div>
+
+                <h3 className={styles.serviceCardTitle}>{item.name}</h3>
+                <p className={styles.serviceCardDesc}>{item.description}</p>
+
+                <div className={styles.serviceCardBottom}>
+                  <div className={styles.servicePriceBox}>
+                    <span className={styles.servicePriceLabel}>Inversión</span>
+                    <span className={styles.servicePriceValue}>{formatSoles(item.price)}</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    className={styles.serviceBookBtn}
+                    onClick={() => handleBookService(item)}
+                    title={`Reservar cita para ${item.name}`}
+                  >
+                    <Calendar size={15} />
+                    <span>Reservar Cita</span>
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 5. BANNER DEDICADO DE RESERVAS: "RESERVAR CITA VA SOLO Y APARTE" */}
+      <section className={styles.dedicatedBookingBanner} id="reserva">
+        <div className={styles.wrap}>
+          <div className={styles.dedicatedBookingBox}>
+            <div className={styles.bookingBoxContent}>
+              <div className={styles.bookingBoxKicker}>
+                <Calendar size={16} color="#D4AF37" />
+                <span>PLATAFORMA OFICIAL DE CITAS</span>
+              </div>
+              <h2>Agenda tu Cita en Línea en Sencillos Pasos</h2>
+              <p>
+                Sin filas ni llamadas telefónicas. Nuestro sistema de reserva dedicado te permite elegir 
+                tu tratamiento, seleccionar a tu especialista y recibir tu comprobante de reserva con confirmación inmediata.
+              </p>
+
+              <div className={styles.bookingStepsPreview}>
+                <div className={styles.stepItem}>
+                  <span className={styles.stepNum}>1</span>
+                  <span className={styles.stepText}>Elige Tratamiento</span>
+                </div>
+                <div className={styles.stepLine} />
+                <div className={styles.stepItem}>
+                  <span className={styles.stepNum}>2</span>
+                  <span className={styles.stepText}>Terapeuta</span>
+                </div>
+                <div className={styles.stepLine} />
+                <div className={styles.stepItem}>
+                  <span className={styles.stepNum}>3</span>
+                  <span className={styles.stepText}>Fecha &amp; Turno</span>
+                </div>
+                <div className={styles.stepLine} />
+                <div className={styles.stepItem}>
+                  <span className={styles.stepNum}>4</span>
+                  <span className={styles.stepText}>Voucher Oficial</span>
+                </div>
+              </div>
+
+              <div className={styles.bookingCtaActions}>
+                <button
+                  type="button"
+                  className={styles.btnOpenDedicatedBooking}
+                  onClick={handleGeneralBooking}
+                  id="btn-abrir-pagina-reservas"
+                >
+                  <Calendar size={18} />
+                  <span>Ir a la Página de Reservar Cita</span>
+                  <ArrowRight size={17} />
+                </button>
+              </div>
+
+              <span className={styles.bookingSecurityNote}>
+                🔒 Datos sincronizados en tiempo real con nuestra Base de Datos Oficial en PostgreSQL.
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. NUESTROS ESPECIALISTAS */}
+      <section className={styles.specialistsSection} id="especialistas">
+        <div className={styles.wrap}>
+          <div className={styles.sectionHeader}>
+            <span className={styles.sectionKicker}>EQUIPO PROFESIONAL</span>
+            <h2>Especialistas &amp; Cosmiatras Certificadas</h2>
+            <div className={styles.goldRule} aria-hidden="true" />
+            <p className={styles.sectionLead}>
+              Un equipo altamente capacitado en las más avanzadas técnicas terapéuticas, cosméticas y estilismo.
+            </p>
+          </div>
+
+          <div className={styles.specialistsGrid}>
+            {SPECIALISTS.map((person) => (
+              <div key={person.id} className={styles.specialistCard}>
+                <div className={styles.specialistPhotoWrapper}>
+                  <img
+                    src={person.photo}
+                    alt={person.photoAlt}
+                    width="120"
+                    height="120"
+                    decoding="async"
+                    loading="lazy"
+                  />
+                </div>
+                <h3>{person.name}</h3>
+                <span className={styles.specialistRole}>{person.role}</span>
+                <p className={styles.specialistBio}>
+                  Especialista certificada con amplia experiencia en tratamientos personalizados y atención de primera clase.
+                </p>
+                <button
+                  type="button"
+                  className={styles.specialistBookBtn}
+                  onClick={handleGeneralBooking}
+                >
+                  Agendar con Especialista
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 7. FRANJA DE CONFIANZA & BIOSEGURIDAD */}
       <section className={styles.trust} aria-label="Garantías del servicio">
         <div className={styles.wrap}>
           <div className={styles.trustGrid}>
             <div className={styles.trustItem}>
-              <ShieldCheck size={19} aria-hidden="true" />
-              Bioseguridad médica certificada
+              <ShieldCheck size={20} color="#4A7C59" />
+              <span>Bioseguridad Grado Médico Certificada</span>
             </div>
             <div className={styles.trustItem}>
-              <Lock size={19} aria-hidden="true" />
-              Cabinas privadas climatizadas
+              <Lock size={20} color="#4A7C59" />
+              <span>Cabinas Privadas Climatizadas</span>
             </div>
             <div className={styles.trustItem}>
-              <Award size={19} aria-hidden="true" />
-              Terapeutas &amp; Cosmiatras colegiadas
+              <Award size={20} color="#4A7C59" />
+              <span>Comprobantes Oficiales con IGV (18%)</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 6. PIE DE PÁGINA */}
+      {/* 8. PIE DE PÁGINA & CONTACTO */}
       <footer className={styles.footer} id="contacto">
         <div className={styles.wrap}>
           <div className={styles.footerGrid}>
             <div>
-              <span className={styles.footerName}>{SALON.name}</span>
+              <div className={styles.footerBrand}>
+                <img src="/logo_zen_icon.svg" alt="" width="28" height="28" />
+                <span className={styles.footerName}>{SALON.name}</span>
+              </div>
               <p className={styles.footerLine}>
                 <MapPin size={17} aria-hidden="true" />
-                {SALON.address}
+                <span>{SALON.address}</span>
               </p>
               <p className={styles.footerLine}>
                 <Clock size={17} aria-hidden="true" />
-                {SALON.hours}
+                <span>{SALON.hours}</span>
               </p>
             </div>
 
             <div className={styles.footerContact}>
+              <h4 className={styles.footerTitle}>Atención y Consultas</h4>
               <a className={styles.footerLink} href={SALON.phoneHref}>
                 <Phone size={17} aria-hidden="true" />
-                {SALON.phone}
+                <span>{SALON.phone}</span>
               </a>
               <a
                 className={styles.footerLink}
@@ -673,12 +542,28 @@ export default function LandingPage({
                 rel="noreferrer"
               >
                 <MessageCircle size={17} aria-hidden="true" />
-                {SALON.whatsapp}
+                <span>{SALON.whatsapp}</span>
               </a>
               <a className={styles.footerLink} href={SALON.emailHref}>
                 <Mail size={17} aria-hidden="true" />
-                {SALON.email}
+                <span>{SALON.email}</span>
               </a>
+            </div>
+
+            <div className={styles.footerAdminBox}>
+              <h4 className={styles.footerTitle}>Personal &amp; Gerencia</h4>
+              <p style={{ fontSize: '13px', color: 'var(--lp-muted)', marginBottom: '12px' }}>
+                Acceso exclusivo para el personal del spa (Recepción, Caja, Administración).
+              </p>
+              <button
+                type="button"
+                className={styles.footerAdminBtn}
+                onClick={onSwitchToAdmin}
+                id="btn-footer-acceso-admin"
+              >
+                <UserCheck size={16} />
+                <span>Acceso Administrativo</span>
+              </button>
             </div>
           </div>
 
@@ -686,17 +571,9 @@ export default function LandingPage({
             <span>
               {SALON.legalName} · RUC {SALON.ruc}
             </span>
-            <span className={styles.footerBottomRight}>
-              <span>© {CURRENT_YEAR} {SALON.name}</span>
-              <button
-                type="button"
-                className={styles.staffLink}
-                onClick={onSwitchToAdmin}
-                style={{ background: 'transparent', border: 'none', cursor: 'pointer', font: 'inherit', color: 'inherit' }}
-              >
-                Acceso del personal
-              </button>
-            </span>
+            <div className={styles.footerBottomRight}>
+              <span>&copy; {CURRENT_YEAR} {SALON.name} · Todos los derechos reservados</span>
+            </div>
           </div>
         </div>
       </footer>
