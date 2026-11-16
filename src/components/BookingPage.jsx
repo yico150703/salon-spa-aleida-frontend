@@ -247,7 +247,7 @@ export default function BookingPage({
           <div className="breadcrumb-nav">
             <span className="bc-link" onClick={onBackToHome}>Portal Principal</span>
             <span className="bc-separator">/</span>
-            <span className="bc-current">Página de Reserva de Citas en Línea (DS_CU04)</span>
+            <span className="bc-current">Página de Reserva de Citas en Línea</span>
           </div>
         </div>
       </div>
@@ -267,16 +267,16 @@ export default function BookingPage({
             {/* Franja de Confianza */}
             <div className="luxury-trust-strip">
               <span className="trust-badge-item">
-                <ShieldIcon size={15} color="#C8A26A" /> Bioseguridad Grado Médico
+                <ShieldIcon size={15} color="#4A7C59" /> Bioseguridad Grado Médico
               </span>
               <span className="trust-badge-item">
-                <ClockIcon size={15} color="#C8A26A" /> Puntualidad Garantizada
+                <ClockIcon size={15} color="#4A7C59" /> Puntualidad Garantizada
               </span>
               <span className="trust-badge-item">
-                <UsersIcon size={15} color="#C8A26A" /> Terapeutas Certificadas
+                <UsersIcon size={15} color="#4A7C59" /> Terapeutas Certificadas
               </span>
               <span className="trust-badge-item">
-                <CheckIcon size={15} color="#C8A26A" /> Cancelación Libre hasta 2h antes (DS_CU05)
+                <CheckIcon size={15} color="#4A7C59" /> Cancelación Libre hasta 2h antes
               </span>
             </div>
           </div>
@@ -298,7 +298,7 @@ export default function BookingPage({
                   { step: 1, label: 'Tratamiento', sub: 'Elige tu servicio' },
                   { step: 2, label: 'Especialista', sub: 'Tu terapeuta' },
                   { step: 3, label: 'Agenda', sub: 'Fecha y turno' },
-                  { step: 4, label: 'Ficha Cliente', sub: 'DS_CU03 Datos' },
+                  { step: 4, label: 'Datos del Cliente', sub: 'Información de contacto' },
                   { step: 5, label: 'Confirmación', sub: 'Voucher Oficial' }
                 ].map((s) => {
                   const isActive = currentStep === s.step;
@@ -478,13 +478,13 @@ export default function BookingPage({
                   </div>
                 )}
 
-                {/* STEP 3: SELECT DATE & TIME (DS_CU04 CON RF02) */}
+                {/* STEP 3: SELECT DATE & TIME */}
                 {currentStep === 3 && (
                   <div className="wizard-step-body animate-fade-in">
                     <div className="step-heading-row">
                       <div>
                         <h3>3. Selecciona Fecha y Horario de Atención</h3>
-                        <p>Validación en tiempo real para evitar cualquier cruce de cabina o especialista (RF02).</p>
+                        <p>Disponibilidad confirmada en tiempo real para asegurar tu cabina y horario exclusivo.</p>
                       </div>
                       <span className="step-pill-counter">Paso 3 de 5</span>
                     </div>
@@ -493,7 +493,7 @@ export default function BookingPage({
                       {/* Date Picker Box */}
                       <div className="luxury-date-box">
                         <div className="box-header-row">
-                          <CalendarIcon size={18} color="#C8A26A" />
+                          <CalendarIcon size={18} color="#4A7C59" />
                           <h4>Fecha de Tratamiento</h4>
                         </div>
                         <p className="box-sub">Seleccione el día en que desea su cita en cabina:</p>
@@ -612,13 +612,13 @@ export default function BookingPage({
                   </div>
                 )}
 
-                {/* STEP 4: CLIENT INTAKE & AROMATHERAPY (DS_CU03 & RF01) */}
+                {/* STEP 4: CLIENT INTAKE & AROMATHERAPY */}
                 {currentStep === 4 && (
                   <div className="wizard-step-body animate-fade-in">
                     <div className="step-heading-row">
                       <div>
-                        <h3>4. Ficha del Cliente y Preferencias de Cabina</h3>
-                        <p>Registro formal conforme a DS_CU03 para personalización de aromas y cuidados estéticos.</p>
+                        <h3>4. Datos del Cliente y Preferencias de Cabina</h3>
+                        <p>Información necesaria para personalizar tu sesión de aromaterapia y confirmar tu cita.</p>
                       </div>
                       <span className="step-pill-counter">Paso 4 de 5</span>
                     </div>
@@ -675,7 +675,7 @@ export default function BookingPage({
                             onChange={(e) => setClientDni(e.target.value)} 
                             className="luxury-text-input"
                           />
-                          <span className="field-hint">Para emisión de comprobante electrónico (DS_CU09).</span>
+                          <span className="field-hint">Para la emisión de tu comprobante electrónico oficial.</span>
                         </div>
 
                         <div className="luxury-field-group">
@@ -897,9 +897,9 @@ export default function BookingPage({
                             </div>
                           </div>
 
-                          {/* Cancellation Policy Box (DS_CU05 notice) */}
+                          {/* Cancellation Policy Box */}
                           <div className="luxury-policy-box">
-                            <strong>Política de Puntualidad y Reprogramación (DS_CU05):</strong>
+                            <strong>Política de Puntualidad y Reprogramación:</strong>
                             <p>
                               Agradecemos presentarse con 10 minutos de anticipación. Podrá reprogramar o cancelar su cita comunicándose con recepción con un mínimo de 2 horas de anticipación sin ningún recargo.
                             </p>
@@ -941,7 +941,7 @@ export default function BookingPage({
                       <div className="sidebar-service-badge">{selectedService.categoria}</div>
                       <h5>{selectedService.nombre}</h5>
                       <div className="sidebar-meta-row">
-                        <span><ClockIcon size={12} color="#C8A26A" /> {selectedService.duracion} min</span>
+                        <span><ClockIcon size={12} color="#4A7C59" /> {selectedService.duracion} min</span>
                         <strong className="sidebar-price">S/ {selectedService.precio.toFixed(2)}</strong>
                       </div>
                     </div>
@@ -973,16 +973,16 @@ export default function BookingPage({
 
                     <div className="sidebar-perks-list">
                       <div className="sidebar-perk-item">
-                        <CheckIcon size={13} color="#C8A26A" />
+                        <CheckIcon size={13} color="#4A7C59" />
                         <span>Infusión détox botánica de bienvenida</span>
                       </div>
                       <div className="sidebar-perk-item">
-                        <CheckIcon size={13} color="#C8A26A" />
+                        <CheckIcon size={13} color="#4A7C59" />
                         <span>Cabina privada con cromoterapia</span>
                       </div>
                       <div className="sidebar-perk-item">
-                        <CheckIcon size={13} color="#C8A26A" />
-                        <span>Cancelación flexible (DS_CU05)</span>
+                        <CheckIcon size={13} color="#4A7C59" />
+                        <span>Cancelación flexible hasta 2h antes</span>
                       </div>
                     </div>
 

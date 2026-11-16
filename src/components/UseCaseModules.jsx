@@ -22,9 +22,9 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
 
   const ROLES = ['Administrador', 'Recepcionista', 'Cajero', 'Terapeuta'];
   const PERMISOS_ROL = {
-    'Administrador': 'Acceso total (DS_CU01–DS_CU10)',
-    'Recepcionista': 'Agenda (DS_CU04, DS_CU05), Clientes (DS_CU03)',
-    'Cajero': 'Caja (DS_CU07, DS_CU08, DS_CU09, DS_CU10)',
+    'Administrador': 'Control total del sistema',
+    'Recepcionista': 'Agenda de citas y clientes',
+    'Cajero': 'Cobros, caja y comprobantes',
     'Terapeuta': 'Agenda - Solo consulta'
   };
 
@@ -53,7 +53,7 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
     <div className="uc-module">
       <div className="uc-module__header">
         <div>
-          <span className="uc-badge">DS_CU02</span>
+          <span className="uc-badge">Personal</span>
           <h2 className="uc-module__title">Registrar Personal</h2>
           <p className="uc-module__subtitle">Actor: Administrador · Gestión de usuarios del sistema</p>
         </div>
@@ -127,7 +127,7 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
                 <th>DNI</th>
                 <th>Usuario</th>
                 <th>Rol</th>
-                <th>Permisos (DS_CU)</th>
+                <th>Permisos</th>
               </tr>
             </thead>
             <tbody>
@@ -179,7 +179,7 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
     <div className="uc-module">
       <div className="uc-module__header">
         <div>
-          <span className="uc-badge">DS_CU06</span>
+          <span className="uc-badge">Catálogo</span>
           <h2 className="uc-module__title">Registrar Servicio en Catálogo</h2>
           <p className="uc-module__subtitle">Actor: Administrador · Tarifario de servicios del spa</p>
         </div>
@@ -280,7 +280,7 @@ export function AperturasCaja({ onApertura, cajaAbierta, showToast }) {
     <div className="uc-module">
       <div className="uc-module__header">
         <div>
-          <span className="uc-badge">DS_CU07</span>
+          <span className="uc-badge">Caja</span>
           <h2 className="uc-module__title">Aperturar Turno de Caja</h2>
           <p className="uc-module__subtitle">Actor: Cajero · Inicio de operaciones del día</p>
         </div>
@@ -317,7 +317,7 @@ export function AperturasCaja({ onApertura, cajaAbierta, showToast }) {
             <p className="apertura-obs"><strong>Obs:</strong> {aperturaInfo.observaciones}</p>
           )}
           <p className="apertura-nota">
-            La caja está habilitada para procesar ventas (DS_CU08) y registrar egresos.
+            La caja está habilitada para procesar cobros y registrar operaciones.
           </p>
         </div>
       ) : (

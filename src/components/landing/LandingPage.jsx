@@ -5,7 +5,6 @@ import {
   Check,
   Clock,
   Heart,
-  Layers,
   Lock,
   Mail,
   MapPin,
@@ -17,8 +16,7 @@ import {
   Star,
   UserCheck,
   X,
-  ArrowRight,
-  FileText
+  ArrowRight
 } from 'lucide-react';
 
 import styles from './LandingPage.module.css';
@@ -28,7 +26,6 @@ import {
   HOME_IMAGES,
   SALON,
   SERVICES,
-  SPECIALISTS,
 } from '../../data/salonData';
 
 const CURRENT_YEAR = new Date().getFullYear();
@@ -36,8 +33,6 @@ const CURRENT_YEAR = new Date().getFullYear();
 export default function LandingPage({
   onSwitchToAdmin,
   onNavigateToBooking,
-  onOpenLayerInspector,
-  onOpenRequirementsGuide,
   showToast,
   currentUser
 }) {
@@ -71,7 +66,7 @@ export default function LandingPage({
 
   return (
     <div className={styles.page}>
-      {/* 1. TOP NAVBAR ELEGANTE */}
+      {/* 1. TOP NAVBAR ELEGANTE Y LIMPIA */}
       <header className={styles.nav}>
         <div className={styles.navInner}>
           <a className={styles.brand} href="#inicio" aria-label="Salon Spa Aleida">
@@ -94,33 +89,10 @@ export default function LandingPage({
             <a href="#inicio">Inicio</a>
             <a href="#servicios">Servicios</a>
             <a href="#filosofia">Filosofía</a>
-            <a href="#especialistas">Especialistas</a>
             <a href="#contacto">Contacto</a>
           </nav>
 
           <div className={styles.navActions}>
-            {onOpenLayerInspector && (
-              <button
-                type="button"
-                className={styles.btnToolNav}
-                onClick={onOpenLayerInspector}
-                title="Inspeccionar Arquitectura por Capas"
-              >
-                <Layers size={14} /> 4 Capas
-              </button>
-            )}
-
-            {onOpenRequirementsGuide && (
-              <button
-                type="button"
-                className={styles.btnToolNav}
-                onClick={onOpenRequirementsGuide}
-                title="Guía Didáctica de Casos de Uso"
-              >
-                <FileText size={14} /> Requisitos
-              </button>
-            )}
-
             {/* BOTÓN DE ACCESO ADMINISTRATIVO REFINADO */}
             <button
               type="button"
@@ -163,7 +135,6 @@ export default function LandingPage({
             <a href="#inicio" onClick={() => setMobileMenuOpen(false)}>Inicio</a>
             <a href="#servicios" onClick={() => setMobileMenuOpen(false)}>Servicios &amp; Tratamientos</a>
             <a href="#filosofia" onClick={() => setMobileMenuOpen(false)}>Filosofía &amp; Experiencia</a>
-            <a href="#especialistas" onClick={() => setMobileMenuOpen(false)}>Especialistas</a>
             <a href="#contacto" onClick={() => setMobileMenuOpen(false)}>Contacto</a>
             
             <div className={styles.mobileMenuBtns}>
@@ -195,7 +166,7 @@ export default function LandingPage({
         )}
       </header>
 
-      {/* 2. HERO PRINCIPAL REFINADO (FOTOGRAFÍA ALINEADA Y SIMÉTRICA) */}
+      {/* 2. HERO PRINCIPAL REFINADO (FOTOGRAFÍA RECTA Y SIMÉTRICA, SIN ROSTROS) */}
       <section className={styles.hero} id="inicio">
         <div className={styles.heroInner}>
           <div className={styles.heroGrid}>
@@ -249,7 +220,7 @@ export default function LandingPage({
               </div>
             </div>
 
-            {/* Columna Derecha: Fotografía recta, elegante y proporcional */}
+            {/* Columna Derecha: Fotografía simétrica, recta y proporcional del ambiente spa */}
             <div className={styles.heroPhotoWrapper}>
               <figure className={styles.heroPhoto}>
                 <img
@@ -447,50 +418,7 @@ export default function LandingPage({
         </div>
       </section>
 
-      {/* 6. NUESTROS ESPECIALISTAS */}
-      <section className={styles.specialistsSection} id="especialistas">
-        <div className={styles.wrap}>
-          <div className={styles.sectionHeader}>
-            <span className={styles.sectionKicker}>EQUIPO PROFESIONAL</span>
-            <h2>Especialistas &amp; Cosmiatras Certificadas</h2>
-            <div className={styles.goldRule} aria-hidden="true" />
-            <p className={styles.sectionLead}>
-              Un equipo altamente capacitado en las más avanzadas técnicas terapéuticas, cosméticas y estilismo.
-            </p>
-          </div>
-
-          <div className={styles.specialistsGrid}>
-            {SPECIALISTS.map((person) => (
-              <div key={person.id} className={styles.specialistCard}>
-                <div className={styles.specialistPhotoWrapper}>
-                  <img
-                    src={person.photo}
-                    alt={person.photoAlt}
-                    width="120"
-                    height="120"
-                    decoding="async"
-                    loading="lazy"
-                  />
-                </div>
-                <h3>{person.name}</h3>
-                <span className={styles.specialistRole}>{person.role}</span>
-                <p className={styles.specialistBio}>
-                  Especialista certificada con amplia experiencia en tratamientos personalizados y atención de primera clase.
-                </p>
-                <button
-                  type="button"
-                  className={styles.specialistBookBtn}
-                  onClick={handleGeneralBooking}
-                >
-                  Agendar con Especialista
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 7. FRANJA DE CONFIANZA & BIOSEGURIDAD */}
+      {/* 6. FRANJA DE CONFIANZA & BIOSEGURIDAD */}
       <section className={styles.trust} aria-label="Garantías del servicio">
         <div className={styles.wrap}>
           <div className={styles.trustGrid}>
@@ -510,7 +438,7 @@ export default function LandingPage({
         </div>
       </section>
 
-      {/* 8. PIE DE PÁGINA & CONTACTO */}
+      {/* 7. PIE DE PÁGINA & CONTACTO */}
       <footer className={styles.footer} id="contacto">
         <div className={styles.wrap}>
           <div className={styles.footerGrid}>

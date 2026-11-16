@@ -136,7 +136,7 @@ export default function LoginScreen({ onLogin, onBackToHome }) {
 
           <div className="login-form-header">
             <h2 className="login-form-title">Acceso Administrativo</h2>
-            <p className="login-form-subtitle">DS_CU01 · Autenticación de Personal Autorizado</p>
+            <p className="login-form-subtitle">Autenticación segura para personal autorizado</p>
           </div>
 
           <form onSubmit={handleSubmit} className="login-form" id="login-form">

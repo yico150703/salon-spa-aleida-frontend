@@ -23,7 +23,7 @@ export default function ClientFileModal({ isOpen, onClose, cliente, onSaveClient
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div>
-            <span className="badge-tag gold">FICHA CLÍNICA & ESTÉTICA (CU02 / RF01)</span>
+            <span className="badge-tag gold">Ficha Clínica &amp; Estética</span>
             <h2>Expediente Estético: {cliente.nombre}</h2>
           </div>
           <button className="btn-close" onClick={onClose}>&times;</button>
@@ -65,7 +65,7 @@ export default function ClientFileModal({ isOpen, onClose, cliente, onSaveClient
             </div>
 
             <div className="alert-box success" style={{ fontSize: '0.82rem' }}>
-              [TRAZABILIDAD RF01] <strong>Padrón Centralizado:</strong> Toda actualización queda registrada para las especialistas y el módulo de citas.
+              <strong>Padrón Centralizado:</strong> Toda actualización queda registrada para las especialistas y el módulo de citas.
             </div>
           </div>
 

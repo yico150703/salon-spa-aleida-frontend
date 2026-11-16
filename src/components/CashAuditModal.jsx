@@ -24,7 +24,7 @@ export default function CashAuditModal({ isOpen, onClose, saldoTeorico, onConfir
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div>
-            <span className="badge-tag gold">OPERACIONES DE CAJA (CU05 / RF08)</span>
+            <span className="badge-tag gold">Operaciones de Caja</span>
             <h2>Calculadora Interactiva de Arqueo de Caja Físico</h2>
           </div>
           <button className="btn-close" onClick={onClose}>&times;</button>

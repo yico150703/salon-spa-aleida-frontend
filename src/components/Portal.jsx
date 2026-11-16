@@ -349,13 +349,13 @@ export default function Portal({
               </p>
               <div className="cta-perks-row">
                 <span className="cta-perk">
-                  <ShieldIcon size={14} color="#C8A26A" /> Bioseguridad Certificada
+                  <ShieldIcon size={14} color="#4A7C59" /> Bioseguridad Certificada
                 </span>
                 <span className="cta-perk">
-                  <ClockIcon size={14} color="#C8A26A" /> Puntualidad Garantizada
+                  <ClockIcon size={14} color="#4A7C59" /> Puntualidad Garantizada
                 </span>
                 <span className="cta-perk">
-                  <CheckIcon size={14} color="#C8A26A" /> Cancelación Flexible (DS_CU05)
+                  <CheckIcon size={14} color="#4A7C59" /> Cancelación Flexible hasta 2h antes
                 </span>
               </div>
             </div>

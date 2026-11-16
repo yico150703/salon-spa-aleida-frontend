@@ -17,7 +17,7 @@ const ROLE_PERMISSIONS = {
     badgeText: 'Administrador',
     badgeFull: 'Administrador · Control Total',
     badgeClass: 'rol-admin',
-    descripcion: 'Control total de los 10 Casos de Uso del Sistema, gestión de personal, finanzas y configuración.',
+    descripcion: 'Control total del sistema de gestión, personal, finanzas y configuración.',
     defaultTab: 'agenda',
     sections: [
       {
@@ -284,7 +284,6 @@ export default function Dashboard({
                   >
                     <span><TabIcon size={16} /></span>
                     {tab.label}
-                    <small className="cu-badge">{tab.code}</small>
                   </button>
                 );
               })}
@@ -380,7 +379,7 @@ export default function Dashboard({
               <h3>Acceso Restringido para el Rol {roleConfig.nombre}</h3>
               <p>
                 Este módulo requiere privilegios que no corresponden a su perfil operativo (<strong>{roleConfig.nombre}</strong>).
-                Conforme a la matriz de roles y seguridad (DS_CU01), cada usuario solo puede acceder a las funciones asignadas a su cargo.
+                Conforme a la matriz de roles y seguridad del sistema, cada usuario solo puede acceder a las funciones asignadas a su cargo.
               </p>
               <div className="restricted-allowed-chips">
                 <span>Módulos autorizados para su perfil:</span>
@@ -408,10 +407,10 @@ export default function Dashboard({
           <section className="admin-tab">
             <div className="tab-header">
               <div>
-                <span className="badge-tag gold">DS_CU04 · Agendar Cita de Spa &nbsp;|&nbsp; DS_CU05 · Reprogramar Cita</span>
+                <span className="badge-tag gold">Agenda &amp; Citas del Spa</span>
                 <h3>Agenda de Citas &amp; Control de Sillones</h3>
                 <small style={{ color: 'var(--color-text-muted)' }}>
-                  Valida disponibilidad de especialistas (DS_CU04) y permite reprogramar, cancelar y registrar estados de atención (DS_CU05).
+                  Valida disponibilidad de especialistas y permite reprogramar, cancelar y registrar estados de atención.
                 </small>
               </div>
               <button className="btn-action primary" onClick={() => { setEditingAppt(null); setIsApptModalOpen(true); }}>
@@ -428,7 +427,7 @@ export default function Dashboard({
                     <th>Especialista</th>
                     <th>Estado de Cita</th>
                     <th>Monto</th>
-                    <th>Acciones Didácticas</th>
+                    <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -451,7 +450,7 @@ export default function Dashboard({
                             handleOpenClientFile(cli);
                           }}
                         >
-                          Ver Ficha RF01
+                          Ver Ficha Cliente
                         </button>
                       </td>
                       <td>{c.servicio}</td>
@@ -513,7 +512,7 @@ export default function Dashboard({
           <section className="admin-tab">
             <div className="tab-header">
               <div>
-                <span className="badge-tag gold">DS_CU03 · Registrar Cliente · Actor: Recepcionista</span>
+                <span className="badge-tag gold">Padrón de Clientes &amp; Fichas Estéticas</span>
                 <h3>Padrón Centralizado de Clientes &amp; Fichas Estéticas</h3>
                 <small style={{ color: 'var(--color-text-muted)' }}>
                   Almacena historial estético, visitas acumuladas, sensibilidad dérmica y preferencias personalizadas.
@@ -523,7 +522,7 @@ export default function Dashboard({
                 const dni = prompt('DNI del cliente:');
                 if (dni) { const nombre = prompt('Nombre completo:'); if (nombre) onAddClient({ dni, nombre, telefono: '987654321', preferencias: 'Nueva ficha estética', visitas: 1 }); }
               }}>
-                + Nuevo Cliente (DS_CU03)
+                + Nuevo Cliente
               </button>
             </div>
             <div className="agenda-table-wrapper">
@@ -552,7 +551,7 @@ export default function Dashboard({
           <section className="admin-tab">
             <div className="tab-header">
               <div>
-                <span className="badge-tag gold">DS_CU05 · Reprogramar Cita · Actor: Recepcionista</span>
+                <span className="badge-tag gold">Reprogramación y Cancelación de Citas</span>
                 <h3>Reprogramar o Cancelar Citas</h3>
                 <small style={{ color: 'var(--color-text-muted)' }}>
                   Permite modificar fecha/hora de citas confirmadas o cancelarlas con motivo registrado.
@@ -561,7 +560,7 @@ export default function Dashboard({
             </div>
             <div className="agenda-table-wrapper">
               <table className="data-table">
-                <thead><tr><th>Horario</th><th>Cliente</th><th>Servicio</th><th>Estado</th><th>Acción DS_CU05</th></tr></thead>
+                <thead><tr><th>Horario</th><th>Cliente</th><th>Servicio</th><th>Estado</th><th>Acciones</th></tr></thead>
                 <tbody>
                   {citas.filter(c => c.estado !== 'Atendida' && c.estado !== 'Cancelada').map(c => (
                     <tr key={c.id}>
@@ -603,13 +602,13 @@ export default function Dashboard({
           </section>
         )}
 
-        {/* TAB 3: PUNTO DE VENTA (CU03 / RF04, RF05) */}
+        {/* TAB 3: PUNTO DE VENTA */}
         {activeTab === 'caja' && (
           <section className="admin-tab">
             <div className="tab-header">
               <div>
-                <span className="badge-tag gold">CASO DE USO CU03 • REQUISITOS RF04, RF05</span>
-                <h3>Punto de Venta (POS) & Emisión de Boleta Electrónica</h3>
+                <span className="badge-tag gold">Punto de Venta &amp; Facturación</span>
+                <h3>Punto de Venta (POS) &amp; Emisión de Boleta Electrónica</h3>
                 <small style={{ color: 'var(--color-text-muted)' }}>
                   Soporta servicios combinados con productos de reventa, descuentos promocionales, cálculo automático del IGV (18%) y cobro multicanal con vuelto.
                 </small>
@@ -633,7 +632,7 @@ export default function Dashboard({
                       <input type="number" step="0.01" value={posAmount} onChange={(e) => setPosAmount(e.target.value)} required />
                     </div>
                     <div className="form-group">
-                      <label>Producto Adicional de Salón (RF04)</label>
+                      <label>Producto Adicional de Salón</label>
                       <select value={posExtraProduct} onChange={(e) => setPosExtraProduct(e.target.value)}>
                         <option value="0">Ninguno (Solo servicio)</option>
                         <option value="45">Serum Reparador Capilar (+S/ 45.00)</option>
@@ -644,14 +643,14 @@ export default function Dashboard({
                   </div>
                   <div className="form-row">
                     <div className="form-group">
-                      <label>Descuento Promocional (RF04)</label>
+                      <label>Descuento Promocional</label>
                       <select value={posDiscount} onChange={(e) => setPosDiscount(e.target.value)}>
                         <option value="0">Sin Descuento (0%)</option>
                         <option value="10">Cliente Frecuente (10% Desc.)</option>
                       </select>
                     </div>
                     <div className="form-group">
-                      <label>Medio de Pago (RF05)</label>
+                      <label>Medio de Pago</label>
                       <select value={posPaymentMethod} onChange={(e) => setPosPaymentMethod(e.target.value)}>
                         <option value="Yape/Plin">Billetera Digital (Yape / Plin)</option>
                         <option value="Tarjeta POS">Tarjeta Crédito / Débito POS</option>
@@ -727,13 +726,13 @@ export default function Dashboard({
           </section>
         )}
 
-        {/* TAB 4: ANULACIONES (CU04 / RF06) */}
+        {/* TAB 4: ANULACIONES */}
         {activeTab === 'anulaciones' && (
           <section className="admin-tab">
             <div className="tab-header">
               <div>
-                <span className="badge-tag gold">CASO DE USO CU04 • REQUISITO RF06</span>
-                <h3>Gestión de Anulaciones & Emisión de Notas de Crédito</h3>
+                <span className="badge-tag gold">Anulaciones &amp; Devoluciones</span>
+                <h3>Gestión de Anulaciones &amp; Emisión de Notas de Crédito</h3>
                 <small style={{ color: 'var(--color-text-muted)' }}>
                   Requiere motivo obligatorio de anulación, validación estricta de PIN gerencial de auditoría y genera la reversión contable en caja.
                 </small>
@@ -748,7 +747,7 @@ export default function Dashboard({
                     <input type="text" value={annulTicket} onChange={(e) => setAnnulTicket(e.target.value)} required />
                   </div>
                   <div className="form-group">
-                    <label>Motivo Obligatorio (RF06)</label>
+                    <label>Motivo Obligatorio</label>
                     <select value={annulMotivo} onChange={(e) => setAnnulMotivo(e.target.value)}>
                       <option value="Error en digitación de importe">Error en digitación de importe</option>
                       <option value="Devolución por insatisfacción con tratamiento">Devolución por insatisfacción con tratamiento</option>
@@ -805,15 +804,15 @@ export default function Dashboard({
           </section>
         )}
 
-        {/* TAB 5: OPERACIONES DE CAJA (CU05 / RF07, RF08) */}
+        {/* TAB 5: OPERACIONES DE CAJA */}
         {activeTab === 'operaciones-caja' && (
           <section className="admin-tab">
             <div className="tab-header">
               <div>
-                <span className="badge-tag gold">CASO DE USO CU05 • REQUISITOS RF07, RF08</span>
-                <h3>Control Integral de Caja & Arqueo Diario</h3>
+                <span className="badge-tag gold">Gestión de Caja &amp; Arqueo Diario</span>
+                <h3>Control Integral de Caja &amp; Arqueo Diario</h3>
                 <small style={{ color: 'var(--color-text-muted)' }}>
-                  Apertura con fondo de sencillo, registro de salidas justificadas (RF07) y conciliación física con emisión de Reporte Z (RF08).
+                  Apertura con fondo de sencillo, registro de salidas justificadas y conciliación física con emisión de Reporte Z.
                 </small>
               </div>
               <span className="badge-status open"><span className="status-dot"></span> Caja Turno Mañana: Abierta</span>
@@ -854,13 +853,13 @@ export default function Dashboard({
                       if (monto) onExpense(parseFloat(monto) || 0, motivo);
                     }}
                   >
-                    - Registrar Egreso Justificado (RF07)
+                    - Registrar Egreso Justificado
                   </button>
                   <button 
                     className="btn-action primary" 
                     onClick={() => setIsCashAuditOpen(true)}
                   >
-                    Abrir Calculadora de Arqueo Físico (RF08)
+                    Abrir Calculadora de Arqueo Físico
                   </button>
                 </div>
               </div>
@@ -887,12 +886,12 @@ export default function Dashboard({
           </section>
         )}
 
-        {/* TAB 6: COMPRAS & PROVEEDORES (CU06 / RF09) */}
+        {/* TAB 6: COMPRAS & PROVEEDORES */}
         {activeTab === 'compras' && (
           <section className="admin-tab">
             <div className="tab-header">
               <div>
-                <span className="badge-tag gold">CASO DE USO CU06 • REQUISITO RF09</span>
+                <span className="badge-tag gold">Compras &amp; Abastecimiento</span>
                 <h3>Gestión de Compras, Proveedores & Kardex de Stock</h3>
                 <small style={{ color: 'var(--color-text-muted)' }}>
                   Control de insumos críticos bajo stock mínimo, emisión de Órdenes de Compra y recepción directa al inventario.
@@ -918,7 +917,7 @@ export default function Dashboard({
                     <th>Stock Actual</th>
                     <th>Stock Mínimo</th>
                     <th>Estado de Alerta</th>
-                    <th>Acción Didáctica</th>
+                    <th>Acción</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -940,7 +939,7 @@ export default function Dashboard({
                           className="btn-table primary" 
                           onClick={() => onReceiveStock(ins.id, 6)}
                         >
-                          Recepcionar +6 Stock (RF09)
+                          Recepcionar +6 Stock
                         </button>
                       </td>
                     </tr>
@@ -951,12 +950,12 @@ export default function Dashboard({
           </section>
         )}
 
-        {/* TAB 7: CATALOGO DE SERVICIOS (CU07 / RF10) */}
+        {/* TAB 7: CATALOGO DE SERVICIOS */}
         {activeTab === 'catalogo' && (
           <section className="admin-tab">
             <div className="tab-header">
               <div>
-                <span className="badge-tag gold">CASO DE USO CU07 • REQUISITO RF10</span>
+                <span className="badge-tag gold">Catálogo &amp; Tarifario</span>
                 <h3>Catálogo de Tratamientos, Tarifario & Comisiones</h3>
                 <small style={{ color: 'var(--color-text-muted)' }}>
                   Administración de precios al público, duración en cabina y comisiones de las estilistas (25%-35%).
@@ -995,12 +994,12 @@ export default function Dashboard({
           </section>
         )}
 
-        {/* TAB 8: USUARIOS Y ACCESOS (CU08 / RF11) */}
+        {/* TAB 8: USUARIOS Y ACCESOS */}
         {activeTab === 'usuarios' && (
           <section className="admin-tab">
             <div className="tab-header">
               <div>
-                <span className="badge-tag gold">CASO DE USO CU08 • REQUISITO RF11</span>
+                <span className="badge-tag gold">Seguridad &amp; Accesos</span>
                 <h3>Administración de Usuarios, Roles & Matriz de Seguridad</h3>
                 <small style={{ color: 'var(--color-text-muted)' }}>
                   Control de privilegios por perfil de puesto: Recepcionista, Cajero, Estilista y Gerencia General.
@@ -1034,12 +1033,12 @@ export default function Dashboard({
           </section>
         )}
 
-        {/* TAB 9: REPORTES GERENCIALES (CU09 / RF12) */}
+        {/* TAB 9: REPORTES GERENCIALES */}
         {activeTab === 'reportes' && (
           <section className="admin-tab">
             <div className="tab-header">
               <div>
-                <span className="badge-tag gold">CASO DE USO CU09 • REQUISITO RF12</span>
+                <span className="badge-tag gold">Inteligencia de Negocio &amp; Metas</span>
                 <h3>Reportes Gerenciales & Cumplimiento de Metas SMART</h3>
                 <small style={{ color: 'var(--color-text-muted)' }}>
                   Monitoreo estadístico de los 4 objetivos estratégicos con porcentajes reales para la toma de decisiones gerenciales.
@@ -1098,8 +1097,8 @@ export default function Dashboard({
             <div style={{ marginTop: '24px', background: '#FFFFFF', padding: '20px', borderRadius: '12px', border: '1px solid #EFEBE9' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                 <div>
-                  <strong style={{ fontSize: '1rem', color: '#2D2424' }}>Diagrama Arquitectónico: Matriz de Trazabilidad Cruzada</strong>
-                  <p style={{ fontSize: '0.82rem', color: '#795548', margin: '2px 0 0' }}>Mapeo formal de los 4 Objetivos Realistas SMART vs los 9 Casos de Uso del Negocio (CUN / RF01-RF12).</p>
+                  <strong style={{ fontSize: '1rem', color: '#2D2424' }}>Diagrama: Matriz de Trazabilidad Estratégica</strong>
+                  <p style={{ fontSize: '0.82rem', color: '#795548', margin: '2px 0 0' }}>Mapeo formal de Objetivos SMART vs Procesos Operativos del Negocio.</p>
                 </div>
                 <a 
                   href="/Objetivos_vs_Casos_de_Uso.png" 

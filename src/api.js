@@ -37,9 +37,9 @@ export const initialMockState = {
     { id: 4, nombre: 'Manicura Spa Premium', categoria: 'Manos & Pies', duracion: 60, precio: 150.0, comision: 35 }
   ],
   usuarios: [
-    { usuario: 'cramos', nombre: 'Camila Ramos', rol: 'Recepcionista', permisos: 'Agenda (CU01), Clientes (CU02), POS (CU03)' },
-    { usuario: 'aleida_admin', nombre: 'Aleida Mendoza', rol: 'Gerente General', permisos: 'Acceso Total (CU01-CU09)' },
-    { usuario: 'csanchez', nombre: 'Carmen Sánchez', rol: 'Terapeuta / Cosmiatra', permisos: 'Agenda y Fichas' }
+    { usuario: 'cramos', nombre: 'Camila Ramos', rol: 'Recepcionista', permisos: 'Agenda de Citas, Padrón Clientes, Terminal POS' },
+    { usuario: 'aleida_admin', nombre: 'Aleida Mendoza', rol: 'Gerente General', permisos: 'Acceso Total (Todos los Módulos)' },
+    { usuario: 'csanchez', nombre: 'Carmen Sánchez', rol: 'Terapeuta / Cosmiatra', permisos: 'Agenda y Fichas Clínicas' }
   ],
   reportes: {
     objetivos_smart: [

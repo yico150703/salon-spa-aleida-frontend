@@ -81,7 +81,7 @@ export default function AppointmentModal({
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div>
-            <span className="badge-tag gold">GESTIÓN DE CITAS (CU01 / RF02, RF03)</span>
+            <span className="badge-tag gold">Gestión de Citas del Spa</span>
             <h2>
               {mode === 'crear' ? 'Agendar Nueva Cita en Sala' : mode === 'reprogramar' ? `Reprogramar Cita: ${cliente}` : `Cancelar Cita: ${cliente}`}
             </h2>
@@ -96,14 +96,14 @@ export default function AppointmentModal({
               className={`btn-pill ${mode === 'reprogramar' ? 'active' : ''}`}
               onClick={() => setMode('reprogramar')}
             >
-              [CAMBIAR] Reprogramar Horario
+              Reprogramar Horario
             </button>
             <button 
               type="button" 
               className={`btn-pill ${mode === 'cancelar' ? 'active' : ''}`}
               onClick={() => setMode('cancelar')}
             >
-              [ANULAR] Cancelar Cita
+              Cancelar Cita
             </button>
           </div>
         )}
@@ -112,7 +112,7 @@ export default function AppointmentModal({
           <div className="modal-body">
             {mode === 'cancelar' ? (
               <div className="form-group">
-                <label>Motivo Obligatorio de Cancelación (RF03)</label>
+                <label>Motivo Obligatorio de Cancelación</label>
                 <textarea 
                   rows="3" 
                   value={motivoCancelacion}
