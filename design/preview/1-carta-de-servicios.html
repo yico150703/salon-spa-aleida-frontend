@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html><head>
+  <meta charset="utf-8">
+  <meta name="kombai-design-canvas" content="true">
+  
+  
+  
+  
+  
+  
+  <style>html, body { margin: 0; padding: 0; } #root { display: contents; }</style>
+</head><body>
+  <div id="root"><style>
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap");
+@import url("https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.48.0/dist/tabler-icons.min.css");
+
+:root{
+  --forest:#2B573C;
+  --forest-deep:#234733;
+  --sage:#4A7C59;
+  --mint:#F4FAF6;
+  --white:#FFFFFF;
+  --pale:#EBF5F0;
+  --gold:#D4AF37;
+  --ink:#183023;
+  --muted:#42634F;
+  --soft:#6E8F7C;
+  --border:#CFE3D7;
+  --border-soft:#E4F1E9;
+  --serif:'Playfair Display', Georgia, serif;
+  --sans:'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--mint);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{margin:0;font-family:var(--serif);font-weight:600;letter-spacing:-0.01em;color:var(--ink)}
+p{margin:0}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit}
+img{display:block}
+.wrap{max-width:1336px;margin:0 auto;padding:0 48px}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:44px;padding:0 26px;border-radius:6px;border:1px solid transparent;
+  font-family:var(--sans);font-size:15px;font-weight:500;letter-spacing:.01em;
+  cursor:pointer;transition:background-color .18s ease,color .18s ease,border-color .18s ease;
+}
+.btn-sage{background:var(--forest);color:#fff}
+.btn-sage:hover{background:var(--forest-deep)}
+
+/* ================= NAVBAR ================= */
+.nav{position:sticky;top:0;z-index:60;background:var(--white);border-bottom:1px solid var(--border-soft)}
+.nav-inner{max-width:1336px;margin:0 auto;padding:0 48px;height:80px;display:flex;align-items:center;justify-content:space-between;gap:32px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-mark{width:38px;height:38px;border-radius:8px;background:var(--pale);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.brand-mark img{width:28px;height:28px}
+.brand-name{display:block;font-family:var(--serif);font-size:19px;font-weight:600;color:var(--ink);line-height:1.2}
+.brand-sub{display:block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--sage);font-weight:500;margin-top:3px}
+.nav-links{display:flex;align-items:center;gap:34px}
+.nav-links a{font-size:15px;font-weight:500;color:var(--muted);padding:6px 0;border-bottom:1px solid transparent;transition:color .18s ease,border-color .18s ease}
+.nav-links a:hover{color:var(--forest);border-bottom-color:var(--gold)}
+
+/* ================= HERO ================= */
+.hero{background:linear-gradient(158deg,#2B573C 0%,#27503A 54%,#234733 100%);color:#fff;overflow:hidden}
+.hero-inner{max-width:1336px;margin:0 auto;padding:40px 48px 52px}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,760px);column-gap:40px;row-gap:36px}
+.hero-photo{grid-column:2;margin:0;height:250px;overflow:hidden;border-radius:2px}
+.hero-photo img{width:100%;height:100%;object-fit:cover}
+.hero-text{grid-column:1 / -1;max-width:780px}
+.hero h1{font-size:54px;line-height:62px;font-weight:600;color:#fff;letter-spacing:-0.015em}
+.hero-lead{margin-top:18px;max-width:546px;font-size:17px;line-height:1.75;font-weight:300;color:#DCEDE2}
+.hero-cta{margin-top:26px}
+.hero .btn-sage{background:var(--sage)}
+.hero .btn-sage:hover{background:#3E6B4C}
+
+/* ================= CATALOGUE ================= */
+.catalogue{background:var(--mint);padding:80px 0 88px}
+.catalogue-head{margin-bottom:34px}
+.catalogue h2{font-size:40px;line-height:1.2}
+.catalogue-grid{display:grid;grid-template-columns:300px minmax(0,1fr);gap:40px;align-items:start}
+.atmosphere{display:flex;flex-direction:column;gap:20px}
+.atmosphere figure{margin:0;overflow:hidden;border-radius:2px}
+.atmosphere img{width:100%;object-fit:cover}
+.atmosphere .a-tall img{height:392px}
+.atmosphere .a-wide img{height:208px}
+
+.menu{display:flex;flex-direction:column;gap:8px}
+.treat{
+  display:grid;grid-template-columns:22px minmax(0,1fr) 92px 116px 148px;
+  align-items:center;gap:20px;padding:18px 22px;text-align:left;width:100%;
+  background:var(--white);border:1px solid var(--border-soft);border-radius:3px;
+  cursor:pointer;transition:background-color .18s ease,border-color .18s ease;
+}
+.treat:hover{border-color:var(--border)}
+.treat:focus-visible{outline:2px solid var(--sage);outline-offset:2px}
+.treat.is-selected{background:var(--pale);border-color:var(--sage)}
+.treat-check{width:20px;height:20px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;transition:background-color .18s ease,border-color .18s ease,color .18s ease}
+.treat-check i{font-size:12px;line-height:1;color:transparent;transition:color .18s ease}
+.treat.is-selected .treat-check{background:var(--sage);border-color:var(--sage)}
+.treat.is-selected .treat-check i{color:#fff}
+.treat-main{min-width:0}
+.treat h3{font-size:19px;line-height:1.3;font-weight:600}
+.treat-desc{margin-top:5px;min-height:63px;font-size:14px;line-height:1.5;color:var(--muted)}
+.treat-dur{display:flex;align-items:center;justify-content:flex-end;gap:6px;font-size:14px;font-weight:500;color:var(--muted);white-space:nowrap}
+.treat-dur i{font-size:16px;color:var(--soft)}
+.treat-price{font-family:var(--serif);font-size:19px;font-weight:600;text-align:right;white-space:nowrap}
+.treat-btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 14px;border:1px solid var(--sage);border-radius:6px;background:#fff;color:var(--forest);font-size:14px;font-weight:500;white-space:nowrap;transition:background-color .18s ease,color .18s ease}
+.treat:hover .treat-btn{background:var(--forest);color:#fff}
+
+/* ================= BOOKING ================= */
+.booking{background:var(--white);border-top:1px solid var(--border-soft);padding:80px 0 88px}
+.booking h2{font-size:36px;line-height:1.2}
+.gold-rule{width:64px;height:1px;background:var(--gold);opacity:.85;margin:18px 0 40px}
+.booking-grid{display:grid;grid-template-columns:minmax(0,1fr) 336px;gap:48px;align-items:start}
+.field{margin-bottom:28px}
+.field:last-child{margin-bottom:0}
+.field-label{display:block;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);margin-bottom:10px}
+.field-row{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:10px}
+.field-row .field-label{margin-bottom:0}
+.month{font-size:13px;font-weight:500;color:var(--muted)}
+
+.select-wrap{position:relative}
+.select-wrap select{
+  width:100%;height:56px;padding:0 46px 0 18px;background:#F9FDFA;border:1px solid var(--border);
+  border-radius:3px;font-family:var(--sans);font-size:16px;font-weight:500;color:var(--ink);
+  appearance:none;-webkit-appearance:none;cursor:pointer;transition:border-color .18s ease,background-color .18s ease;
+}
+.select-wrap select:hover{background:#F4FBF7}
+.select-wrap select:focus{outline:none;border-color:var(--sage);box-shadow:0 0 0 3px rgba(74,124,89,.14)}
+.select-wrap i{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--sage);pointer-events:none}
+
+.specialist-list{border:1px solid var(--border);border-radius:3px;overflow:hidden;background:#fff}
+.specialist{display:flex;align-items:center;gap:14px;width:100%;padding:13px 16px;background:transparent;border:0;border-bottom:1px solid var(--border-soft);cursor:pointer;text-align:left;transition:background-color .18s ease}
+.specialist:last-child{border-bottom:0}
+.specialist:hover{background:#F7FCF9}
+.specialist.is-selected{background:var(--pale)}
+.specialist img{width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.sp-text{flex:1;min-width:0}
+.sp-name{display:block;font-size:15px;font-weight:600;color:var(--ink);line-height:1.35}
+.sp-role{display:block;font-size:13px;color:var(--muted);line-height:1.4}
+.radio{width:18px;height:18px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:border-color .18s ease}
+.radio::after{content:"";width:8px;height:8px;border-radius:50%;background:transparent;transition:background-color .18s ease}
+.specialist.is-selected .radio{border-color:var(--sage)}
+.specialist.is-selected .radio::after{background:var(--sage)}
+
+.dates{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.date{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;height:64px;padding:0;background:#fff;border:1px solid var(--border-soft);border-radius:3px;cursor:pointer;color:var(--ink);transition:background-color .18s ease,border-color .18s ease,color .18s ease}
+.date:hover{border-color:var(--sage)}
+.date-dow{font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--soft)}
+.date-num{font-family:var(--serif);font-size:18px;font-weight:600;line-height:1.1}
+.date-note{font-size:9px;line-height:1.2;color:#9BB3A5}
+.date.is-selected{background:var(--forest);border-color:var(--forest);color:#fff}
+.date.is-selected .date-dow{color:#C6DECD}
+.date.is-closed{background:#F7FBF8;cursor:not-allowed;color:#9FB6A8}
+.date.is-closed .date-num{color:#9FB6A8}
+.date.is-closed:hover{border-color:var(--border-soft)}
+
+.times{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.time{height:44px;border:1px solid var(--border);border-radius:3px;background:#fff;font-size:15px;font-weight:500;color:var(--ink);cursor:pointer;transition:background-color .18s ease,border-color .18s ease,color .18s ease}
+.time:hover{border-color:var(--sage);background:#F7FCF9}
+.time.is-selected{background:var(--sage);border-color:var(--sage);color:#fff}
+.time:disabled{background:#F5FAF7;border-color:var(--border-soft);color:#A9BFB2;cursor:not-allowed}
+.time:disabled:hover{background:#F5FAF7;border-color:var(--border-soft)}
+
+.summary{background:var(--pale);border-radius:3px;padding:26px 24px 24px;position:sticky;top:104px}
+.summary h3{font-size:18px;font-weight:600}
+.summary .gold-rule{margin:14px 0 18px;width:44px}
+.sum-row{margin-bottom:14px}
+.sum-label{display:block;font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#5C7E6B;margin-bottom:3px}
+.sum-value{display:block;font-size:15px;font-weight:500;line-height:1.45;color:var(--ink)}
+.sum-lines{padding:14px 0 4px;border-top:1px solid rgba(74,124,89,.16)}
+.sum-line{display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding:5px 0}
+.sum-line .sum-label{margin-bottom:0;flex-shrink:0}
+.sum-line .sum-value{text-align:right}
+.sum-total{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding-top:16px;border-top:1px solid rgba(74,124,89,.16)}
+.sum-total .sum-label{margin-bottom:0}
+.total-val{font-family:var(--serif);font-size:25px;font-weight:600}
+.btn-continue{width:100%;margin-top:20px;min-height:46px;background:var(--forest);color:#fff}
+.btn-continue:hover{background:var(--forest-deep)}
+
+/* ================= TRUST ================= */
+.trust{background:var(--pale);padding:42px 0}
+.trust-grid{display:grid;grid-template-columns:repeat(3,1fr)}
+.trust-item{display:flex;align-items:center;justify-content:center;gap:11px;padding:0 24px;font-size:15px;font-weight:500;color:var(--forest);border-right:1px solid #D3E7DC}
+.trust-item:last-child{border-right:0}
+.trust-item i{font-size:19px;color:var(--sage);flex-shrink:0}
+
+/* ================= FOOTER ================= */
+.footer{background:var(--mint);border-top:1px solid rgba(212,175,55,.45);padding:56px 0 26px}
+.footer-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:48px;padding-bottom:32px;border-bottom:1px solid var(--border-soft)}
+.footer-name{display:block;font-family:var(--serif);font-size:25px;font-weight:600;margin-bottom:16px}
+.footer-line{display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.7;color:var(--muted);margin-bottom:8px}
+.footer-line i{font-size:17px;color:var(--sage);margin-top:3px;flex-shrink:0}
+.footer-contact{display:flex;flex-direction:column;gap:12px;padding-top:4px}
+.footer-link{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:500;color:var(--sage);transition:color .18s ease}
+.footer-link:hover{color:var(--forest)}
+.footer-link i{font-size:17px}
+.footer-bottom{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding-top:20px;font-size:12px;color:var(--soft)}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width:1200px){
+  .hero-grid{grid-template-columns:1fr}
+  .hero-photo{grid-column:1;height:300px}
+  .hero-text{grid-column:1}
+  .catalogue-grid{grid-template-columns:1fr;gap:32px}
+  .atmosphere{flex-direction:row}
+  .atmosphere figure{flex:1;min-width:0}
+  .atmosphere .a-tall img,.atmosphere .a-wide img{height:220px}
+  .booking-grid{grid-template-columns:1fr}
+  .summary{position:static}
+}
+@media (max-width:1024px){
+  .hero h1{font-size:44px;line-height:52px}
+  .catalogue h2{font-size:34px}
+  .booking h2{font-size:31px}
+  .nav-links{gap:24px}
+}
+@media (max-width:900px){
+  .nav-links{display:none}
+  .treat{grid-template-columns:22px minmax(0,1fr) auto;grid-template-areas:"check main price" "check dur btn";row-gap:12px;column-gap:14px;padding:16px 18px}
+  .treat-check{grid-area:check;align-self:start;margin-top:3px}
+  .treat-main{grid-area:main}
+  .treat-price{grid-area:price;align-self:start}
+  .treat-dur{grid-area:dur;justify-content:flex-start}
+  .treat-btn{grid-area:btn;min-height:38px;padding:0 14px}
+  .footer-grid{grid-template-columns:1fr;gap:28px}
+}
+@media (max-width:768px){
+  .wrap,.nav-inner,.hero-inner{padding:0 24px}
+  .hero-inner{padding-top:28px;padding-bottom:40px}
+  .nav,.nav-inner{height:68px}
+  .brand-sub{display:none}
+  .hero-photo{height:220px}
+  .hero h1{font-size:34px;line-height:41px}
+  .hero-lead{font-size:16px}
+  .catalogue,.booking{padding:48px 0 56px}
+  .catalogue h2{font-size:29px}
+  .booking h2{font-size:27px}
+  .gold-rule{margin-bottom:28px}
+  .dates{gap:6px}
+  .date{height:58px}
+  .date-dow{font-size:9px;letter-spacing:.04em}
+  .date-num{font-size:16px}
+  .date-note{font-size:8px}
+  .trust-grid{grid-template-columns:1fr}
+  .trust-item{border-right:0;border-bottom:1px solid #D3E7DC;justify-content:flex-start;padding:12px 0}
+  .trust-item:last-child{border-bottom:0}
+  .footer-bottom{flex-direction:column;align-items:flex-start;gap:6px}
+}
+@media (max-width:520px){
+  .atmosphere{flex-direction:column}
+  .atmosphere .a-tall img,.atmosphere .a-wide img{height:200px}
+  .times{grid-template-columns:repeat(2,1fr)}
+  .date{height:54px}
+  .date-note{display:none}
+  .treat h3{font-size:17px}
+  .sum-line{flex-direction:column;gap:1px}
+  .sum-line .sum-value{text-align:left}
+}
+</style>
+<header class="nav" data-kid="1" data-name="sticky top navigation header">
+<div class="nav-inner" data-kid="1-1" data-name="navbar inner container">
+<a aria-label="Salon Spa Aleida, inicio" class="brand" data-kid="1-1-1" data-name="brand logo link to home" href="#inicio">
+<span class="brand-mark" data-kid="1-1-1-1" data-name="brand logo mark container"><img alt="Flor de loto de Salon Spa Aleida" data-kid="1-1-1-1-1" data-name="lotus flower logo icon" decoding="async" height="28" loading="lazy" src="../../../frontend/public/logo_zen_icon.svg" width="28"/></span>
+<span data-kid="1-1-1-2" data-name="brand name text block">
+<span class="brand-name" data-kid="1-1-1-2-1" data-name="brand name text">Salon Spa Aleida</span>
+<span class="brand-sub" data-kid="1-1-1-2-2" data-name="brand subcategory label">Salón &amp; Spa</span>
+</span>
+</a>
+<nav aria-label="Secciones" class="nav-links" data-kid="1-1-2" data-name="main navigation links">
+<a data-kid="1-1-2-1" data-name="nav link to services" href="#servicios">Servicios</a>
+<a data-kid="1-1-2-2" data-name="nav link to booking" href="#reserva">Reservar</a>
+<a data-kid="1-1-2-3" data-name="nav link to contact" href="#contacto">Contacto</a>
+</nav>
+<a class="btn btn-sage" data-kid="1-1-3" data-name="call-to-action book appointment button" href="#reserva">Reservar Cita</a>
+</div>
+</header>
+<section class="hero" data-kid="2" data-name="hero section with forest gradient" id="inicio">
+<div class="hero-inner" data-kid="2-1" data-name="hero inner content wrapper">
+<div class="hero-grid" data-kid="2-1-1" data-name="hero image-and-text grid">
+<figure class="hero-photo" data-kid="2-1-1-1" data-name="hero spa treatment photo">
+<img alt="Camilla de masajes con toallas dobladas y luz cálida. Foto: Marine Fougère / Pexels" data-kid="2-1-1-1-1" data-name="spa massage bed photograph" decoding="async" height="250" loading="lazy" src="https://images.pexels.com/photos/35884502/pexels-photo-35884502.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1200&amp;q=80" width="760"/>
+</figure>
+<div class="hero-text" data-kid="2-1-1-2" data-name="hero text block">
+<h1 data-kid="2-1-1-2-1" data-name="hero headline">Renueva tu Belleza,<br data-kid="2-1-1-2-1-1" data-name="line break in headline"/>Equilibra tu Bienestar</h1>
+<p class="hero-lead" data-kid="2-1-1-2-2" data-name="hero lead paragraph">Combinamos rituales terapéuticos botánicos, tratamientos faciales antiedad y estilismo capilar personalizado en un ambiente de calma y cuidado integral.</p>
+<div class="hero-cta" data-kid="2-1-1-2-3" data-name="hero call-to-action wrapper"><a class="btn btn-sage" data-kid="2-1-1-2-3-1" data-name="hero primary book appointment button" href="#reserva">Reservar Cita</a></div>
+</div>
+</div>
+</div>
+</section>
+<section class="catalogue" data-kid="3" data-name="services catalogue section" id="servicios">
+<div class="wrap" data-kid="3-1" data-name="catalogue content wrapper">
+<div class="catalogue-head" data-kid="3-1-1" data-name="catalogue section header"><h2 data-kid="3-1-1-1" data-name="catalogue section title">Carta de Servicios</h2></div>
+<div class="catalogue-grid" data-kid="3-1-2" data-name="catalogue two-column layout">
+<aside class="atmosphere" data-kid="3-1-2-1" data-name="atmosphere photo sidebar">
+<figure class="a-tall" data-kid="3-1-2-1-1" data-name="tall private cabin photo">
+<img alt="Cabina privada con camilla y cortinas de madera. Foto: KoolShooters / Pexels" data-kid="3-1-2-1-1-1" data-name="private cabin interior photograph" decoding="async" height="392" loading="lazy" src="https://images.pexels.com/photos/6628520/pexels-photo-6628520.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=700&amp;q=80" width="300"/>
+</figure>
+<figure class="a-wide" data-kid="3-1-2-1-2" data-name="wide eucalyptus photo">
+<img alt="Toallas dobladas junto a frascos de aceite y una vela. Foto: Alesia Kozik / Pexels" data-kid="3-1-2-1-2-1" data-name="spa still life photograph" decoding="async" height="208" loading="lazy" src="https://images.pexels.com/photos/7795793/pexels-photo-7795793.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=700&amp;q=80" width="300"/>
+</figure>
+</aside>
+<div class="menu" data-kid="3-1-2-2" data-name="treatments menu list" id="menu">
+<div aria-pressed="true" class="treat is-selected" data-kid="3-1-2-2-1" data-name="treatment card for relaxing massage" data-service="0" role="button" tabindex="0">
+<span class="treat-check" data-kid="3-1-2-2-1-1" data-name="treatment selection indicator circle"><i class="ti ti-check" data-kid="3-1-2-2-1-1-1" data-name="checkmark icon in selection indicator"></i></span>
+<div class="treat-main" data-kid="3-1-2-2-1-2" data-name="treatment name and description block">
+<h3 data-kid="3-1-2-2-1-2-1" data-name="treatment title">Masaje Relajante Aleida</h3>
+<p class="treat-desc" data-kid="3-1-2-2-1-2-2" data-name="treatment description">Terapia antiestrés con aceites botánicos, aromaterapia personalizada y piedras calientes para disolver tensiones acumuladas.</p>
+</div>
+<div class="treat-dur" data-kid="3-1-2-2-1-3" data-name="treatment duration"><i class="ti ti-clock" data-kid="3-1-2-2-1-3-1" data-name="clock icon"></i>90 min</div>
+<div class="treat-price" data-kid="3-1-2-2-1-4" data-name="treatment price">S/ 280.00</div>
+<div class="treat-btn" data-kid="3-1-2-2-1-5" data-name="treatment book now button">Reservar Cita</div>
+</div>
+<div aria-pressed="false" class="treat" data-kid="3-1-2-2-2" data-name="treatment card for gold facial" data-service="1" role="button" tabindex="0">
+<span class="treat-check" data-kid="3-1-2-2-2-1" data-name="treatment selection indicator circle"><i class="ti ti-check" data-kid="3-1-2-2-2-1-1" data-name="checkmark icon in selection indicator"></i></span>
+<div class="treat-main" data-kid="3-1-2-2-2-2" data-name="treatment name and description block">
+<h3 data-kid="3-1-2-2-2-2-1" data-name="treatment title">Facial Rejuvenecedor con Oro</h3>
+<p class="treat-desc" data-kid="3-1-2-2-2-2-2" data-name="treatment description">Limpieza profunda e hidratación intensiva con micropartículas de oro coloidal y colágeno hidrolizado purificado.</p>
+</div>
+<div class="treat-dur" data-kid="3-1-2-2-2-3" data-name="treatment duration"><i class="ti ti-clock" data-kid="3-1-2-2-2-3-1" data-name="clock icon"></i>75 min</div>
+<div class="treat-price" data-kid="3-1-2-2-2-4" data-name="treatment price">S/ 450.00</div>
+<div class="treat-btn" data-kid="3-1-2-2-2-5" data-name="treatment book now button">Reservar Cita</div>
+</div>
+<div aria-pressed="false" class="treat" data-kid="3-1-2-2-3" data-name="treatment card for keratin hair treatment" data-service="2" role="button" tabindex="0">
+<span class="treat-check" data-kid="3-1-2-2-3-1" data-name="treatment selection indicator circle"><i class="ti ti-check" data-kid="3-1-2-2-3-1-1" data-name="checkmark icon in selection indicator"></i></span>
+<div class="treat-main" data-kid="3-1-2-2-3-2" data-name="treatment name and description block">
+<h3 data-kid="3-1-2-2-3-2-1" data-name="treatment title">Tratamiento Capilar Keratina</h3>
+<p class="treat-desc" data-kid="3-1-2-2-3-2-2" data-name="treatment description">Nutrición intensiva con sellado térmico para eliminación total del frizz y brillo prolongado de calidad profesional.</p>
+</div>
+<div class="treat-dur" data-kid="3-1-2-2-3-3" data-name="treatment duration"><i class="ti ti-clock" data-kid="3-1-2-2-3-3-1" data-name="clock icon"></i>120 min</div>
+<div class="treat-price" data-kid="3-1-2-2-3-4" data-name="treatment price">S/ 350.00</div>
+<div class="treat-btn" data-kid="3-1-2-2-3-5" data-name="treatment book now button">Reservar Cita</div>
+</div>
+<div aria-pressed="false" class="treat" data-kid="3-1-2-2-4" data-name="treatment card for spa manicure" data-service="3" role="button" tabindex="0">
+<span class="treat-check" data-kid="3-1-2-2-4-1" data-name="treatment selection indicator circle"><i class="ti ti-check" data-kid="3-1-2-2-4-1-1" data-name="checkmark icon in selection indicator"></i></span>
+<div class="treat-main" data-kid="3-1-2-2-4-2" data-name="treatment name and description block">
+<h3 data-kid="3-1-2-2-4-2-1" data-name="treatment title">Manicura Spa Premium</h3>
+<p class="treat-desc" data-kid="3-1-2-2-4-2-2" data-name="treatment description">Exfoliación con sales minerales marinas, hidratación profunda con parafina tibia y esmaltado de alta duración.</p>
+</div>
+<div class="treat-dur" data-kid="3-1-2-2-4-3" data-name="treatment duration"><i class="ti ti-clock" data-kid="3-1-2-2-4-3-1" data-name="clock icon"></i>60 min</div>
+<div class="treat-price" data-kid="3-1-2-2-4-4" data-name="treatment price">S/ 150.00</div>
+<div class="treat-btn" data-kid="3-1-2-2-4-5" data-name="treatment book now button">Reservar Cita</div>
+</div>
+<div aria-pressed="false" class="treat" data-kid="3-1-2-2-5" data-name="treatment card for hair styling" data-service="4" role="button" tabindex="0">
+<span class="treat-check" data-kid="3-1-2-2-5-1" data-name="treatment selection indicator circle"><i class="ti ti-check" data-kid="3-1-2-2-5-1-1" data-name="checkmark icon in selection indicator"></i></span>
+<div class="treat-main" data-kid="3-1-2-2-5-2" data-name="treatment name and description block">
+<h3 data-kid="3-1-2-2-5-2-1" data-name="treatment title">Corte y Peinado de Estilo</h3>
+<p class="treat-desc" data-kid="3-1-2-2-5-2-2" data-name="treatment description">Asesoría de visagismo personalizada, lavado con shampoo dermocosmético, corte de autor y estilizado profesional.</p>
+</div>
+<div class="treat-dur" data-kid="3-1-2-2-5-3" data-name="treatment duration"><i class="ti ti-clock" data-kid="3-1-2-2-5-3-1" data-name="clock icon"></i>45 min</div>
+<div class="treat-price" data-kid="3-1-2-2-5-4" data-name="treatment price">S/ 120.00</div>
+<div class="treat-btn" data-kid="3-1-2-2-5-5" data-name="treatment book now button">Reservar Cita</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="booking" data-kid="4" data-name="booking section" id="reserva">
+<div class="wrap" data-kid="4-1" data-name="booking content wrapper">
+<h2 data-kid="4-1-1" data-name="booking section title">Reserva tu Cita</h2>
+<div class="gold-rule" data-kid="4-1-2" data-name="gold decorative rule"></div>
+<div class="booking-grid" data-kid="4-1-3" data-name="booking two-column layout">
+<div class="booking-left" data-kid="4-1-3-1" data-name="booking form fields">
+<div class="field" data-kid="4-1-3-1-1" data-name="service field group">
+<label class="field-label" data-kid="4-1-3-1-1-1" data-name="service field label" for="service-select">Servicio</label>
+<div class="select-wrap" data-kid="4-1-3-1-1-2" data-name="service select wrapper">
+<select data-kid="4-1-3-1-1-2-1" data-name="service dropdown select" id="service-select">
+<option data-kid="4-1-3-1-1-2-1-1" data-name="service option for relaxing massage" selected="" value="0">Masaje Relajante Aleida</option>
+<option data-kid="4-1-3-1-1-2-1-2" data-name="service option for gold facial" value="1">Facial Rejuvenecedor con Oro</option>
+<option data-dynamic="true" data-kid="4-1-3-1-1-2-1-3" data-name="service option for keratin hair" data-reason="select value reassigned by script when a treatment card is clicked" value="2">Tratamiento Capilar Keratina</option>
+<option data-kid="4-1-3-1-1-2-1-4" data-name="service option for spa manicure" value="3">Manicura Spa Premium</option>
+<option data-kid="4-1-3-1-1-2-1-5" data-name="service option for hair styling" value="4">Corte y Peinado de Estilo</option>
+</select>
+<i class="ti ti-chevron-down" data-kid="4-1-3-1-1-2-2" data-name="down chevron icon on select"></i>
+</div>
+</div>
+<div class="field" data-kid="4-1-3-1-2" data-name="specialist field group">
+<span class="field-label" data-kid="4-1-3-1-2-1" data-name="specialist field label">Especialista</span>
+<div class="specialist-list" data-kid="4-1-3-1-2-2" data-name="specialist list container" id="specialists">
+<button class="specialist is-selected" data-kid="4-1-3-1-2-2-1" data-name="specialist option for Carmen Sánchez" data-specialist="Carmen Sánchez" type="button">
+<img alt="Carmen Sánchez. Foto: xandro Vandewalle / Unsplash" data-kid="4-1-3-1-2-2-1-1" data-name="specialist avatar photo" decoding="async" height="44" loading="lazy" src="https://images.unsplash.com/photo-1586165127014-f730957751f2?auto=format&amp;w=200&amp;h=200&amp;fit=crop&amp;q=80" width="44"/>
+<span class="sp-text" data-kid="4-1-3-1-2-2-1-2" data-name="specialist name and role block">
+<span class="sp-name" data-kid="4-1-3-1-2-2-1-2-1" data-name="specialist name">Carmen Sánchez</span>
+<span class="sp-role" data-kid="4-1-3-1-2-2-1-2-2" data-name="specialist role">Cosmiatra &amp; Terapeuta Holística</span>
+</span>
+<span aria-hidden="true" class="radio" data-kid="4-1-3-1-2-2-1-3" data-name="radio indicator circle"></span>
+</button>
+<button class="specialist" data-kid="4-1-3-1-2-2-2" data-name="specialist option for Luisa Paredes" data-specialist="Luisa Paredes" type="button">
+<img alt="Luisa Paredes. Foto: Rendy Novantino / Unsplash" data-kid="4-1-3-1-2-2-2-1" data-name="specialist avatar photo" decoding="async" height="44" loading="lazy" src="https://images.unsplash.com/photo-1620198361326-a319ba24ec94?auto=format&amp;w=200&amp;h=200&amp;fit=crop&amp;q=80" width="44"/>
+<span class="sp-text" data-kid="4-1-3-1-2-2-2-2" data-name="specialist name and role block">
+<span class="sp-name" data-kid="4-1-3-1-2-2-2-2-1" data-name="specialist name">Luisa Paredes</span>
+<span class="sp-role" data-kid="4-1-3-1-2-2-2-2-2" data-name="specialist role">Estilista Capilar Senior</span>
+</span>
+<span aria-hidden="true" class="radio" data-kid="4-1-3-1-2-2-2-3" data-name="radio indicator circle"></span>
+</button>
+<button class="specialist" data-kid="4-1-3-1-2-2-3" data-name="specialist option for Ana Vargas" data-specialist="Ana Vargas" type="button">
+<img alt="Ana Vargas. Foto: Maria Isadora / Pexels" data-kid="4-1-3-1-2-2-3-1" data-name="specialist avatar photo" decoding="async" height="44" loading="lazy" src="https://images.pexels.com/photos/18090215/pexels-photo-18090215.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=200&amp;h=200&amp;fit=crop&amp;q=80" width="44"/>
+<span class="sp-text" data-kid="4-1-3-1-2-2-3-2" data-name="specialist name and role block">
+<span class="sp-name" data-kid="4-1-3-1-2-2-3-2-1" data-name="specialist name">Ana Vargas</span>
+<span class="sp-role" data-kid="4-1-3-1-2-2-3-2-2" data-name="specialist role">Especialista en Manicura &amp; Pedicura</span>
+</span>
+<span aria-hidden="true" class="radio" data-kid="4-1-3-1-2-2-3-3" data-name="radio indicator circle"></span>
+</button>
+</div>
+</div>
+<div class="field" data-kid="4-1-3-1-3" data-name="date field group">
+<div class="field-row" data-kid="4-1-3-1-3-1" data-name="date field header row">
+<span class="field-label" data-kid="4-1-3-1-3-1-1" data-name="date field label">Fecha</span>
+<span class="month" data-kid="4-1-3-1-3-1-2" data-name="current month label">Noviembre 2026</span>
+</div>
+<div class="dates" data-kid="4-1-3-1-3-2" data-name="date picker grid" id="dates">
+<button class="date" data-kid="4-1-3-1-3-2-1" data-long="Lunes 16 de noviembre" data-name="date button for Monday 16" type="button"><span class="date-dow" data-kid="4-1-3-1-3-2-1-1" data-name="day-of-week abbreviation">Lun</span><span class="date-num" data-kid="4-1-3-1-3-2-1-2" data-name="date number">16</span></button>
+<button class="date" data-kid="4-1-3-1-3-2-2" data-long="Martes 17 de noviembre" data-name="date button for Tuesday 17" type="button"><span class="date-dow" data-kid="4-1-3-1-3-2-2-1" data-name="day-of-week abbreviation">Mar</span><span class="date-num" data-kid="4-1-3-1-3-2-2-2" data-name="date number">17</span></button>
+<button class="date is-selected" data-kid="4-1-3-1-3-2-3" data-long="Miércoles 18 de noviembre" data-name="date button for Wednesday 18 (selected)" type="button"><span class="date-dow" data-kid="4-1-3-1-3-2-3-1" data-name="day-of-week abbreviation">Mié</span><span class="date-num" data-kid="4-1-3-1-3-2-3-2" data-name="date number">18</span></button>
+<button class="date" data-kid="4-1-3-1-3-2-4" data-long="Jueves 19 de noviembre" data-name="date button for Thursday 19" type="button"><span class="date-dow" data-kid="4-1-3-1-3-2-4-1" data-name="day-of-week abbreviation">Jue</span><span class="date-num" data-kid="4-1-3-1-3-2-4-2" data-name="date number">19</span></button>
+<button class="date" data-kid="4-1-3-1-3-2-5" data-long="Viernes 20 de noviembre" data-name="date button for Friday 20" type="button"><span class="date-dow" data-kid="4-1-3-1-3-2-5-1" data-name="day-of-week abbreviation">Vie</span><span class="date-num" data-kid="4-1-3-1-3-2-5-2" data-name="date number">20</span></button>
+<button class="date" data-kid="4-1-3-1-3-2-6" data-long="Sábado 21 de noviembre" data-name="date button for Saturday 21" type="button"><span class="date-dow" data-kid="4-1-3-1-3-2-6-1" data-name="day-of-week abbreviation">Sáb</span><span class="date-num" data-kid="4-1-3-1-3-2-6-2" data-name="date number">21</span></button>
+<button class="date is-closed" data-kid="4-1-3-1-3-2-7" data-long="Domingo 22 de noviembre" data-name="disabled closed date button for Sunday 22" disabled="" type="button"><span class="date-dow" data-kid="4-1-3-1-3-2-7-1" data-name="day-of-week abbreviation">Dom</span><span class="date-num" data-kid="4-1-3-1-3-2-7-2" data-name="date number">22</span><span class="date-note" data-kid="4-1-3-1-3-2-7-3" data-name="closed note label">Cerrado</span></button>
+</div>
+</div>
+<div class="field" data-kid="4-1-3-1-4" data-name="hour field group">
+<span class="field-label" data-kid="4-1-3-1-4-1" data-name="hour field label">Horario</span>
+<div class="times" data-kid="4-1-3-1-4-2" data-name="time slot grid" id="times">
+<button class="time" data-kid="4-1-3-1-4-2-1" data-name="time slot button 09:00" type="button">09:00</button>
+<button class="time" data-kid="4-1-3-1-4-2-2" data-name="time slot button 10:30" type="button">10:30</button>
+<button class="time is-selected" data-kid="4-1-3-1-4-2-3" data-name="time slot button 11:45 (selected)" type="button">11:45</button>
+<button class="time" data-kid="4-1-3-1-4-2-4" data-name="time slot button 14:30" type="button">14:30</button>
+<button class="time" data-kid="4-1-3-1-4-2-5" data-name="disabled occupied time slot button 16:30" disabled="" title="Horario ocupado" type="button">16:30</button>
+<button class="time" data-kid="4-1-3-1-4-2-6" data-name="disabled occupied time slot button 18:00" disabled="" title="Horario ocupado" type="button">18:00</button>
+</div>
+</div>
+</div>
+<aside class="summary" data-kid="4-1-3-2" data-name="sticky booking summary sidebar" id="summary">
+<h3 data-kid="4-1-3-2-1" data-name="booking summary title">Tu reserva</h3>
+<div class="gold-rule" data-kid="4-1-3-2-2" data-name="gold decorative rule"></div>
+<div class="sum-row" data-kid="4-1-3-2-3" data-name="summary service detail row">
+<span class="sum-label" data-kid="4-1-3-2-3-1" data-name="summary service label">Servicio</span>
+<span class="sum-value" data-dynamic="true" data-kid="4-1-3-2-3-2" data-name="summary service value" data-reason="text replaced by render script on load and on service change" id="sum-service">Masaje Relajante Aleida</span>
+</div>
+<div class="sum-row" data-kid="4-1-3-2-4" data-name="summary specialist detail row">
+<span class="sum-label" data-kid="4-1-3-2-4-1" data-name="summary specialist label">Especialista</span>
+<span class="sum-value" data-dynamic="true" data-kid="4-1-3-2-4-2" data-name="summary specialist value" data-reason="text replaced by render script on load and on specialist change" id="sum-specialist">Carmen Sánchez</span>
+</div>
+<div class="sum-lines" data-kid="4-1-3-2-5" data-name="summary detail lines group">
+<div class="sum-line" data-kid="4-1-3-2-5-1" data-name="summary date detail row">
+<span class="sum-label" data-kid="4-1-3-2-5-1-1" data-name="summary date label">Fecha</span>
+<span class="sum-value" data-dynamic="true" data-kid="4-1-3-2-5-1-2" data-name="summary date value" data-reason="text replaced by render script on load and on date change" id="sum-date">Miércoles 18 de noviembre</span>
+</div>
+<div class="sum-line" data-kid="4-1-3-2-5-2" data-name="summary time detail row">
+<span class="sum-label" data-kid="4-1-3-2-5-2-1" data-name="summary time label">Horario</span>
+<span class="sum-value" data-dynamic="true" data-kid="4-1-3-2-5-2-2" data-name="summary time value" data-reason="text replaced by render script on load and on time change" id="sum-time">11:45</span>
+</div>
+<div class="sum-line" data-kid="4-1-3-2-5-3" data-name="summary duration detail row">
+<span class="sum-label" data-kid="4-1-3-2-5-3-1" data-name="summary duration label">Duración</span>
+<span class="sum-value" data-dynamic="true" data-kid="4-1-3-2-5-3-2" data-name="summary duration value" data-reason="text replaced by render script on load and on service change" id="sum-duration">90 min</span>
+</div>
+</div>
+<div class="sum-total" data-kid="4-1-3-2-6" data-name="summary total price row">
+<span class="sum-label" data-kid="4-1-3-2-6-1" data-name="summary total label">Total</span>
+<span class="total-val" data-dynamic="true" data-kid="4-1-3-2-6-2" data-name="summary total price value" data-reason="text replaced by render script on load and on service change" id="sum-price">S/ 280.00</span>
+</div>
+<button class="btn btn-continue" data-kid="4-1-3-2-7" data-name="continue booking button" type="button">Continuar reserva</button>
+</aside>
+</div>
+</div>
+</section>
+<section class="trust" data-kid="5" data-name="trust badges bar">
+<div class="wrap" data-kid="5-1" data-name="trust content wrapper">
+<div class="trust-grid" data-kid="5-1-1" data-name="trust items grid">
+<div class="trust-item" data-kid="5-1-1-1" data-name="trust item for medical biosecurity"><i class="ti ti-shield-check" data-kid="5-1-1-1-1" data-name="shield check icon"></i>Bioseguridad médica</div>
+<div class="trust-item" data-kid="5-1-1-2" data-name="trust item for private cabins"><i class="ti ti-lock" data-kid="5-1-1-2-1" data-name="lock icon"></i>Cabinas privadas</div>
+<div class="trust-item" data-kid="5-1-1-3" data-name="trust item for certified therapists"><i class="ti ti-certificate" data-kid="5-1-1-3-1" data-name="certificate icon"></i>Terapeutas certificadas</div>
+</div>
+</div>
+</section>
+<footer class="footer" data-kid="6" data-name="footer section" id="contacto">
+<div class="wrap" data-kid="6-1" data-name="footer content wrapper">
+<div class="footer-grid" data-kid="6-1-1" data-name="footer main grid">
+<div class="footer-main" data-kid="6-1-1-1" data-name="footer address and info block">
+<span class="footer-name" data-kid="6-1-1-1-1" data-name="footer brand name">Salon Spa Aleida</span>
+<p class="footer-line" data-kid="6-1-1-1-2" data-name="footer address line"><i class="ti ti-map-pin" data-kid="6-1-1-1-2-1" data-name="map pin icon"></i>Av. Conquistadores 450, Lima — Perú</p>
+<p class="footer-line" data-kid="6-1-1-1-3" data-name="footer opening hours line"><i class="ti ti-clock" data-kid="6-1-1-1-3-1" data-name="clock icon"></i>Lunes a Sábado, 09:00 – 20:00</p>
+</div>
+<div class="footer-contact" data-kid="6-1-1-2" data-name="footer contact links block">
+<a class="footer-link" data-kid="6-1-1-2-1" data-name="phone contact link" href="tel:+5114219876"><i class="ti ti-phone" data-kid="6-1-1-2-1-1" data-name="phone icon"></i>(01) 421-9876</a>
+<a class="footer-link" data-kid="6-1-1-2-2" data-name="WhatsApp contact link" href="https://wa.me/51987654321"><i class="ti ti-message-circle" data-kid="6-1-1-2-2-1" data-name="message circle icon"></i>WhatsApp 987 654 321</a>
+<a class="footer-link" data-kid="6-1-1-2-3" data-name="email contact link" href="mailto:contacto@salonspaaleida.com"><i class="ti ti-mail" data-kid="6-1-1-2-3-1" data-name="mail icon"></i>contacto@salonspaaleida.com</a>
+</div>
+</div>
+<div class="footer-bottom" data-kid="6-1-2" data-name="footer bottom bar">
+<span data-kid="6-1-2-1" data-name="footer legal and tax ID text">Salon Spa Aleida S.A.C. · RUC 20608192831</span>
+<span data-kid="6-1-2-2" data-name="footer copyright text">© 2026 Salon Spa Aleida</span>
+</div>
+</div>
+</footer>
+<script>
+(function(){
+  var services = [
+    {name:'Masaje Relajante Aleida', dur:'90 min', price:'S/ 280.00'},
+    {name:'Facial Rejuvenecedor con Oro', dur:'75 min', price:'S/ 450.00'},
+    {name:'Tratamiento Capilar Keratina', dur:'120 min', price:'S/ 350.00'},
+    {name:'Manicura Spa Premium', dur:'60 min', price:'S/ 150.00'},
+    {name:'Corte y Peinado de Estilo', dur:'45 min', price:'S/ 120.00'}
+  ];
+  var state = {service:0, specialist:'Carmen Sánchez', date:'Miércoles 18 de noviembre', time:'11:45'};
+
+  function setText(id, val){ var el = document.getElementById(id); if(el){ el.textContent = val; } }
+
+  function render(){
+    var s = services[state.service];
+    setText('sum-service', s.name);
+    setText('sum-specialist', state.specialist);
+    setText('sum-date', state.date);
+    setText('sum-time', state.time);
+    setText('sum-duration', s.dur);
+    setText('sum-price', s.price);
+  }
+
+  var cards = document.querySelectorAll('.treat');
+  var sel = document.getElementById('service-select');
+
+  function selectService(idx, scroll){
+    state.service = idx;
+    for(var i=0;i<cards.length;i++){
+      var on = Number(cards[i].getAttribute('data-service')) === idx;
+      cards[i].classList.toggle('is-selected', on);
+      cards[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+    if(sel){ sel.value = String(idx); }
+    render();
+    if(scroll){
+      var target = document.getElementById('reserva');
+      if(target){ target.scrollIntoView({behavior:'smooth', block:'start'}); }
+      if(sel){ setTimeout(function(){ try{ sel.focus({preventScroll:true}); }catch(e){} }, 340); }
+    }
+  }
+
+  for(var c=0;c<cards.length;c++){
+    (function(card){
+      card.addEventListener('click', function(ev){
+        ev.preventDefault();
+        selectService(Number(card.getAttribute('data-service')), true);
+      });
+      card.addEventListener('keydown', function(ev){
+        if(ev.key === 'Enter' || ev.key === ' '){
+          ev.preventDefault();
+          selectService(Number(card.getAttribute('data-service')), true);
+        }
+      });
+    })(cards[c]);
+  }
+
+  if(sel){ sel.addEventListener('change', function(){ selectService(Number(sel.value), false); }); }
+
+  var sps = document.querySelectorAll('.specialist');
+  for(var p=0;p<sps.length;p++){
+    (function(row){
+      row.addEventListener('click', function(){
+        for(var k=0;k<sps.length;k++){ sps[k].classList.remove('is-selected'); }
+        row.classList.add('is-selected');
+        state.specialist = row.getAttribute('data-specialist');
+        render();
+      });
+    })(sps[p]);
+  }
+
+  var dates = document.querySelectorAll('.date');
+  for(var d=0;d<dates.length;d++){
+    (function(day){
+      day.addEventListener('click', function(){
+        if(day.disabled){ return; }
+        for(var k=0;k<dates.length;k++){ dates[k].classList.remove('is-selected'); }
+        day.classList.add('is-selected');
+        state.date = day.getAttribute('data-long') || day.textContent.trim();
+        render();
+      });
+    })(dates[d]);
+  }
+
+  var times = document.querySelectorAll('.time');
+  for(var t=0;t<times.length;t++){
+    (function(slot){
+      slot.addEventListener('click', function(){
+        if(slot.disabled){ return; }
+        for(var k=0;k<times.length;k++){ times[k].classList.remove('is-selected'); }
+        slot.classList.add('is-selected');
+        state.time = slot.textContent.trim();
+        render();
+      });
+    })(times[t]);
+  }
+
+  render();
+})();
+</script></div>
+</body></html>

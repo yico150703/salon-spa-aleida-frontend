@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html><head>
+  <meta charset="utf-8">
+  <meta name="kombai-design-canvas" content="true">
+  
+  
+  
+  
+  
+  
+  <style>html, body { margin: 0; padding: 0; } #root { display: contents; }</style>
+</head><body>
+  <div id="root"><style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap');
+@import url('https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.48.0/dist/tabler-icons.min.css');
+
+:root{
+  --forest:#2B573C;
+  --forest-deep:#22492F;
+  --sage:#4A7C59;
+  --sage-dark:#3F6B4C;
+  --mint:#F4FAF6;
+  --white:#FFFFFF;
+  --pale:#EBF5F0;
+  --gold:#D4AF37;
+  --ink:#183023;
+  --muted:#42634F;
+  --soft:#78977F;
+  --border:#CFE3D7;
+  --border-2:#E4F1E9;
+  --head:'Playfair Display', Georgia, serif;
+  --body:'Outfit', -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+body{
+  margin:0;
+  padding-top:76px;
+  background:var(--mint);
+  color:var(--ink);
+  font-family:var(--body);
+  font-size:16px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{margin:0;}
+p{margin:0;}
+a{color:inherit;}
+img{display:block;}
+section[id],footer[id]{scroll-margin-top:96px;}
+
+.wrap{max-width:1360px;margin:0 auto;}
+
+/* ---------- NAVBAR ---------- */
+.nav{
+  position:fixed;inset:0 0 auto 0;height:76px;z-index:60;
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border-2);
+}
+.nav-in{max-width:1440px;margin:0 auto;height:76px;padding:0 40px;display:flex;align-items:center;justify-content:space-between;gap:32px;}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;}
+.mark{width:40px;height:40px;flex:0 0 40px;border:1px solid var(--border-2);border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;}
+.mark img{width:26px;height:26px;}
+.brand-name{font-family:var(--head);font-size:1.1875rem;font-weight:600;letter-spacing:.005em;color:var(--ink);}
+.nav-links{display:flex;gap:32px;}
+.nav-links a{font-size:.9375rem;font-weight:500;color:var(--muted);text-decoration:none;padding:6px 0;border-bottom:1px solid transparent;transition:color 180ms ease,border-color 180ms ease;}
+.nav-links a:hover{color:var(--forest);border-bottom-color:var(--gold);}
+.nav-right{display:flex;align-items:center;gap:20px;}
+.nav-phone{font-size:.9375rem;font-weight:500;color:var(--ink);text-decoration:none;transition:color 180ms ease;}
+.nav-phone:hover{color:var(--forest);}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 22px;border-radius:4px;border:1px solid transparent;font-family:var(--body);font-size:.9375rem;font-weight:600;text-decoration:none;cursor:pointer;transition:background-color 180ms ease,color 180ms ease,border-color 180ms ease;white-space:nowrap;}
+.btn-sage{background:var(--sage);color:#fff;}
+.btn-sage:hover{background:var(--sage-dark);}
+.btn-forest{background:var(--forest);color:#fff;}
+.btn-forest:hover{background:var(--forest-deep);}
+.btn-lg{height:48px;padding:0 28px;font-size:1rem;}
+.btn i{font-size:16px;}
+
+/* ---------- HERO ---------- */
+.hero{
+  box-sizing:border-box;min-height:456px;display:flex;align-items:center;padding:34px 40px;
+  background:radial-gradient(circle at 16% 8%, #33664B 0%, #2B573C 46%, #22492F 100%);
+  border-bottom:1px solid rgba(212,175,55,.5);
+}
+.hero-in{max-width:1360px;margin:0 auto;width:100%;display:flex;align-items:center;gap:56px;}
+.hero-photo{margin:0;flex:0 0 360px;width:360px;height:340px;}
+.hero-photo img{width:100%;height:100%;object-fit:cover;border-radius:2px;}
+.hero-copy{margin-left:auto;max-width:670px;}
+.hero-copy h1{font-family:var(--head);font-size:3rem;line-height:1.16;font-weight:600;letter-spacing:-.015em;color:#fff;}
+.hero-copy p{margin-top:18px;max-width:560px;font-size:1rem;font-weight:300;line-height:1.75;color:#D7E9DE;}
+.hero-actions{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-top:28px;}
+.hero-note{font-size:.875rem;color:#BCD3C5;}
+.hero-note a{color:#fff;text-decoration:none;border-bottom:1px solid rgba(212,175,55,.75);padding-bottom:1px;transition:color 180ms ease;}
+.hero-note a:hover{color:#F3E7C0;}
+
+/* ---------- SECTION HEADS ---------- */
+.sec-head{display:flex;align-items:center;gap:24px;}
+.sec-head h2{font-family:var(--head);font-size:1.875rem;font-weight:600;letter-spacing:-.01em;color:var(--ink);white-space:nowrap;}
+.sec-head .rule{flex:1;height:1px;background:linear-gradient(to right,rgba(212,175,55,.6),rgba(207,227,215,.7));}
+
+/* ---------- CATALOGUE ---------- */
+.catalog{background:var(--mint);padding:48px 40px 56px;}
+.rail{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:20px;margin-top:30px;}
+.svc{
+  box-sizing:border-box;display:flex;flex-direction:column;min-height:274px;padding:20px;cursor:pointer;position:relative;
+  background:#fff;border:1px solid var(--border);border-radius:3px;
+  transition:background-color 180ms ease,border-color 180ms ease;
+}
+.svc:hover{border-color:var(--sage);}
+.svc.is-sel{background:var(--pale);border-color:var(--sage);}
+.svc-top{display:flex;align-items:baseline;justify-content:space-between;}
+.dur{font-family:var(--head);font-size:2.125rem;font-weight:600;line-height:1;color:var(--ink);font-variant-numeric:lining-nums tabular-nums;}
+.dur .unit{margin-left:5px;font-family:var(--body);font-size:.8125rem;font-weight:500;letter-spacing:.04em;color:var(--soft);}
+.check{position:absolute;top:16px;right:16px;width:22px;height:22px;border-radius:50%;background:var(--sage);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;opacity:0;transition:opacity 180ms ease;}
+.check i{font-size:13px;}
+.svc.is-sel .check{opacity:1;}
+.svc-name{margin-top:14px;font-family:var(--head);font-size:1.0625rem;font-weight:600;line-height:1.32;color:var(--ink);min-height:2.7em;}
+.svc-cat{margin-top:6px;font-size:.875rem;color:var(--muted);}
+.desc{display:none;margin-top:10px;font-size:.875rem;line-height:1.6;color:var(--muted);}
+.svc.is-open .desc{display:block;}
+.svc-price{margin-top:auto;padding-top:18px;font-size:1.15rem;font-weight:600;color:var(--sage);font-variant-numeric:tabular-nums;}
+.svc-actions{display:flex;flex-direction:column;gap:10px;margin-top:10px;}
+.btn-details{align-self:flex-start;border:0;background:none;padding:0;font-family:var(--body);font-size:.875rem;color:var(--muted);text-decoration:underline;text-decoration-color:var(--border);text-underline-offset:3px;cursor:pointer;transition:color 180ms ease;}
+.btn-details:hover{color:var(--forest);}
+.btn-card{height:40px;border:1px solid var(--border);border-radius:3px;background:#fff;color:var(--ink);font-family:var(--body);font-size:.9375rem;font-weight:600;cursor:pointer;transition:background-color 180ms ease,border-color 180ms ease;}
+.btn-card:hover{background:var(--mint);border-color:var(--sage);}
+.svc.is-sel .btn-card{border-color:var(--sage);background:#fff;}
+
+/* ---------- BOOKING ---------- */
+.booking{background:#fff;padding:64px 40px 72px;}
+.module{margin-top:30px;border:1px solid var(--border);border-radius:4px;overflow:hidden;background:#fff;}
+.svc-field{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;padding:16px 24px;border-bottom:1px solid var(--border-2);}
+.lab{display:block;font-size:.8125rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--soft);}
+.svc-field-val{display:block;margin-top:4px;font-family:var(--head);font-size:1.25rem;font-weight:600;color:var(--ink);}
+.svc-field-meta{display:flex;align-items:center;gap:16px;font-size:.9375rem;color:var(--muted);font-variant-numeric:tabular-nums;}
+.svc-field-meta strong{font-size:1.0625rem;font-weight:700;color:var(--forest);}
+.rule-v{width:1px;height:16px;background:var(--border);}
+
+.cal{padding:22px 24px;border-bottom:1px solid var(--border-2);}
+.cal-head{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.cal-month{display:flex;align-items:center;gap:10px;}
+.cal-month span{min-width:158px;text-align:center;font-family:var(--head);font-size:1.0625rem;font-weight:600;color:var(--ink);}
+.icon-btn{width:32px;height:32px;border:1px solid var(--border-2);border-radius:3px;background:#fff;color:var(--muted);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color 180ms ease,color 180ms ease;}
+.icon-btn i{font-size:15px;}
+.icon-btn:hover{border-color:var(--sage);color:var(--forest);}
+.link-btn{display:inline-flex;align-items:center;gap:8px;border:0;background:none;padding:0;font-family:var(--body);font-size:.9375rem;font-weight:600;color:var(--forest);cursor:pointer;transition:color 180ms ease;}
+.link-btn i{font-size:16px;}
+.link-btn:hover{color:var(--sage-dark);}
+.cal-strip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;margin-top:16px;}
+.day{height:60px;padding:0;border:1px solid var(--border-2);border-radius:3px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:var(--body);color:var(--ink);cursor:pointer;transition:background-color 180ms ease,border-color 180ms ease,color 180ms ease;}
+.day .wd{font-size:.8125rem;font-weight:500;color:var(--muted);}
+.day .dn{font-size:1.125rem;font-weight:600;font-variant-numeric:tabular-nums;}
+.day:hover{border-color:var(--sage);}
+.day.is-sel{background:var(--forest);border-color:var(--forest);}
+.day.is-sel .wd{color:#CDE3D6;}
+.day.is-sel .dn{color:#fff;}
+.day.closed{background:#F7FBF8;border-style:dashed;cursor:default;}
+.day.closed .wd{color:#9DB4A6;}
+.closed-txt{font-size:.75rem;font-weight:500;color:#93AC9D;}
+
+.times{padding:22px 24px;border-bottom:1px solid var(--border-2);}
+.time-row{display:grid;grid-template-columns:96px repeat(3,minmax(0,1fr));gap:10px;align-items:center;max-width:880px;margin-top:12px;}
+.time-label{font-size:.875rem;font-weight:600;color:var(--soft);}
+.slot{height:44px;border:1px solid var(--border-2);border-radius:3px;background:#fff;font-family:var(--body);font-size:.9375rem;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;cursor:pointer;transition:background-color 180ms ease,border-color 180ms ease,color 180ms ease;}
+.slot:hover{border-color:var(--sage);}
+.slot.is-sel{background:var(--forest);border-color:var(--forest);color:#fff;}
+
+.specs{padding:22px 24px;border-bottom:1px solid var(--border-2);}
+.spec-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;}
+.spec{flex:1 1 0;min-width:0;display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid var(--border-2);border-radius:3px;background:#fff;font-family:var(--body);text-align:left;cursor:pointer;transition:background-color 180ms ease,border-color 180ms ease;}
+.spec:hover{border-color:var(--sage);}
+.spec.is-sel{border-color:var(--sage);background:var(--pale);}
+.ava{width:44px;height:44px;flex:0 0 44px;border-radius:50%;object-fit:cover;}
+.spec-txt{display:flex;flex-direction:column;min-width:0;flex:1;}
+.s-name{font-size:.9375rem;font-weight:600;color:var(--ink);}
+.s-role{font-size:.875rem;line-height:1.35;color:var(--muted);margin-top:2px;}
+.radio{width:16px;height:16px;flex:0 0 16px;border:1.5px solid var(--border);border-radius:50%;position:relative;transition:border-color 180ms ease;}
+.spec.is-sel .radio{border-color:var(--forest);}
+.spec.is-sel .radio::after{content:'';position:absolute;inset:3px;border-radius:50%;background:var(--forest);}
+
+.summary{background:var(--pale);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.sum-fields{display:flex;gap:32px;flex-wrap:wrap;margin:0;padding:0;}
+.sum-fields dt{font-size:.75rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--soft);}
+.sum-fields dd{margin:4px 0 0;font-size:.9375rem;font-weight:600;color:var(--ink);}
+.sum-fields dd.tot{font-size:1rem;font-weight:700;color:var(--forest);font-variant-numeric:tabular-nums;}
+
+/* ---------- TRUST ---------- */
+.trust{background:var(--pale);padding:26px 40px;border-top:1px solid rgba(212,175,55,.4);border-bottom:1px solid var(--border-2);}
+.trust-in{display:grid;grid-template-columns:160px 1fr 160px;gap:36px;align-items:center;}
+.trust-photo{margin:0;width:160px;height:104px;}
+.trust-photo img{width:100%;height:100%;object-fit:cover;border-radius:2px;}
+.trust-list{list-style:none;margin:0;padding:0;display:flex;justify-content:center;gap:56px;flex-wrap:wrap;}
+.trust-list li{display:flex;align-items:center;gap:10px;font-size:.9375rem;font-weight:600;color:var(--ink);}
+.trust-list i{font-size:18px;color:var(--sage);}
+
+/* ---------- FOOTER ---------- */
+.foot{background:var(--mint);padding:52px 40px 22px;}
+.foot-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:48px;}
+.foot h3{font-family:var(--body);font-size:.8125rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--soft);margin-bottom:14px;}
+.addr{margin-top:16px;font-size:.9375rem;line-height:1.7;color:var(--muted);}
+.h-row{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border-2);font-size:.9375rem;color:var(--muted);}
+.h-row strong{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;}
+.foot-contact a{display:block;font-size:.9375rem;color:var(--muted);text-decoration:none;margin-bottom:10px;transition:color 180ms ease;}
+.foot-contact a:hover{color:var(--forest);}
+.foot-contact .phone{font-family:var(--head);font-size:1.25rem;font-weight:600;color:var(--forest);margin-bottom:12px;}
+.foot-bottom{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:36px;padding-top:16px;border-top:1px solid var(--border-2);font-size:.8125rem;color:var(--soft);}
+.foot-nav{display:flex;gap:20px;}
+.foot-nav a{color:var(--muted);text-decoration:none;transition:color 180ms ease;}
+.foot-nav a:hover{color:var(--forest);}
+.sr-date{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width:1180px){
+  .rail{grid-template-columns:repeat(3,minmax(0,1fr));}
+  .hero-photo{flex:0 0 290px;width:290px;height:300px;}
+  .hero-copy h1{font-size:2.5rem;}
+  .nav-links{gap:22px;}
+}
+@media (max-width:1024px){
+  .hero-in{gap:36px;}
+  .hero-photo{flex:0 0 250px;width:250px;height:280px;}
+  .nav-phone{display:none;}
+  .trust-in{grid-template-columns:120px 1fr 120px;gap:24px;}
+  .trust-photo{width:120px;height:88px;}
+  .trust-list{gap:32px;}
+  .foot-grid{grid-template-columns:1fr 1fr;gap:36px;}
+}
+@media (max-width:860px){
+  .nav-links{display:none;}
+  .rail{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media (max-width:768px){
+  .nav-in{padding:0 20px;}
+  .catalog{padding:32px 20px 40px;}
+  .booking{padding:40px 20px 48px;}
+  .hero{padding:24px 20px 32px;min-height:0;}
+  .hero-in{flex-direction:column;align-items:flex-start;gap:24px;}
+  .hero-photo{order:-1;flex:0 0 auto;width:100%;height:172px;}
+  .hero-copy{max-width:100%;}
+  .hero-copy h1{font-size:2.125rem;line-height:1.2;}
+  .hero-copy p{font-size:.9375rem;}
+  .sec-head h2{font-size:1.5rem;}
+  .rail{grid-template-columns:1fr;gap:12px;margin-top:20px;}
+  .svc{display:grid;grid-template-columns:1fr auto;grid-auto-rows:min-content;gap:4px 12px;min-height:0;padding:14px 16px;}
+  .svc-top{grid-column:2;grid-row:1;align-self:start;}
+  .dur{font-size:1.5rem;}
+  .check{display:none;}
+  .svc-name{grid-column:1;grid-row:1;margin-top:0;min-height:0;padding-right:10px;font-size:1rem;}
+  .svc-cat{grid-column:1;grid-row:2;margin-top:0;}
+  .desc{grid-column:1/-1;grid-row:3;}
+  .svc-price{grid-column:2;grid-row:2;margin-top:0;padding-top:0;text-align:right;font-size:1.05rem;align-self:start;}
+  .svc-actions{grid-column:1/-1;grid-row:4;flex-direction:row-reverse;align-items:center;justify-content:space-between;margin-top:10px;}
+  .btn-card{padding:0 16px;}
+  .svc-field{padding:14px 18px;gap:10px;}
+  .cal,.times,.specs{padding:18px;}
+  .cal-head{gap:12px;}
+  .cal-month span{min-width:0;font-size:1rem;}
+  .cal-strip{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
+  .time-row{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;max-width:100%;}
+  .time-label{grid-column:1/-1;margin-top:6px;}
+  .spec{flex:1 1 100%;}
+  .summary{flex-direction:column;align-items:stretch;gap:18px;padding:16px 18px;}
+  .sum-fields{gap:16px 28px;}
+  .summary .btn{width:100%;}
+  .trust{padding:24px 20px;}
+  .trust-in{grid-template-columns:1fr;gap:0;}
+  .trust-photo{display:none;}
+  .trust-list{flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:12px;}
+  .foot{padding:36px 20px 20px;}
+  .foot-grid{grid-template-columns:1fr;gap:28px;}
+  .foot-bottom{margin-top:24px;}
+}
+@media (max-width:520px){
+  .hero-copy h1{font-size:1.875rem;}
+  .cal-strip{grid-template-columns:repeat(4,minmax(0,1fr));}
+  .day{height:56px;}
+  .brand-name{font-size:1.0625rem;}
+  .nav-in .btn{padding:0 16px;font-size:.875rem;}
+}
+</style>
+<header class="nav" data-kid="1" data-name="fixed top navigation bar">
+<div class="nav-in" data-kid="1-1" data-name="navbar inner container">
+<a class="brand" data-kid="1-1-1" data-name="brand logo link" href="#top">
+<span class="mark" data-kid="1-1-1-1" data-name="brand logo mark box"><img alt="Flor de loto de Salon Spa Aleida" data-kid="1-1-1-1-1" data-name="zen lotus icon" decoding="async" height="26" loading="lazy" src="../../../frontend/public/logo_zen_icon.svg" width="26"/></span>
+<span class="brand-name" data-kid="1-1-1-2" data-name="brand name text">Salon Spa Aleida</span>
+</a>
+<nav aria-label="Navegación principal" class="nav-links" data-kid="1-1-2" data-name="main navigation links">
+<a data-kid="1-1-2-1" data-name="services nav link" href="#servicios">Servicios</a>
+<a data-kid="1-1-2-2" data-name="reserve nav link" href="#reservar">Reservar</a>
+<a data-kid="1-1-2-3" data-name="contact nav link" href="#contacto">Contacto</a>
+</nav>
+<div class="nav-right" data-kid="1-1-3" data-name="navbar right group">
+<a class="nav-phone" data-kid="1-1-3-1" data-name="phone number link" href="tel:+5114219876">(01) 421-9876</a>
+<a class="btn btn-sage" data-kid="1-1-3-2" data-name="book appointment button" href="#reservar">Reservar Cita</a>
+</div>
+</div>
+</header>
+<section class="hero" data-kid="2" data-name="hero section with forest gradient" id="top">
+<div class="hero-in" data-kid="2-1" data-name="hero inner container">
+<figure class="hero-photo" data-kid="2-1-1" data-name="hero spa photo">
+<img alt="Camilla de masaje con toalla enrollada en una cabina de spa con luz cálida. Fotografía: aiseleer / Pexels" data-kid="2-1-1-1" data-name="spa massage table photograph" decoding="async" height="340" loading="lazy" src="https://images.pexels.com/photos/36837602/pexels-photo-36837602.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=800&amp;q=80" width="360"/>
+</figure>
+<div class="hero-copy" data-kid="2-1-2" data-name="hero copy block">
+<h1 data-kid="2-1-2-1" data-name="hero headline">Renueva tu Belleza, Equilibra tu Bienestar</h1>
+<p data-kid="2-1-2-2" data-name="hero descriptive paragraph">En Salon Spa Aleida combinamos rituales terapéuticos botánicos, tratamientos faciales antiedad de última generación y estilismo capilar personalizado en un ambiente de calma, sofisticación y cuidado integral.</p>
+<div class="hero-actions" data-kid="2-1-2-3" data-name="hero actions row">
+<a class="btn btn-sage btn-lg" data-kid="2-1-2-3-1" data-name="primary hero book-appointment button" href="#reservar">Reservar Cita</a>
+<span class="hero-note" data-kid="2-1-2-3-2" data-name="hero phone note text">Citas también al <a data-kid="2-1-2-3-2-1" data-name="hero phone number link" href="tel:+5114219876">(01) 421-9876</a></span>
+</div>
+</div>
+</div>
+</section>
+<section class="catalog" data-kid="3" data-name="services catalogue section" id="servicios">
+<div class="wrap" data-kid="3-1" data-name="catalogue section wrapper">
+<div class="sec-head" data-kid="3-1-1" data-name="section header with title and rule">
+<h2 data-kid="3-1-1-1" data-name="section title heading">Servicios</h2>
+<span aria-hidden="true" class="rule" data-kid="3-1-1-2" data-name="decorative gradient rule line"></span>
+</div>
+<div class="rail" data-kid="3-1-2" data-name="services grid rail">
+<article class="svc" data-kid="3-1-2-1" data-name="hair service card" data-service="corte">
+<div class="svc-top" data-kid="3-1-2-1-1" data-name="service card top row">
+<span class="dur" data-kid="3-1-2-1-1-1" data-name="service duration display">45<span class="unit" data-kid="3-1-2-1-1-1-1" data-name="minutes unit label">min</span></span>
+<span aria-hidden="true" class="check" data-kid="3-1-2-1-1-2" data-name="selection check badge"><i class="ti ti-check" data-kid="3-1-2-1-1-2-1" data-name="checkmark icon"></i></span>
+</div>
+<h3 class="svc-name" data-kid="3-1-2-1-2" data-name="service name heading">Corte y Peinado de Estilo</h3>
+<p class="svc-cat" data-kid="3-1-2-1-3" data-name="service category label">Cuidado Capilar</p>
+<p class="desc" data-kid="3-1-2-1-4" data-name="service description text">Asesoría de visagismo personalizada, lavado con shampoo dermocosmético, corte de autor y estilizado profesional.</p>
+<p class="svc-price" data-dynamic="true" data-kid="3-1-2-1-5" data-name="service price" data-reason="parent card is-sel class toggled by script on service selection">S/ 120.00</p>
+<div class="svc-actions" data-kid="3-1-2-1-6" data-name="service actions group">
+<button aria-expanded="false" class="btn-details" data-details="corte" data-dynamic="true" data-kid="3-1-2-1-6-1" data-name="view details toggle button" data-reason="textContent replaced by script to 'Ocultar'/'Ver detalles' on click">Ver detalles</button>
+<button class="btn-card" data-book="corte" data-kid="3-1-2-1-6-2" data-name="book appointment for service button">Reservar Cita</button>
+</div>
+</article>
+<article class="svc" data-kid="3-1-2-2" data-name="manicure service card" data-service="manicura">
+<div class="svc-top" data-kid="3-1-2-2-1" data-name="service card top row">
+<span class="dur" data-kid="3-1-2-2-1-1" data-name="service duration display">60<span class="unit" data-kid="3-1-2-2-1-1-1" data-name="minutes unit label">min</span></span>
+<span aria-hidden="true" class="check" data-kid="3-1-2-2-1-2" data-name="selection check badge"><i class="ti ti-check" data-kid="3-1-2-2-1-2-1" data-name="checkmark icon"></i></span>
+</div>
+<h3 class="svc-name" data-kid="3-1-2-2-2" data-name="service name heading">Manicura Spa Premium</h3>
+<p class="svc-cat" data-kid="3-1-2-2-3" data-name="service category label">Manicura &amp; Pedicura</p>
+<p class="desc" data-kid="3-1-2-2-4" data-name="service description text">Exfoliación con sales minerales marinas, hidratación profunda con parafina tibia y esmaltado de alta duración.</p>
+<p class="svc-price" data-dynamic="true" data-kid="3-1-2-2-5" data-name="service price" data-reason="parent card is-sel class toggled by script on service selection">S/ 150.00</p>
+<div class="svc-actions" data-kid="3-1-2-2-6" data-name="service actions group">
+<button aria-expanded="false" class="btn-details" data-details="manicura" data-dynamic="true" data-kid="3-1-2-2-6-1" data-name="view details toggle button" data-reason="textContent replaced by script to 'Ocultar'/'Ver detalles' on click">Ver detalles</button>
+<button class="btn-card" data-book="manicura" data-kid="3-1-2-2-6-2" data-name="book appointment for service button">Reservar Cita</button>
+</div>
+</article>
+<article class="svc is-sel" data-kid="3-1-2-3" data-name="selected facial service card" data-service="facial">
+<div class="svc-top" data-kid="3-1-2-3-1" data-name="service card top row">
+<span class="dur" data-kid="3-1-2-3-1-1" data-name="service duration display">75<span class="unit" data-kid="3-1-2-3-1-1-1" data-name="minutes unit label">min</span></span>
+<span aria-hidden="true" class="check" data-kid="3-1-2-3-1-2" data-name="selection check badge"><i class="ti ti-check" data-kid="3-1-2-3-1-2-1" data-name="checkmark icon"></i></span>
+</div>
+<h3 class="svc-name" data-kid="3-1-2-3-2" data-name="service name heading">Facial Rejuvenecedor con Oro</h3>
+<p class="svc-cat" data-kid="3-1-2-3-3" data-name="service category label">Estética Facial</p>
+<p class="desc" data-kid="3-1-2-3-4" data-name="service description text">Limpieza profunda e hidratación intensiva con micropartículas de oro coloidal y colágeno hidrolizado purificado.</p>
+<p class="svc-price" data-dynamic="true" data-kid="3-1-2-3-5" data-name="service price" data-reason="parent card is-sel class toggled by script on service selection">S/ 450.00</p>
+<div class="svc-actions" data-kid="3-1-2-3-6" data-name="service actions group">
+<button aria-expanded="false" class="btn-details" data-details="facial" data-dynamic="true" data-kid="3-1-2-3-6-1" data-name="view details toggle button" data-reason="textContent replaced by script to 'Ocultar'/'Ver detalles' on click">Ver detalles</button>
+<button class="btn-card" data-book="facial" data-kid="3-1-2-3-6-2" data-name="book appointment for service button">Reservar Cita</button>
+</div>
+</article>
+<article class="svc" data-kid="3-1-2-4" data-name="relaxing massage service card" data-service="masaje">
+<div class="svc-top" data-kid="3-1-2-4-1" data-name="service card top row">
+<span class="dur" data-kid="3-1-2-4-1-1" data-name="service duration display">90<span class="unit" data-kid="3-1-2-4-1-1-1" data-name="minutes unit label">min</span></span>
+<span aria-hidden="true" class="check" data-kid="3-1-2-4-1-2" data-name="selection check badge"><i class="ti ti-check" data-kid="3-1-2-4-1-2-1" data-name="checkmark icon"></i></span>
+</div>
+<h3 class="svc-name" data-kid="3-1-2-4-2" data-name="service name heading">Masaje Relajante Aleida</h3>
+<p class="svc-cat" data-kid="3-1-2-4-3" data-name="service category label">Spa &amp; Bienestar</p>
+<p class="desc" data-kid="3-1-2-4-4" data-name="service description text">Terapia antiestrés con aceites botánicos, aromaterapia personalizada y piedras calientes para disolver tensiones acumuladas.</p>
+<p class="svc-price" data-dynamic="true" data-kid="3-1-2-4-5" data-name="service price" data-reason="parent card is-sel class toggled by script on service selection">S/ 280.00</p>
+<div class="svc-actions" data-kid="3-1-2-4-6" data-name="service actions group">
+<button aria-expanded="false" class="btn-details" data-details="masaje" data-dynamic="true" data-kid="3-1-2-4-6-1" data-name="view details toggle button" data-reason="textContent replaced by script to 'Ocultar'/'Ver detalles' on click">Ver detalles</button>
+<button class="btn-card" data-book="masaje" data-kid="3-1-2-4-6-2" data-name="book appointment for service button">Reservar Cita</button>
+</div>
+</article>
+<article class="svc" data-kid="3-1-2-5" data-name="keratin treatment service card" data-service="keratina">
+<div class="svc-top" data-kid="3-1-2-5-1" data-name="service card top row">
+<span class="dur" data-kid="3-1-2-5-1-1" data-name="service duration display">120<span class="unit" data-kid="3-1-2-5-1-1-1" data-name="minutes unit label">min</span></span>
+<span aria-hidden="true" class="check" data-kid="3-1-2-5-1-2" data-name="selection check badge"><i class="ti ti-check" data-kid="3-1-2-5-1-2-1" data-name="checkmark icon"></i></span>
+</div>
+<h3 class="svc-name" data-kid="3-1-2-5-2" data-name="service name heading">Tratamiento Capilar Keratina</h3>
+<p class="svc-cat" data-kid="3-1-2-5-3" data-name="service category label">Cuidado Capilar</p>
+<p class="desc" data-kid="3-1-2-5-4" data-name="service description text">Nutrición intensiva con sellado térmico para eliminación total del frizz y brillo prolongado de calidad profesional.</p>
+<p class="svc-price" data-dynamic="true" data-kid="3-1-2-5-5" data-name="service price" data-reason="parent card is-sel class toggled by script on service selection">S/ 350.00</p>
+<div class="svc-actions" data-kid="3-1-2-5-6" data-name="service actions group">
+<button aria-expanded="false" class="btn-details" data-details="keratina" data-dynamic="true" data-kid="3-1-2-5-6-1" data-name="view details toggle button" data-reason="textContent replaced by script to 'Ocultar'/'Ver detalles' on click">Ver detalles</button>
+<button class="btn-card" data-book="keratina" data-kid="3-1-2-5-6-2" data-name="book appointment for service button">Reservar Cita</button>
+</div>
+</article>
+</div>
+</div>
+</section>
+<section class="booking" data-kid="4" data-name="booking section" id="reservar">
+<div class="wrap" data-kid="4-1" data-name="booking section wrapper">
+<div class="sec-head" data-kid="4-1-1" data-name="booking section header">
+<h2 data-kid="4-1-1-1" data-name="booking section title heading">Reserva tu cita</h2>
+<span aria-hidden="true" class="rule" data-kid="4-1-1-2" data-name="decorative gradient rule line"></span>
+</div>
+<div class="module" data-kid="4-1-2" data-name="booking summary module">
+<div class="svc-field" data-kid="4-1-2-1" data-name="selected treatment field row">
+<div data-kid="4-1-2-1-1" data-name="treatment field name group">
+<span class="lab" data-kid="4-1-2-1-1-1" data-name="treatment field label">Tratamiento</span>
+<span class="svc-field-val" data-dynamic="true" data-kid="4-1-2-1-1-2" data-name="treatment name value" data-reason="textContent rewritten by script from selected service" id="svcFieldName">Facial Rejuvenecedor con Oro</span>
+</div>
+<div class="svc-field-meta" data-kid="4-1-2-1-2" data-name="treatment field meta row">
+<span data-dynamic="true" data-kid="4-1-2-1-2-1" data-name="treatment duration value" data-reason="textContent rewritten by script from selected service" id="svcFieldDur">75 min</span>
+<span aria-hidden="true" class="rule-v" data-kid="4-1-2-1-2-2" data-name="vertical divider line"></span>
+<strong data-dynamic="true" data-kid="4-1-2-1-2-3" data-name="treatment price value" data-reason="textContent rewritten by script from selected service" id="svcFieldPrice">S/ 450.00</strong>
+</div>
+</div>
+<div class="cal" data-kid="4-1-2-2" data-name="calendar week picker block">
+<div class="cal-head" data-kid="4-1-2-2-1" data-name="calendar header row">
+<div class="cal-month" data-kid="4-1-2-2-1-1" data-name="month and week navigation group">
+<button aria-label="Semana anterior" class="icon-btn" data-kid="4-1-2-2-1-1-1" data-name="previous week button" id="prevWeek" type="button"><i class="ti ti-chevron-left" data-kid="4-1-2-2-1-1-1-1" data-name="left chevron icon"></i></button>
+<span data-dynamic="true" data-kid="4-1-2-2-1-1-2" data-name="calendar month label" data-reason="textContent rewritten by script on week navigation" id="calMonth">Noviembre 2026</span>
+<button aria-label="Semana siguiente" class="icon-btn" data-kid="4-1-2-2-1-1-3" data-name="next week button" id="nextWeek" type="button"><i class="ti ti-chevron-right" data-kid="4-1-2-2-1-1-3-1" data-name="right chevron icon"></i></button>
+</div>
+<button class="link-btn" data-kid="4-1-2-2-1-2" data-name="choose other date link button" id="otherDate" type="button"><i class="ti ti-calendar-month" data-kid="4-1-2-2-1-2-1" data-name="calendar month icon"></i> Otra fecha</button>
+</div>
+<div aria-label="Fechas de la semana" class="cal-strip" data-dynamic="true" data-kid="4-1-2-2-2" data-name="week day strip container" data-reason="day buttons are rendered and re-rendered by script" id="calStrip" role="group"></div>
+<input aria-label="Elegir otra fecha" class="sr-date" data-kid="4-1-2-2-3" data-name="hidden date input field" id="dateInput" min="2026-11-16" type="date" value="2026-11-18"/>
+</div>
+<div class="times" data-kid="4-1-2-3" data-name="time slots block">
+<span class="lab" data-kid="4-1-2-3-1" data-name="preferred time label">Horario preferido</span>
+<div class="time-row" data-kid="4-1-2-3-2" data-name="morning time slots row">
+<span class="time-label" data-kid="4-1-2-3-2-1" data-name="morning time label">Mañana</span>
+<button aria-pressed="false" class="slot" data-kid="4-1-2-3-2-2" data-name="09:00 time slot button" data-time="09:00" type="button">09:00</button>
+<button aria-pressed="true" class="slot is-sel" data-kid="4-1-2-3-2-3" data-name="10:30 time slot button" data-time="10:30" type="button">10:30</button>
+<button aria-pressed="false" class="slot" data-kid="4-1-2-3-2-4" data-name="11:45 time slot button" data-time="11:45" type="button">11:45</button>
+</div>
+<div class="time-row" data-kid="4-1-2-3-3" data-name="afternoon time slots row">
+<span class="time-label" data-kid="4-1-2-3-3-1" data-name="afternoon time label">Tarde</span>
+<button aria-pressed="false" class="slot" data-kid="4-1-2-3-3-2" data-name="14:30 time slot button" data-time="14:30" type="button">14:30</button>
+<button aria-pressed="false" class="slot" data-kid="4-1-2-3-3-3" data-name="16:30 time slot button" data-time="16:30" type="button">16:30</button>
+<button aria-pressed="false" class="slot" data-kid="4-1-2-3-3-4" data-name="18:00 time slot button" data-time="18:00" type="button">18:00</button>
+</div>
+</div>
+<div class="specs" data-kid="4-1-2-4" data-name="specialists block">
+<span class="lab" data-kid="4-1-2-4-1" data-name="specialist label">Especialista</span>
+<div class="spec-row" data-kid="4-1-2-4-2" data-name="specialists row">
+<button aria-pressed="true" class="spec is-sel" data-kid="4-1-2-4-2-1" data-name="Carmen Sánchez specialist card" data-spec="carmen" type="button">
+<img alt="Retrato de Carmen Sánchez. Fotografía: xandro Vandewalle / Unsplash" class="ava" data-kid="4-1-2-4-2-1-1" data-name="Carmen avatar photo" decoding="async" height="44" loading="lazy" src="https://images.unsplash.com/photo-1586165127014-f730957751f2?auto=format&amp;w=200&amp;h=200&amp;fit=crop&amp;q=80" width="44"/>
+<span class="spec-txt" data-kid="4-1-2-4-2-1-2" data-name="Carmen name and role text">
+<span class="s-name" data-kid="4-1-2-4-2-1-2-1" data-name="Carmen specialist name">Carmen Sánchez</span>
+<span class="s-role" data-kid="4-1-2-4-2-1-2-2" data-name="Carmen specialist role">Cosmiatra &amp; Terapeuta Holística</span>
+</span>
+<span aria-hidden="true" class="radio" data-kid="4-1-2-4-2-1-3" data-name="selection radio indicator"></span>
+</button>
+<button aria-pressed="false" class="spec" data-kid="4-1-2-4-2-2" data-name="Luisa Paredes specialist card" data-spec="luisa" type="button">
+<img alt="Retrato de Luisa Paredes. Fotografía: Rendy Novantino / Unsplash" class="ava" data-kid="4-1-2-4-2-2-1" data-name="Luisa avatar photo" decoding="async" height="44" loading="lazy" src="https://images.unsplash.com/photo-1620198361326-a319ba24ec94?auto=format&amp;w=200&amp;h=200&amp;fit=crop&amp;q=80" width="44"/>
+<span class="spec-txt" data-kid="4-1-2-4-2-2-2" data-name="Luisa name and role text">
+<span class="s-name" data-kid="4-1-2-4-2-2-2-1" data-name="Luisa specialist name">Luisa Paredes</span>
+<span class="s-role" data-kid="4-1-2-4-2-2-2-2" data-name="Luisa specialist role">Estilista Capilar Senior</span>
+</span>
+<span aria-hidden="true" class="radio" data-kid="4-1-2-4-2-2-3" data-name="selection radio indicator"></span>
+</button>
+<button aria-pressed="false" class="spec" data-kid="4-1-2-4-2-3" data-name="Ana Vargas specialist card" data-spec="ana" type="button">
+<img alt="Retrato de Ana Vargas. Fotografía: Maria Isadora / Pexels" class="ava" data-kid="4-1-2-4-2-3-1" data-name="Ana avatar photo" decoding="async" height="44" loading="lazy" src="https://images.pexels.com/photos/18090215/pexels-photo-18090215.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=200&amp;h=200&amp;fit=crop&amp;q=80" width="44"/>
+<span class="spec-txt" data-kid="4-1-2-4-2-3-2" data-name="Ana name and role text">
+<span class="s-name" data-kid="4-1-2-4-2-3-2-1" data-name="Ana specialist name">Ana Vargas</span>
+<span class="s-role" data-kid="4-1-2-4-2-3-2-2" data-name="Ana specialist role">Especialista en Manicura &amp; Pedicura</span>
+</span>
+<span aria-hidden="true" class="radio" data-kid="4-1-2-4-2-3-3" data-name="selection radio indicator"></span>
+</button>
+</div>
+</div>
+<div class="summary" data-kid="4-1-2-5" data-name="booking summary bar">
+<dl class="sum-fields" data-kid="4-1-2-5-1" data-name="summary detail fields list">
+<div data-kid="4-1-2-5-1-1" data-name="treatment summary row"><dt data-kid="4-1-2-5-1-1-1" data-name="treatment summary label">Tratamiento</dt><dd data-dynamic="true" data-kid="4-1-2-5-1-1-2" data-name="treatment summary value" data-reason="textContent rewritten by script from selected service" id="sumServicio">Facial Rejuvenecedor con Oro</dd></div>
+<div data-kid="4-1-2-5-1-2" data-name="date summary row"><dt data-kid="4-1-2-5-1-2-1" data-name="date summary label">Fecha</dt><dd data-dynamic="true" data-kid="4-1-2-5-1-2-2" data-name="date summary value" data-reason="textContent rewritten by script from selected date" id="sumFecha">Mié 18 nov</dd></div>
+<div data-kid="4-1-2-5-1-3" data-name="time summary row"><dt data-kid="4-1-2-5-1-3-1" data-name="time summary label">Hora</dt><dd data-dynamic="true" data-kid="4-1-2-5-1-3-2" data-name="time summary value" data-reason="textContent rewritten by script from selected time" id="sumHora">10:30</dd></div>
+<div data-kid="4-1-2-5-1-4" data-name="specialist summary row"><dt data-kid="4-1-2-5-1-4-1" data-name="specialist summary label">Especialista</dt><dd data-dynamic="true" data-kid="4-1-2-5-1-4-2" data-name="specialist summary value" data-reason="textContent rewritten by script from selected specialist" id="sumEspecialista">Carmen Sánchez</dd></div>
+<div data-kid="4-1-2-5-1-5" data-name="total summary row"><dt data-kid="4-1-2-5-1-5-1" data-name="total summary label">Total</dt><dd class="tot" data-dynamic="true" data-kid="4-1-2-5-1-5-2" data-name="total price value" data-reason="textContent rewritten by script from selected service price" id="sumTotal">S/ 450.00</dd></div>
+</dl>
+<a class="btn btn-forest" data-kid="4-1-2-5-2" data-name="continue booking button" href="#reservar">Continuar reserva <i class="ti ti-arrow-right" data-kid="4-1-2-5-2-1" data-name="right arrow icon"></i></a>
+</div>
+</div>
+</div>
+</section>
+<section class="trust" data-kid="5" data-name="trust credentials strip">
+<div class="trust-in" data-kid="5-1" data-name="trust strip inner layout">
+<figure class="trust-photo" data-kid="5-1-1" data-name="left trust photo">
+<img alt="Camilla de masaje con toalla y ventana con persianas de madera. Fotografía: Anna Tarazevich / Pexels" data-kid="5-1-1-1" data-name="spa massage table photograph" decoding="async" height="104" loading="lazy" src="https://images.pexels.com/photos/6560308/pexels-photo-6560308.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=600&amp;q=80" width="160"/>
+</figure>
+<ul class="trust-list" data-kid="5-1-2" data-name="trust credentials list">
+<li data-kid="5-1-2-1" data-name="biomedical safety credential item"><i aria-hidden="true" class="ti ti-shield-check" data-kid="5-1-2-1-1" data-name="shield check icon"></i> Bioseguridad médica</li>
+<li data-kid="5-1-2-2" data-name="private cabins credential item"><i aria-hidden="true" class="ti ti-door" data-kid="5-1-2-2-1" data-name="open door icon"></i> Cabinas privadas</li>
+<li data-kid="5-1-2-3" data-name="certified therapists credential item"><i aria-hidden="true" class="ti ti-certificate" data-kid="5-1-2-3-1" data-name="certificate icon"></i> Terapeutas certificadas</li>
+</ul>
+<figure class="trust-photo" data-kid="5-1-3" data-name="right trust photo">
+<img alt="Toallas blancas dobladas sobre una camilla de spa. Fotografía: Tima Miroshnichenko / Pexels" data-kid="5-1-3-1" data-name="folded spa towels photograph" decoding="async" height="104" loading="lazy" src="https://images.pexels.com/photos/6188050/pexels-photo-6188050.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=600&amp;q=80" width="160"/>
+</figure>
+</div>
+</section>
+<footer class="foot" data-kid="6" data-name="footer section" id="contacto">
+<div class="wrap foot-grid" data-kid="6-1" data-name="footer grid layout">
+<div class="foot-brand" data-kid="6-1-1" data-name="footer brand column">
+<a class="brand" data-kid="6-1-1-1" data-name="footer brand logo link" href="#top">
+<span class="mark" data-kid="6-1-1-1-1" data-name="brand logo mark box"><img alt="Flor de loto de Salon Spa Aleida" data-kid="6-1-1-1-1-1" data-name="zen lotus icon" decoding="async" height="26" loading="lazy" src="../../../frontend/public/logo_zen_icon.svg" width="26"/></span>
+<span class="brand-name" data-kid="6-1-1-1-2" data-name="brand name text">Salon Spa Aleida</span>
+</a>
+<p class="addr" data-kid="6-1-1-2" data-name="footer address text">Av. Conquistadores 450<br data-kid="6-1-1-2-1" data-name="line break"/>Lima — Perú</p>
+</div>
+<div data-kid="6-1-2" data-name="footer hours column">
+<h3 data-kid="6-1-2-1" data-name="footer hours heading">Horario</h3>
+<p class="h-row" data-kid="6-1-2-2" data-name="weekday hours row"><span data-kid="6-1-2-2-1" data-name="weekday hours label">Lunes a Sábado</span><strong data-kid="6-1-2-2-2" data-name="weekday hours time">09:00 – 20:00</strong></p>
+<p class="h-row" data-kid="6-1-2-3" data-name="Sunday hours row"><span data-kid="6-1-2-3-1" data-name="Sunday hours label">Domingo</span><strong data-kid="6-1-2-3-2" data-name="Sunday closed label">Cerrado</strong></p>
+</div>
+<div class="foot-contact" data-kid="6-1-3" data-name="footer contact column">
+<h3 data-kid="6-1-3-1" data-name="footer contact heading">Contacto</h3>
+<a class="phone" data-kid="6-1-3-2" data-name="footer phone number link" href="tel:+5114219876">(01) 421-9876</a>
+<a data-kid="6-1-3-3" data-name="WhatsApp number link" href="https://wa.me/51987654321">WhatsApp 987 654 321</a>
+<a data-kid="6-1-3-4" data-name="contact email link" href="mailto:contacto@salonspaaleida.com">contacto@salonspaaleida.com</a>
+</div>
+</div>
+<div class="wrap foot-bottom" data-kid="6-2" data-name="footer bottom bar">
+<span data-kid="6-2-1" data-name="copyright notice text">© 2026 Salon Spa Aleida S.A.C. — RUC 20608192831</span>
+<span class="foot-nav" data-kid="6-2-2" data-name="footer bottom navigation">
+<a data-kid="6-2-2-1" data-name="footer services nav link" href="#servicios">Servicios</a>
+<a data-kid="6-2-2-2" data-name="footer reserve nav link" href="#reservar">Reservar</a>
+</span>
+</div>
+</footer>
+<script>
+(function () {
+  var MONTHS = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  var MONTHS_S = ['ene','feb','mar','abr','may','jun','jul','ago','set','oct','nov','dic'];
+  var WD = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  var SERVICES = {
+    corte: { name: 'Corte y Peinado de Estilo', min: 45, price: 120 },
+    manicura: { name: 'Manicura Spa Premium', min: 60, price: 150 },
+    facial: { name: 'Facial Rejuvenecedor con Oro', min: 75, price: 450 },
+    masaje: { name: 'Masaje Relajante Aleida', min: 90, price: 280 },
+    keratina: { name: 'Tratamiento Capilar Keratina', min: 120, price: 350 }
+  };
+  var SPECS = { carmen: 'Carmen Sánchez', luisa: 'Luisa Paredes', ana: 'Ana Vargas' };
+  var BASE = new Date(2026, 10, 16);
+  var state = { service: 'facial', dateIso: '2026-11-18', time: '10:30', spec: 'carmen', week: 0 };
+
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function iso(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function money(n) { return 'S/ ' + n.toFixed(2); }
+  function fmtDate(key) {
+    var d = new Date(key + 'T00:00:00');
+    return WD[d.getDay()] + ' ' + d.getDate() + ' ' + MONTHS_S[d.getMonth()];
+  }
+  function byId(id) { return document.getElementById(id); }
+
+  function updateSummary() {
+    var s = SERVICES[state.service];
+    byId('sumServicio').textContent = s.name;
+    byId('sumFecha').textContent = fmtDate(state.dateIso);
+    byId('sumHora').textContent = state.time;
+    byId('sumEspecialista').textContent = SPECS[state.spec];
+    byId('sumTotal').textContent = money(s.price);
+    byId('svcFieldName').textContent = s.name;
+    byId('svcFieldDur').textContent = s.min + ' min';
+    byId('svcFieldPrice').textContent = money(s.price);
+  }
+
+  function renderDates() {
+    var strip = byId('calStrip');
+    var start = new Date(BASE.getFullYear(), BASE.getMonth(), BASE.getDate() + state.week * 7);
+    var dates = [];
+    for (var i = 0; i < 7; i++) {
+      dates.push(new Date(start.getFullYear(), start.getMonth(), start.getDate() + i));
+    }
+    var mid = dates[3];
+    byId('calMonth').textContent = MONTHS[mid.getMonth()].charAt(0).toUpperCase() + MONTHS[mid.getMonth()].slice(1) + ' ' + mid.getFullYear();
+
+    var inWeek = false;
+    var firstOpen = null;
+    dates.forEach(function (d) {
+      if (d.getDay() !== 0) {
+        if (!firstOpen) firstOpen = d;
+        if (iso(d) === state.dateIso) inWeek = true;
+      }
+    });
+    if (!inWeek && firstOpen) state.dateIso = iso(firstOpen);
+
+    strip.innerHTML = '';
+    dates.forEach(function (d) {
+      var closed = d.getDay() === 0;
+      var selected = !closed && iso(d) === state.dateIso;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'day' + (closed ? ' closed' : '') + (selected ? ' is-sel' : '');
+      btn.disabled = closed;
+      if (closed) {
+        var wd = document.createElement('span');
+        wd.className = 'wd';
+        wd.textContent = 'Dom';
+        var ct = document.createElement('span');
+        ct.className = 'closed-txt';
+        ct.textContent = 'Cerrado';
+        btn.appendChild(wd);
+        btn.appendChild(ct);
+        btn.setAttribute('aria-label', WD[0] + ' ' + d.getDate() + ' cerrado');
+      } else {
+        var w = document.createElement('span');
+        w.className = 'wd';
+        w.textContent = WD[d.getDay()];
+        var n = document.createElement('span');
+        n.className = 'dn';
+        n.textContent = d.getDate();
+        btn.appendChild(w);
+        btn.appendChild(n);
+        btn.setAttribute('aria-pressed', selected ? 'true' : 'false');
+        btn.setAttribute('aria-label', WD[d.getDay()] + ' ' + d.getDate() + ' de ' + MONTHS[d.getMonth()]);
+        btn.addEventListener('click', function () {
+          state.dateIso = iso(d);
+          renderDates();
+          updateSummary();
+        });
+      }
+      strip.appendChild(btn);
+    });
+    updateSummary();
+  }
+
+  function markService() {
+    var cards = document.querySelectorAll('.svc');
+    for (var i = 0; i < cards.length; i++) {
+      var on = cards[i].getAttribute('data-service') === state.service;
+      cards[i].classList.toggle('is-sel', on);
+    }
+  }
+
+  document.addEventListener('click', function (e) {
+    var details = e.target.closest('[data-details]');
+    if (details) {
+      var card = details.closest('.svc');
+      var open = card.classList.toggle('is-open');
+      details.setAttribute('aria-expanded', open ? 'true' : 'false');
+      details.textContent = open ? 'Ocultar' : 'Ver detalles';
+      return;
+    }
+
+    var book = e.target.closest('[data-book]');
+    if (book) {
+      state.service = book.getAttribute('data-book');
+      markService();
+      updateSummary();
+      var dest = byId('reservar');
+      if (dest) dest.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+
+    var slot = e.target.closest('[data-time]');
+    if (slot) {
+      state.time = slot.getAttribute('data-time');
+      var slots = document.querySelectorAll('.slot');
+      for (var i = 0; i < slots.length; i++) {
+        var on = slots[i] === slot;
+        slots[i].classList.toggle('is-sel', on);
+        slots[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+      }
+      updateSummary();
+      return;
+    }
+
+    var spec = e.target.closest('[data-spec]');
+    if (spec) {
+      state.spec = spec.getAttribute('data-spec');
+      var specs = document.querySelectorAll('.spec');
+      for (var j = 0; j < specs.length; j++) {
+        var sel = specs[j] === spec;
+        specs[j].classList.toggle('is-sel', sel);
+        specs[j].setAttribute('aria-pressed', sel ? 'true' : 'false');
+      }
+      updateSummary();
+      return;
+    }
+
+    var svc = e.target.closest('.svc');
+    if (svc) {
+      state.service = svc.getAttribute('data-service');
+      markService();
+      updateSummary();
+    }
+  });
+
+  byId('prevWeek').addEventListener('click', function () {
+    state.week -= 1;
+    renderDates();
+  });
+  byId('nextWeek').addEventListener('click', function () {
+    state.week += 1;
+    renderDates();
+  });
+
+  var dateInput = byId('dateInput');
+  byId('otherDate').addEventListener('click', function () {
+    if (typeof dateInput.showPicker === 'function') {
+      try { dateInput.showPicker(); return; } catch (err) { /* fallback */ }
+    }
+    dateInput.click();
+  });
+  dateInput.addEventListener('change', function () {
+    if (!dateInput.value) return;
+    var d = new Date(dateInput.value + 'T00:00:00');
+    if (d.getDay() === 0) return;
+    state.dateIso = iso(d);
+    var diff = new Date(d.getFullYear(), d.getMonth(), d.getDate()) - BASE;
+    state.week = Math.round(diff / 604800000);
+    renderDates();
+  });
+
+  markService();
+  renderDates();
+})();
+</script></div>
+</body></html>

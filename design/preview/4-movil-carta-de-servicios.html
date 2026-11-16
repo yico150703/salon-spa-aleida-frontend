@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html><head>
+  <meta charset="utf-8">
+  <meta name="kombai-design-canvas" content="true">
+  
+  
+  
+  
+  
+  
+  <style>html, body { margin: 0; padding: 0; } #root { display: contents; }</style>
+</head><body>
+  <div id="root"><style>
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Outfit:wght@300;400;500;600&display=swap");
+@import url("https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.48.0/dist/tabler-icons.min.css");
+
+:root{
+  --forest:#2B573C; --sage:#4A7C59; --mint:#F4FAF6; --pale:#EBF5F0;
+  --gold:#D4AF37; --ink:#183023; --muted:#42634F; --line:#CFE3D7; --line-soft:#E4F1E9;
+  --serif:"Playfair Display",Georgia,serif;
+  --sans:"Outfit",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0}
+.page{background:var(--mint);color:var(--ink);font-family:var(--sans);font-weight:300;-webkit-font-smoothing:antialiased}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:30;height:64px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;background:#fff;border-bottom:1px solid var(--line-soft)}
+.brand{display:flex;align-items:center;gap:9px;text-decoration:none}
+.brand-tile{width:34px;height:34px;border-radius:9px;background:var(--pale);border:1px solid var(--line);display:grid;place-items:center}
+.brand-tile img{width:24px;height:24px;display:block}
+.brand-name{font-family:var(--serif);font-size:15px;font-weight:600;line-height:1.1;color:var(--ink);letter-spacing:.01em}
+.brand-sub{display:block;font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:var(--sage);margin-top:2px;font-weight:500}
+.nav-actions{display:flex;align-items:center;gap:7px}
+.icon-btn{width:34px;height:34px;border:1px solid var(--line);background:#fff;border-radius:9px;
+  display:grid;place-items:center;color:var(--forest);font-size:16px;cursor:pointer;transition:border-color .18s ease,color .18s ease}
+.icon-btn:hover{border-color:var(--sage);color:var(--sage)}
+
+.btn{font-family:var(--sans);font-weight:500;border:1px solid transparent;cursor:pointer;transition:background-color .18s ease,color .18s ease,border-color .18s ease}
+.btn-solid{background:var(--sage);color:#fff;border-color:var(--sage)}
+.btn-solid:hover{background:var(--forest);border-color:var(--forest)}
+.btn-sm{padding:8px 13px;border-radius:8px;font-size:12.5px}
+
+/* hero */
+.hero{background:radial-gradient(120% 90% at 20% 0%,#33664B 0%,#2B573C 52%,#22492F 100%);padding:18px 16px 26px}
+.hero-photo{height:148px;border-radius:10px;overflow:hidden;background:#1F3F2C}
+.hero-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.hero h1{font-family:var(--serif);font-weight:600;font-size:34px;line-height:1.14;letter-spacing:-.005em;
+  color:#fff;margin:20px 0 12px}
+.hero p{margin:0 0 20px;font-size:13.5px;line-height:1.6;color:#D8E8DE;max-width:34ch}
+.btn-hero{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;
+  border-radius:9px;font-size:14px;background:var(--sage);color:#fff;border-color:var(--sage)}
+.btn-hero:hover{background:#3E6B4C}
+
+/* section furniture */
+.sec{padding:26px 16px 30px}
+.sec h2{font-family:var(--serif);font-weight:600;font-size:23px;line-height:1.2;margin:0 0 16px;color:var(--ink)}
+.rule{height:1px;background:var(--line-soft)}
+
+/* service cards */
+.svc{background:#fff;border:1px solid var(--line-soft);border-radius:10px;padding:13px 14px;margin-bottom:9px;
+  transition:background-color .2s ease,border-color .2s ease}
+.svc.is-sel{background:var(--pale);border-color:var(--sage)}
+.svc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.svc h3{font-family:var(--serif);font-weight:600;font-size:16.5px;line-height:1.25;margin:0;color:var(--ink)}
+.svc-cat{font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--sage);margin:3px 0 7px;font-weight:500}
+.check{width:17px;height:17px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;
+  flex:0 0 auto;margin-top:2px;color:transparent;font-size:11px}
+.svc.is-sel .check{background:var(--sage);border-color:var(--sage);color:#fff}
+.svc-desc{margin:0 0 11px;font-size:12.5px;line-height:1.5;color:var(--muted)}
+.svc-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:10px;border-top:1px solid var(--line-soft)}
+.svc-meta .dur{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
+.svc .price{font-family:var(--serif);font-weight:600;font-size:16px;color:var(--forest)}
+.btn-outline{width:100%;margin-top:10px;padding:10px;border-radius:8px;font-size:13px;
+  background:transparent;color:var(--forest);border-color:var(--line)}
+.btn-outline:hover{background:var(--forest);color:#fff;border-color:var(--forest)}
+
+/* booking */
+.booking{background:#fff;padding:26px 16px 30px}
+.lbl{display:block;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);
+  font-weight:500;margin:0 0 8px}
+.block{margin-bottom:18px}
+.sp{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:#fff;
+  border:1px solid var(--line-soft);border-radius:9px;padding:8px 10px;margin-bottom:7px;cursor:pointer;
+  font-family:var(--sans);transition:background-color .18s ease,border-color .18s ease}
+.sp img{width:36px;height:36px;border-radius:50%;object-fit:cover;flex:0 0 auto}
+.sp-txt{flex:1;min-width:0}
+.sp-name{display:block;font-size:13.5px;font-weight:500;color:var(--ink);line-height:1.25}
+.sp-role{display:block;font-size:11px;color:var(--muted);margin-top:1px;line-height:1.3}
+.radio{width:17px;height:17px;border-radius:50%;border:1px solid var(--line);flex:0 0 auto;display:grid;
+  place-items:center;color:transparent;font-size:11px}
+.sp.is-sel{background:var(--pale);border-color:var(--sage)}
+.sp.is-sel .radio{background:var(--sage);border-color:var(--sage);color:#fff}
+
+.week{display:flex;gap:6px;overflow-x:auto;padding:2px 0 6px;margin:0 -16px;padding-left:16px;padding-right:16px;
+  scrollbar-width:none}
+.week::-webkit-scrollbar{display:none}
+.day{flex:0 0 52px;height:54px;border:1px solid var(--line-soft);border-radius:9px;background:#fff;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;
+  font-family:var(--sans);transition:background-color .18s ease,border-color .18s ease}
+.day .dw{font-size:9px;letter-spacing:.09em;color:var(--muted);text-transform:uppercase}
+.day .dn{font-family:var(--serif);font-size:15px;font-weight:600;color:var(--forest)}
+.day.is-sel{background:var(--forest);border-color:var(--forest)}
+.day.is-sel .dw{color:#CFE3D7}
+.day.is-sel .dn{color:#fff}
+.day.is-closed{background:#F7FCF9;border-style:dashed;cursor:default}
+.day.is-closed .dw,.day.is-closed .dn{color:#A9C3B3}
+.day .tag{font-size:7.5px;letter-spacing:.06em;color:#A9C3B3;text-transform:uppercase}
+
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.slot{height:42px;border:1px solid var(--line-soft);border-radius:8px;background:#fff;color:var(--ink);
+  font-family:var(--sans);font-size:13px;cursor:pointer;transition:background-color .18s ease,border-color .18s ease}
+.slot.is-sel{background:var(--sage);border-color:var(--sage);color:#fff;font-weight:500}
+.slot.is-off{background:#F7FCF9;border-style:dashed;color:#B4CBBD;cursor:not-allowed}
+
+.summary{background:var(--pale);border-radius:12px;padding:15px 16px;margin-top:4px}
+.summary h3{font-family:var(--serif);font-weight:600;font-size:17px;margin:0 0 10px;color:var(--forest)}
+.row{display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding:5px 0;font-size:12.5px}
+.row dt{color:var(--muted);margin:0;flex:0 0 auto}
+.row dd{margin:0;color:var(--ink);text-align:right;font-weight:400}
+.row.total{border-top:1px solid #D3E7DB;margin-top:8px;padding-top:10px;align-items:center}
+.row.total dt{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase}
+.row.total dd{font-family:var(--serif);font-size:21px;font-weight:600;color:var(--forest)}
+.btn-confirm{width:100%;margin-top:12px;padding:13px;border-radius:9px;font-size:14px;font-weight:500;
+  background:var(--forest);color:#fff;border-color:var(--forest)}
+.btn-confirm:hover{background:#234A32}
+
+/* trust */
+.trust{background:var(--pale);padding:20px 16px 26px}
+.trust ul{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.trust li{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--ink);font-weight:400}
+.trust i{font-size:16px;color:var(--sage)}
+
+/* footer */
+.footer{background:var(--mint);padding:26px 16px 20px;border-top:1px solid var(--gold)}
+.footer .fname{font-family:var(--serif);font-weight:600;font-size:20px;margin:0 0 14px;color:var(--ink)}
+.fblock{margin-bottom:14px}
+.fblock .fl{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
+.fblock p{margin:0;font-size:12.5px;line-height:1.55;color:var(--ink)}
+.flink{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink);text-decoration:none;
+  padding:4px 0;transition:color .18s ease}
+.flink:hover{color:var(--sage)}
+.flink i{font-size:14px;color:var(--sage)}
+.fbottom{margin-top:14px;padding-top:12px;border-top:1px solid var(--line-soft);
+  display:flex;justify-content:space-between;gap:10px;font-size:10.5px;color:var(--muted)}
+</style>
+<div class="page" data-kid="1" data-name="page layout container">
+<nav class="nav" data-kid="1-1" data-name="main navigation bar">
+<a class="brand" data-kid="1-1-1" data-name="brand logo link" href="#inicio">
+<span class="brand-tile" data-kid="1-1-1-1" data-name="brand tile logo container"><img alt="Flor de loto de Salon Spa Aleida" data-kid="1-1-1-1-1" data-name="shop lotus flower logo icon" decoding="async" loading="lazy" src="../../../frontend/public/logo_zen_icon.svg"/></span>
+<span data-kid="1-1-1-2" data-name="brand text group">
+<span class="brand-name" data-kid="1-1-1-2-1" data-name="brand name text">Salon Spa Aleida</span>
+<span class="brand-sub" data-kid="1-1-1-2-2" data-name="brand tagline text">Salón &amp; Spa</span>
+</span>
+</a>
+<div class="nav-actions" data-kid="1-1-2" data-name="navigation actions group">
+<button aria-label="Abrir menú" class="icon-btn" data-kid="1-1-2-1" data-name="menu hamburger button" type="button"><i aria-hidden="true" class="ti ti-menu-2" data-kid="1-1-2-1-1" data-name="menu hamburger icon"></i></button>
+<button class="btn btn-solid btn-sm" data-kid="1-1-2-2" data-name="nav booking call-to-action button" type="button">Reservar Cita</button>
+</div>
+</nav>
+<header class="hero" data-kid="1-2" data-name="hero section" id="inicio">
+<div class="hero-photo" data-kid="1-2-1" data-name="hero photo container">
+<img alt="Camilla de masaje con toallas dobladas junto a una planta. Fotografía: aiseleer / Pexels" data-kid="1-2-1-1" data-name="hero spa massage photo" decoding="async" loading="lazy" src="https://images.pexels.com/photos/36837602/pexels-photo-36837602.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=760&amp;q=80"/>
+</div>
+<h1 data-kid="1-2-2" data-name="hero headline text">Renueva tu Belleza, Equilibra tu Bienestar</h1>
+<p data-kid="1-2-3" data-name="hero description text">Rituales terapéuticos botánicos, tratamientos faciales antiedad y estilismo capilar personalizado en un ambiente de calma y sofisticación.</p>
+<button class="btn btn-hero" data-kid="1-2-4" data-name="hero primary booking button" type="button">Reservar Cita <i aria-hidden="true" class="ti ti-arrow-right" data-kid="1-2-4-1" data-name="right arrow icon"></i></button>
+</header>
+<section class="sec" data-kid="1-3" data-name="services section" id="servicios">
+<h2 data-kid="1-3-1" data-name="services section heading">Carta de servicios</h2>
+<article class="svc is-sel" data-dur="90 min" data-kid="1-3-2" data-name="service card (relaxing massage)" data-price="S/ 280.00" data-service="Masaje Relajante Aleida">
+<div class="svc-top" data-kid="1-3-2-1" data-name="service card header row">
+<div data-kid="1-3-2-1-1" data-name="service title group">
+<h3 data-kid="1-3-2-1-1-1" data-name="service card title">Masaje Relajante Aleida</h3>
+<p class="svc-cat" data-kid="1-3-2-1-1-2" data-name="service category label">Spa &amp; Bienestar</p>
+</div>
+<span class="check" data-kid="1-3-2-1-2" data-name="service selection checkmark circle"><i aria-hidden="true" class="ti ti-check" data-kid="1-3-2-1-2-1" data-name="checkmark icon"></i></span>
+</div>
+<p class="svc-desc" data-kid="1-3-2-2" data-name="service description text">Terapia antiestrés con aceites botánicos, aromaterapia personalizada y piedras calientes para disolver tensiones acumuladas.</p>
+<div class="svc-meta" data-kid="1-3-2-3" data-name="service meta row (duration &amp; price)">
+<span class="dur" data-kid="1-3-2-3-1" data-name="service duration label"><i aria-hidden="true" class="ti ti-clock" data-kid="1-3-2-3-1-1" data-name="clock icon"></i>90 min</span>
+<span class="price" data-kid="1-3-2-3-2" data-name="service price text">S/ 280.00</span>
+</div>
+<button class="btn btn-outline" data-kid="1-3-2-4" data-name="service book appointment button" type="button">Reservar Cita</button>
+</article>
+<article class="svc" data-dur="75 min" data-kid="1-3-3" data-name="service card (gold facial)" data-price="S/ 450.00" data-service="Facial Rejuvenecedor con Oro">
+<div class="svc-top" data-kid="1-3-3-1" data-name="service card header row">
+<div data-kid="1-3-3-1-1" data-name="service title group">
+<h3 data-kid="1-3-3-1-1-1" data-name="service card title">Facial Rejuvenecedor con Oro</h3>
+<p class="svc-cat" data-kid="1-3-3-1-1-2" data-name="service category label">Estética Facial</p>
+</div>
+<span class="check" data-kid="1-3-3-1-2" data-name="service selection checkmark circle"><i aria-hidden="true" class="ti ti-check" data-kid="1-3-3-1-2-1" data-name="checkmark icon"></i></span>
+</div>
+<p class="svc-desc" data-kid="1-3-3-2" data-name="service description text">Limpieza profunda e hidratación intensiva con micropartículas de oro coloidal y colágeno hidrolizado purificado.</p>
+<div class="svc-meta" data-kid="1-3-3-3" data-name="service meta row (duration &amp; price)">
+<span class="dur" data-kid="1-3-3-3-1" data-name="service duration label"><i aria-hidden="true" class="ti ti-clock" data-kid="1-3-3-3-1-1" data-name="clock icon"></i>75 min</span>
+<span class="price" data-kid="1-3-3-3-2" data-name="service price text">S/ 450.00</span>
+</div>
+<button class="btn btn-outline" data-kid="1-3-3-4" data-name="service book appointment button" type="button">Reservar Cita</button>
+</article>
+<article class="svc" data-dur="120 min" data-kid="1-3-4" data-name="service card (keratin treatment)" data-price="S/ 350.00" data-service="Tratamiento Capilar Keratina">
+<div class="svc-top" data-kid="1-3-4-1" data-name="service card header row">
+<div data-kid="1-3-4-1-1" data-name="service title group">
+<h3 data-kid="1-3-4-1-1-1" data-name="service card title">Tratamiento Capilar Keratina</h3>
+<p class="svc-cat" data-kid="1-3-4-1-1-2" data-name="service category label">Cuidado Capilar</p>
+</div>
+<span class="check" data-kid="1-3-4-1-2" data-name="service selection checkmark circle"><i aria-hidden="true" class="ti ti-check" data-kid="1-3-4-1-2-1" data-name="checkmark icon"></i></span>
+</div>
+<p class="svc-desc" data-kid="1-3-4-2" data-name="service description text">Nutrición intensiva con sellado térmico para eliminación total del frizz y brillo prolongado de calidad profesional.</p>
+<div class="svc-meta" data-kid="1-3-4-3" data-name="service meta row (duration &amp; price)">
+<span class="dur" data-kid="1-3-4-3-1" data-name="service duration label"><i aria-hidden="true" class="ti ti-clock" data-kid="1-3-4-3-1-1" data-name="clock icon"></i>120 min</span>
+<span class="price" data-kid="1-3-4-3-2" data-name="service price text">S/ 350.00</span>
+</div>
+<button class="btn btn-outline" data-kid="1-3-4-4" data-name="service book appointment button" type="button">Reservar Cita</button>
+</article>
+<article class="svc" data-dur="60 min" data-kid="1-3-5" data-name="service card (premium manicure)" data-price="S/ 150.00" data-service="Manicura Spa Premium">
+<div class="svc-top" data-kid="1-3-5-1" data-name="service card header row">
+<div data-kid="1-3-5-1-1" data-name="service title group">
+<h3 data-kid="1-3-5-1-1-1" data-name="service card title">Manicura Spa Premium</h3>
+<p class="svc-cat" data-kid="1-3-5-1-1-2" data-name="service category label">Manicura &amp; Pedicura</p>
+</div>
+<span class="check" data-kid="1-3-5-1-2" data-name="service selection checkmark circle"><i aria-hidden="true" class="ti ti-check" data-kid="1-3-5-1-2-1" data-name="checkmark icon"></i></span>
+</div>
+<p class="svc-desc" data-kid="1-3-5-2" data-name="service description text">Exfoliación con sales minerales marinas, hidratación profunda con parafina tibia y esmaltado de alta duración.</p>
+<div class="svc-meta" data-kid="1-3-5-3" data-name="service meta row (duration &amp; price)">
+<span class="dur" data-kid="1-3-5-3-1" data-name="service duration label"><i aria-hidden="true" class="ti ti-clock" data-kid="1-3-5-3-1-1" data-name="clock icon"></i>60 min</span>
+<span class="price" data-kid="1-3-5-3-2" data-name="service price text">S/ 150.00</span>
+</div>
+<button class="btn btn-outline" data-kid="1-3-5-4" data-name="service book appointment button" type="button">Reservar Cita</button>
+</article>
+<article class="svc" data-dur="45 min" data-kid="1-3-6" data-name="service card (haircut &amp; styling)" data-price="S/ 120.00" data-service="Corte y Peinado de Estilo">
+<div class="svc-top" data-kid="1-3-6-1" data-name="service card header row">
+<div data-kid="1-3-6-1-1" data-name="service title group">
+<h3 data-kid="1-3-6-1-1-1" data-name="service card title">Corte y Peinado de Estilo</h3>
+<p class="svc-cat" data-kid="1-3-6-1-1-2" data-name="service category label">Cuidado Capilar</p>
+</div>
+<span class="check" data-kid="1-3-6-1-2" data-name="service selection checkmark circle"><i aria-hidden="true" class="ti ti-check" data-kid="1-3-6-1-2-1" data-name="checkmark icon"></i></span>
+</div>
+<p class="svc-desc" data-kid="1-3-6-2" data-name="service description text">Asesoría de visagismo personalizada, lavado con shampoo dermocosmético, corte de autor y estilizado profesional.</p>
+<div class="svc-meta" data-kid="1-3-6-3" data-name="service meta row (duration &amp; price)">
+<span class="dur" data-kid="1-3-6-3-1" data-name="service duration label"><i aria-hidden="true" class="ti ti-clock" data-kid="1-3-6-3-1-1" data-name="clock icon"></i>45 min</span>
+<span class="price" data-kid="1-3-6-3-2" data-name="service price text">S/ 120.00</span>
+</div>
+<button class="btn btn-outline" data-kid="1-3-6-4" data-name="service book appointment button" type="button">Reservar Cita</button>
+</article>
+</section>
+<section class="booking" data-kid="1-4" data-name="booking section" id="reservar">
+<h2 data-kid="1-4-1" data-name="booking section heading" style="font-family:var(--serif);font-weight:600;font-size:23px;margin:0 0 18px">Reserva tu cita</h2>
+<div class="block" data-kid="1-4-2" data-name="especialista selection block">
+<span class="lbl" data-kid="1-4-2-1" data-name="especialista field label">Especialista</span>
+<button class="sp is-sel" data-kid="1-4-2-2" data-name="especialista option card (Carmen)" data-sp="Carmen Sánchez" type="button">
+<img alt="Carmen Sánchez. Fotografía: xandro Vandewalle / Unsplash" data-kid="1-4-2-2-1" data-name="especialista avatar photo" decoding="async" loading="lazy" src="https://images.unsplash.com/photo-1586165127014-f730957751f2?auto=format&amp;w=120&amp;h=120&amp;fit=crop&amp;q=80"/>
+<span class="sp-txt" data-kid="1-4-2-2-2" data-name="especialista text group">
+<span class="sp-name" data-kid="1-4-2-2-2-1" data-name="especialista name">Carmen Sánchez</span>
+<span class="sp-role" data-kid="1-4-2-2-2-2" data-name="especialista role title">Cosmiatra &amp; Terapeuta Holística</span>
+</span>
+<span class="radio" data-kid="1-4-2-2-3" data-name="especialista selection radio circle"><i aria-hidden="true" class="ti ti-check" data-kid="1-4-2-2-3-1" data-name="checkmark icon"></i></span>
+</button>
+<button class="sp" data-kid="1-4-2-3" data-name="especialista option card (Luisa)" data-sp="Luisa Paredes" type="button">
+<img alt="Luisa Paredes. Fotografía: Rendy Novantino / Unsplash" data-kid="1-4-2-3-1" data-name="especialista avatar photo" decoding="async" loading="lazy" src="https://images.unsplash.com/photo-1620198361326-a319ba24ec94?auto=format&amp;w=120&amp;h=120&amp;fit=crop&amp;q=80"/>
+<span class="sp-txt" data-kid="1-4-2-3-2" data-name="especialista text group">
+<span class="sp-name" data-kid="1-4-2-3-2-1" data-name="especialista name">Luisa Paredes</span>
+<span class="sp-role" data-kid="1-4-2-3-2-2" data-name="especialista role title">Estilista Capilar Senior</span>
+</span>
+<span class="radio" data-kid="1-4-2-3-3" data-name="especialista selection radio circle"><i aria-hidden="true" class="ti ti-check" data-kid="1-4-2-3-3-1" data-name="checkmark icon"></i></span>
+</button>
+<button class="sp" data-kid="1-4-2-4" data-name="especialista option card (Ana)" data-sp="Ana Vargas" type="button">
+<img alt="Ana Vargas. Fotografía: Maria Isadora / Pexels" data-kid="1-4-2-4-1" data-name="especialista avatar photo" decoding="async" loading="lazy" src="https://images.pexels.com/photos/18090215/pexels-photo-18090215.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=120&amp;h=120&amp;fit=crop&amp;q=80"/>
+<span class="sp-txt" data-kid="1-4-2-4-2" data-name="especialista text group">
+<span class="sp-name" data-kid="1-4-2-4-2-1" data-name="especialista name">Ana Vargas</span>
+<span class="sp-role" data-kid="1-4-2-4-2-2" data-name="especialista role title">Especialista en Manicura &amp; Pedicura</span>
+</span>
+<span class="radio" data-kid="1-4-2-4-3" data-name="especialista selection radio circle"><i aria-hidden="true" class="ti ti-check" data-kid="1-4-2-4-3-1" data-name="checkmark icon"></i></span>
+</button>
+</div>
+<div class="block" data-kid="1-4-3" data-name="date selection block">
+<span class="lbl" data-kid="1-4-3-1" data-name="date field label">Fecha · Noviembre 2026</span>
+<div class="week" data-kid="1-4-3-2" data-name="week day strip container" id="week">
+<button class="day" data-date="Lun 16 de noviembre" data-kid="1-4-3-2-1" data-name="day button (Monday 16)" type="button"><span class="dw" data-kid="1-4-3-2-1-1" data-name="day weekday label">Lun</span><span class="dn" data-kid="1-4-3-2-1-2" data-name="day date number">16</span></button>
+<button class="day" data-date="Mar 17 de noviembre" data-kid="1-4-3-2-2" data-name="day button (Tuesday 17)" type="button"><span class="dw" data-kid="1-4-3-2-2-1" data-name="day weekday label">Mar</span><span class="dn" data-kid="1-4-3-2-2-2" data-name="day date number">17</span></button>
+<button class="day is-sel" data-date="Mié 18 de noviembre" data-kid="1-4-3-2-3" data-name="day button (Wednesday 18)" type="button"><span class="dw" data-kid="1-4-3-2-3-1" data-name="day weekday label">Mié</span><span class="dn" data-kid="1-4-3-2-3-2" data-name="day date number">18</span></button>
+<button class="day" data-date="Jue 19 de noviembre" data-kid="1-4-3-2-4" data-name="day button (Thursday 19)" type="button"><span class="dw" data-kid="1-4-3-2-4-1" data-name="day weekday label">Jue</span><span class="dn" data-kid="1-4-3-2-4-2" data-name="day date number">19</span></button>
+<button class="day" data-date="Vie 20 de noviembre" data-kid="1-4-3-2-5" data-name="day button (Friday 20)" type="button"><span class="dw" data-kid="1-4-3-2-5-1" data-name="day weekday label">Vie</span><span class="dn" data-kid="1-4-3-2-5-2" data-name="day date number">20</span></button>
+<button class="day" data-date="Sáb 21 de noviembre" data-kid="1-4-3-2-6" data-name="day button (Saturday 21)" type="button"><span class="dw" data-kid="1-4-3-2-6-1" data-name="day weekday label">Sáb</span><span class="dn" data-kid="1-4-3-2-6-2" data-name="day date number">21</span></button>
+<div class="day is-closed" data-kid="1-4-3-2-7" data-name="closed day indicator (Sunday 22)"><span class="dw" data-kid="1-4-3-2-7-1" data-name="day weekday label">Dom</span><span class="wf" data-kid="1-4-3-2-7-2" data-name="day date number">22</span><span class="dw" data-kid="1-4-3-2-7-3" data-name="closed day tag">Cerrado</span></div>
+</div>
+</div>
+<div class="block" data-kid="1-4-4" data-name="time slot selection block">
+<div data-kid="1-4-4-1" data-name="slot header row" style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:8px">
+<span data-dynamic="true" data-kid="1-4-4-1-1" data-name="slot selected date caption" data-reason="text rewritten by script when a different date is selected" id="slotDate" style="font-size:13px;font-weight:500;color:var(--ink)">Mié 18 de noviembre</span>
+<span data-kid="1-4-4-1-2" data-name="available slots count caption" style="font-size:11px;color:var(--muted)">4 horarios libres</span>
+</div>
+<div class="slots" data-kid="1-4-4-2" data-name="time slot grid">
+<button class="slot" data-kid="1-4-4-2-1" data-name="time slot button (09:00)" data-time="09:00" type="button">09:00</button>
+<button class="slot" data-kid="1-4-4-2-2" data-name="time slot button (10:30)" data-time="10:30" type="button">10:30</button>
+<button class="slot is-sel" data-kid="1-4-4-2-3" data-name="time slot button (11:45)" data-time="11:45" type="button">11:45</button>
+<button class="slot" data-kid="1-4-4-2-4" data-name="time slot button (14:30)" data-time="14:30" type="button">14:30</button>
+<button class="slot is-off" data-kid="1-4-4-2-5" data-name="disabled time slot button (16:30)" disabled="" type="button">16:30</button>
+<button class="slot is-off" data-kid="1-4-4-2-6" data-name="disabled time slot button (18:00)" disabled="" type="button">18:00</button>
+</div>
+</div>
+<div class="summary" data-kid="1-4-5" data-name="booking summary card">
+<h3 data-kid="1-4-5-1" data-name="booking summary title">Tu reserva</h3>
+<dl data-kid="1-4-5-2" data-name="summary details list" style="margin:0">
+<div class="row" data-kid="1-4-5-2-1" data-name="summary service row"><dt data-kid="1-4-5-2-1-1" data-name="summary service label">Servicio</dt><dd data-dynamic="true" data-kid="1-4-5-2-1-2" data-name="summary service value" data-reason="text rewritten by script when service selection changes" id="sService">Masaje Relajante Aleida</dd></div>
+<div class="row" data-kid="1-4-5-2-2" data-name="summary specialist row"><dt data-kid="1-4-5-2-2-1" data-name="summary specialist label">Especialista</dt><dd data-dynamic="true" data-kid="1-4-5-2-2-2" data-name="summary specialist value" data-reason="text rewritten by script when specialist selection changes" id="sSp">Carmen Sánchez</dd></div>
+<div class="row" data-kid="1-4-5-2-3" data-name="summary date row"><dt data-kid="1-4-5-2-3-1" data-name="summary date label">Fecha</dt><dd data-dynamic="true" data-kid="1-4-5-2-3-2" data-name="summary date value" data-reason="text rewritten by script when date selection changes" id="sDate">Mié 18 de noviembre</dd></div>
+<div class="row" data-kid="1-4-5-2-4" data-name="summary time row"><dt data-kid="1-4-5-2-4-1" data-name="summary time label">Horario</dt><dd data-dynamic="true" data-kid="1-4-5-2-4-2" data-name="summary time value" data-reason="text rewritten by script when time slot selection changes" id="sTime">11:45</dd></div>
+<div class="row" data-kid="1-4-5-2-5" data-name="summary duration row"><dt data-kid="1-4-5-2-5-1" data-name="summary duration label">Duración</dt><dd data-dynamic="true" data-kid="1-4-5-2-5-2" data-name="summary duration value" data-reason="text rewritten by script when service selection changes" id="sDur">90 min</dd></div>
+<div class="row total" data-kid="1-4-5-2-6" data-name="summary total row"><dt data-kid="1-4-5-2-6-1" data-name="summary total label">Total</dt><dd data-dynamic="true" data-kid="1-4-5-2-6-2" data-name="summary total price value" data-reason="text rewritten by script when service selection changes" id="sTotal">S/ 280.00</dd></div>
+</dl>
+<button class="btn btn-confirm" data-kid="1-4-5-3" data-name="confirm booking button" type="button">Continuar reserva</button>
+</div>
+</section>
+<aside class="trust" data-kid="1-5" data-name="trust and footer container">
+<ul data-kid="1-5-1" data-name="trust badges list">
+<li data-kid="1-5-1-1" data-name="trust item: medical biosecurity"><i aria-hidden="true" class="ti ti-shield-check" data-kid="1-5-1-1-1" data-name="shield check icon"></i>Bioseguridad médica</li>
+<li data-kid="1-5-1-2" data-name="trust item: private cabins"><i aria-hidden="true" class="ti ti-door" data-kid="1-5-1-2-1" data-name="door icon"></i>Cabinas privadas</li>
+<li data-kid="1-5-1-3" data-name="trust item: certified therapists"><i aria-hidden="true" class="ti ti-certificate" data-kid="1-5-1-3-1" data-name="certificate icon"></i>Terapeutas certificadas</li>
+</ul>
+<footer class="footer" data-kid="1-5-2" data-name="page footer">
+<p class="fname" data-kid="1-5-2-1" data-name="footer brand name">Salon Spa Aleida</p>
+<div class="fblock" data-kid="1-5-2-2" data-name="footer opening hours block">
+<p class="fl" data-kid="1-5-2-2-1" data-name="footer opening hours label">Horarios</p>
+<p data-kid="1-5-2-2-2" data-name="footer opening hours text">Lunes a Sábado, 09:00 – 20:00<br data-kid="1-5-2-2-2-1" data-name="line break"/>Domingo, cerrado</p>
+</div>
+<div class="fblock" data-kid="1-5-2-3" data-name="footer address block">
+<p class="fl" data-kid="1-5-2-3-1" data-name="footer address label">Dirección</p>
+<p data-kid="1-5-2-3-2" data-name="footer address text">Av. Conquistadores 450<br data-kid="1-5-2-3-2-1" data-name="line break"/>Lima — Perú</p>
+</div>
+<div class="fblock" data-kid="1-5-2-4" data-name="footer contact block">
+<span class="fl" data-kid="1-5-2-4-1" data-name="footer contact label">Contacto</span>
+<a class="flink" data-kid="1-5-2-4-2" data-name="footer phone contact link" href="tel:+5114219876"><i aria-hidden="true" class="ti ti-phone" data-kid="1-5-2-4-2-1" data-name="phone icon"></i>(01) 421-9876</a>
+<a class="flink" data-kid="1-5-2-4-3" data-name="footer whatsapp contact link" href="https://wa.me/51987654321"><i aria-hidden="true" class="ti ti-brand-whatsapp" data-kid="1-5-2-4-3-1" data-name="whatsapp brand icon"></i>987 654 321</a>
+<a class="flink" data-kid="1-5-2-4-4" data-name="footer email contact link" href="mailto:contacto@salonspaaleida.com"><i aria-hidden="true" class="ti ti-mail" data-kid="1-5-2-4-4-1" data-name="email icon"></i>contacto@salonspaaleida.com</a>
+</div>
+<div class="fbottom" data-kid="1-5-2-5" data-name="footer legal bottom bar">
+<span data-kid="1-5-2-5-1" data-name="company legal name text">Salon Spa Aleida S.A.C.</span>
+<span data-kid="1-5-2-5-2" data-name="tax registration number text">RUC 20608192831</span>
+</div>
+</footer>
+</aside></div>
+<script>
+(function () {
+  var state = { service: 'Masaje Relajante Aleida', dur: '90 min', price: 'S/ 280.00', sp: 'Carmen Sánchez', date: 'Mié 18 de noviembre', time: '11:45' };
+  var $ = function (s) { return document.querySelector(s); };
+
+  function render() {
+    $('#sService').textContent = state.service;
+    $('#sSp').textContent = state.sp;
+    $('#sDate').textContent = state.date;
+    $('#sTime').textContent = state.time;
+    $('#sDur').textContent = state.dur;
+    $('#sTotal').textContent = state.price;
+    $('#slotDate').textContent = state.date;
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('.svc'), function (card) {
+    card.addEventListener('click', function (e) {
+      if (e.target.closest('.btn-outline')) { e.preventDefault(); }
+      Array.prototype.forEach.call(document.querySelectorAll('.svc'), function (c) { c.classList.remove('is-sel'); });
+      card.classList.add('is-sel');
+      state.service = card.dataset.service;
+      state.dur = card.dataset.dur;
+      state.price = card.dataset.price;
+      render();
+    });
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll('.sp'), function (row) {
+    row.addEventListener('click', function () {
+      Array.prototype.forEach.call(document.querySelectorAll('.sp'), function (r) { r.classList.remove('is-sel'); });
+      row.classList.add('is-sel');
+      state.sp = row.dataset.sp;
+      render();
+    });
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll('.day[data-date]'), function (day) {
+    day.addEventListener('click', function () {
+      Array.prototype.forEach.call(document.querySelectorAll('.day[data-date]'), function (d) { d.classList.remove('is-sel'); });
+      day.classList.add('is-sel');
+      state.date = day.dataset.date;
+      render();
+    });
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll('.slot[data-time]'), function (slot) {
+    slot.addEventListener('click', function () {
+      Array.prototype.forEach.call(document.querySelectorAll('.slot'), function (s) { s.classList.remove('is-sel'); });
+      slot.classList.add('is-sel');
+      state.time = slot.dataset.time;
+      render();
+    });
+  });
+
+  render();
+})();
+</script>
+</div>
+</body></html>
