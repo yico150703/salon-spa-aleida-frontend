@@ -129,6 +129,8 @@ export default function Dashboard({
   onSwitchToBooking,
   onSwitchToMovil,
   onChangeRole,
+  onRefreshClientes,
+  onRefreshCaja,
   showToast 
 }) {
   // Resolver configuración de rol
@@ -160,6 +162,11 @@ export default function Dashboard({
   const [isApptModalOpen, setIsApptModalOpen] = useState(false);
   const [editingAppt, setEditingAppt] = useState(null);
 
+  // Búsqueda y Filtros de Clientes
+  const [clientSearchQuery, setClientSearchQuery] = useState('');
+  const [headerSearchQuery, setHeaderSearchQuery] = useState('');
+  const [salesHistory, setSalesHistory] = useState([]);
+
   // POS State (RF04, RF05)
   const [posClient, setPosClient] = useState('Patricia Valdivia');
   const [posService, setPosService] = useState('Facial Rejuvenecedor con Oro');
@@ -176,6 +183,18 @@ export default function Dashboard({
   const [annulHistory, setAnnulHistory] = useState([
     { fecha: '05/10/2026', boleta: 'B001-0004810', nc: 'NC-012', monto: 120.0, motivo: 'Devolución por insatisfacción' }
   ]);
+
+  // Filtrado reactivo de clientes para el padrón
+  const filteredClientes = clientes.filter(cl => {
+    if (!clientSearchQuery) return true;
+    const q = clientSearchQuery.toLowerCase().trim();
+    return (
+      (cl.dni && cl.dni.toLowerCase().includes(q)) ||
+      (cl.nombre && cl.nombre.toLowerCase().includes(q)) ||
+      (cl.telefono && cl.telefono.toLowerCase().includes(q)) ||
+      (cl.preferencias && cl.preferencias.toLowerCase().includes(q))
+    );
+  });
 
   // Calculations for POS
   const basePrice = parseFloat(posAmount) || 0;
@@ -217,6 +236,7 @@ export default function Dashboard({
       medio_pago: posPaymentMethod
     });
 
+    setSalesHistory(prev => [nuevaBoleta, ...prev]);
     setReceiptData(nuevaBoleta);
     setReceiptType('boleta');
     setIsReceiptOpen(true);
@@ -290,10 +310,10 @@ export default function Dashboard({
           ))}
         </nav>
 
-        {/* Switcher de Roles para Evaluación / Pruebas */}
-        {onChangeRole && (
+        {/* Switcher de Roles para Evaluación / Pruebas (Restringido exclusivamente a Administrador) */}
+        {onChangeRole && (currentUser?.originalRol?.toLowerCase().includes('admin') || (!currentUser?.originalRol && userRoleKey === 'Administrador')) && (
           <div className="sidebar-role-switcher">
-            <span className="role-switcher-title">Probar Otro Rol (RBAC):</span>
+            <span className="role-switcher-title">Vista de Evaluación (Solo Admin):</span>
             <div className="role-switcher-grid">
               <button 
                 type="button"
@@ -342,7 +362,19 @@ export default function Dashboard({
         {/* Top Header Bar */}
         <header className="admin-header">
           <div className="header-search">
-            <input type="text" placeholder="Buscar cliente por DNI, nombre o cita..." />
+            <input 
+              type="text" 
+              placeholder="Buscar cliente por DNI, nombre o cita..." 
+              value={headerSearchQuery}
+              onChange={(e) => {
+                const val = e.target.value;
+                setHeaderSearchQuery(val);
+                setClientSearchQuery(val);
+                if (val.trim() && activeTab !== 'clientes' && activeTab !== 'agenda') {
+                  setActiveTab('clientes');
+                }
+              }}
+            />
           </div>
           <div className="header-status">
             <button className="btn-outline" onClick={onSwitchToPortal} style={{ borderColor: 'var(--color-border)', color: 'var(--color-text)' }}>
@@ -516,31 +548,141 @@ export default function Dashboard({
                 <span className="badge-tag gold">Padrón de Clientes &amp; Fichas Estéticas</span>
                 <h3>Padrón Centralizado de Clientes &amp; Fichas Estéticas</h3>
                 <small style={{ color: 'var(--color-text-muted)' }}>
-                  Almacena historial estético, visitas acumuladas, sensibilidad dérmica y preferencias personalizadas.
+                  Almacena historial estético, visitas acumuladas, sensibilidad dérmica y preferencias personalizadas sincronizadas con la Base de Datos.
                 </small>
               </div>
-              <button className="btn-action primary" onClick={() => {
-                const dni = prompt('DNI del cliente:');
-                if (dni) { const nombre = prompt('Nombre completo:'); if (nombre) onAddClient({ dni, nombre, telefono: '987654321', preferencias: 'Nueva ficha estética', visitas: 1 }); }
-              }}>
-                + Nuevo Cliente
-              </button>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                {onRefreshClientes && (
+                  <button 
+                    type="button" 
+                    className="btn-outline" 
+                    onClick={onRefreshClientes} 
+                    title="Sincronizar clientes desde backend PostgreSQL"
+                    style={{ borderColor: 'var(--color-border)', color: 'var(--color-text)' }}
+                  >
+                    🔄 Sincronizar Padrón
+                  </button>
+                )}
+                <button className="btn-action primary" onClick={() => {
+                  const dni = prompt('DNI del cliente (8 dígitos):');
+                  if (dni) { 
+                    const nombre = prompt('Nombres y apellidos completos:'); 
+                    if (nombre) {
+                      const telefono = prompt('Teléfono móvil (WhatsApp):', '987654321');
+                      const preferencias = prompt('Historial Dérmico / Preferencias:', 'Piel sensible, aromaterapia botánica');
+                      onAddClient({ 
+                        dni: dni.trim(), 
+                        nombre: nombre.trim(), 
+                        telefono: (telefono || '987654321').trim(), 
+                        preferencias: preferencias || 'Registro en mostrador', 
+                        visitas: 1 
+                      });
+                      showToast(`Cliente ${nombre} registrado y sincronizado en el Padrón.`);
+                    }
+                  }
+                }}>
+                  + Nuevo Cliente
+                </button>
+              </div>
             </div>
+
+            {/* Barra de Búsqueda Rápida y Estadísticas en Vivo */}
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center', 
+              background: '#F8FBF9', 
+              border: '1px solid #D8E7DC', 
+              borderRadius: '8px', 
+              padding: '10px 16px', 
+              marginBottom: '14px',
+              gap: '12px',
+              flexWrap: 'wrap'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: '280px' }}>
+                <span style={{ fontSize: '1.1rem' }}>🔍</span>
+                <input 
+                  type="text" 
+                  value={clientSearchQuery} 
+                  onChange={(e) => setClientSearchQuery(e.target.value)} 
+                  placeholder="Buscar por DNI, Nombres, Teléfono o Historial dérmico..." 
+                  style={{ 
+                    flex: 1, 
+                    padding: '8px 12px', 
+                    border: '1px solid #CCD0D5', 
+                    borderRadius: '6px', 
+                    fontSize: '0.9rem',
+                    background: '#FFF' 
+                  }}
+                />
+                {clientSearchQuery && (
+                  <button 
+                    type="button" 
+                    onClick={() => { setClientSearchQuery(''); setHeaderSearchQuery(''); }} 
+                    style={{ background: '#E2E8F0', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', color: '#4A5568', fontWeight: 'bold' }}
+                    title="Limpiar búsqueda"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+              <div style={{ display: 'flex', gap: '14px', alignItems: 'center', fontSize: '0.86rem', color: '#4A5568' }}>
+                <span>Total Registrados: <strong style={{ color: '#1B3D2B', fontSize: '0.95rem' }}>{clientes.length}</strong></span>
+                <span>Coincidencias: <strong style={{ color: '#B38B28', fontSize: '0.95rem' }}>{filteredClientes.length}</strong></span>
+              </div>
+            </div>
+
             <div className="agenda-table-wrapper">
               <table className="data-table">
-                <thead><tr><th>DNI</th><th>Nombres y Apellidos</th><th>Teléfono</th><th>Historial Estético</th><th>Visitas</th><th>Última Atención</th><th>Acción</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th>DNI</th>
+                    <th>Nombres y Apellidos</th>
+                    <th>Teléfono</th>
+                    <th>Historial Estético &amp; Dérmico</th>
+                    <th>Visitas</th>
+                    <th>Última Atención</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
                 <tbody>
-                  {clientes.map(cl => (
-                    <tr key={cl.dni}>
-                      <td><strong>{cl.dni}</strong></td>
-                      <td>{cl.nombre}</td>
-                      <td>{cl.telefono}</td>
-                      <td>{cl.preferencias}</td>
-                      <td>{cl.visitas}</td>
-                      <td>{cl.ultima_visita}</td>
-                      <td><button className="btn-table primary" onClick={() => handleOpenClientFile(cl)}>Abrir Expediente</button></td>
+                  {filteredClientes.length === 0 ? (
+                    <tr>
+                      <td colSpan="7" style={{ textAlign: 'center', padding: '36px', color: '#718096' }}>
+                        No se encontraron clientes que coincidan con "<strong>{clientSearchQuery}</strong>".
+                      </td>
                     </tr>
-                  ))}
+                  ) : (
+                    filteredClientes.map(cl => (
+                      <tr key={cl.dni}>
+                        <td><strong>{cl.dni}</strong></td>
+                        <td><strong>{cl.nombre}</strong></td>
+                        <td>{cl.telefono}</td>
+                        <td style={{ maxWidth: '320px', lineHeight: 1.4 }}>{cl.preferencias}</td>
+                        <td><span className="tag confirmed">{cl.visitas || 1} visitas</span></td>
+                        <td>{cl.ultima_visita || 'Hoy'}</td>
+                        <td>
+                          <div style={{ display: 'flex', gap: '6px' }}>
+                            <button className="btn-table primary" onClick={() => handleOpenClientFile(cl)}>
+                              Expediente
+                            </button>
+                            <button 
+                              className="btn-table" 
+                              style={{ background: '#EBF5EE', color: '#1B3D2B', borderColor: '#4A7C59', fontWeight: 600 }}
+                              onClick={() => {
+                                setPosClient(cl.nombre);
+                                setActiveTab('caja');
+                                showToast(`Cliente "${cl.nombre}" seleccionado en Terminal POS.`);
+                              }}
+                              title="Cargar este cliente en la Terminal POS para facturación"
+                            >
+                              Cobrar
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -611,21 +753,153 @@ export default function Dashboard({
                 <span className="badge-tag gold">Punto de Venta &amp; Facturación</span>
                 <h3>Punto de Venta (POS) &amp; Emisión de Boleta Electrónica</h3>
                 <small style={{ color: 'var(--color-text-muted)' }}>
-                  Soporta servicios combinados con productos de reventa, descuentos promocionales, cálculo automático del IGV (18%) y cobro multicanal con vuelto.
+                  Soporta servicios combinados con productos de reventa, descuentos promocionales, cálculo automático del IGV (18%), cobro multicanal y sincronización automática con Caja y Base de Datos.
                 </small>
               </div>
+              {onRefreshCaja && (
+                <button 
+                  type="button" 
+                  className="btn-outline" 
+                  onClick={onRefreshCaja}
+                  title="Sincronizar balance de caja desde backend"
+                >
+                  🔄 Sincronizar Caja
+                </button>
+              )}
             </div>
+
+            {/* Banner de Saldo de Caja de Turno en Vivo */}
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', 
+              gap: '12px', 
+              background: '#F8FBF9', 
+              border: '1px solid #C2E0C6', 
+              borderRadius: '10px', 
+              padding: '14px 18px', 
+              marginBottom: '18px' 
+            }}>
+              <div>
+                <span style={{ fontSize: '0.74rem', textTransform: 'uppercase', color: '#666', fontWeight: 600 }}>Fondo Apertura</span>
+                <div style={{ fontSize: '1.2rem', fontWeight: 700, color: '#1B3D2B' }}>
+                  S/ {(Number(caja.apertura) || 0).toFixed(2)}
+                </div>
+              </div>
+              <div>
+                <span style={{ fontSize: '0.74rem', textTransform: 'uppercase', color: '#666', fontWeight: 600 }}>Efectivo en Mostrador</span>
+                <div style={{ fontSize: '1.2rem', fontWeight: 700, color: '#2E7D32' }}>
+                  S/ {(Number(caja.efectivo) || 0).toFixed(2)}
+                </div>
+              </div>
+              <div>
+                <span style={{ fontSize: '0.74rem', textTransform: 'uppercase', color: '#666', fontWeight: 600 }}>Digital (Yape / POS)</span>
+                <div style={{ fontSize: '1.2rem', fontWeight: 700, color: '#0277BD' }}>
+                  S/ {(Number(caja.digital) || 0).toFixed(2)}
+                </div>
+              </div>
+              <div>
+                <span style={{ fontSize: '0.74rem', textTransform: 'uppercase', color: '#666', fontWeight: 600 }}>Total Teórico en Caja</span>
+                <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#B38B28' }}>
+                  S/ {((Number(caja.apertura) || 0) + (Number(caja.efectivo) || 0) + (Number(caja.digital) || 0) - (Number(caja.egresos) || 0)).toFixed(2)}
+                </div>
+              </div>
+            </div>
+
+            {/* Selector Rápido de Citas Pendientes de Cobro del Día */}
+            <div style={{ 
+              background: '#FFFDE7', 
+              border: '1px solid #FFE082', 
+              borderRadius: '8px', 
+              padding: '12px 16px', 
+              marginBottom: '18px' 
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <strong style={{ fontSize: '0.88rem', color: '#795548' }}>
+                  ⚡ Cobro Rápido: Citas Pendientes de Cobro ({citas.filter(c => !c.cobrado && c.estado !== 'Cancelada').length}):
+                </strong>
+                <span style={{ fontSize: '0.78rem', color: '#8D6E63' }}>Haga clic en una cita para cargarla automáticamente</span>
+              </div>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {citas.filter(c => !c.cobrado && c.estado !== 'Cancelada').map(c => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    style={{ 
+                      background: '#FFF', 
+                      border: '1px solid #D4AF37', 
+                      color: '#1B3D2B', 
+                      padding: '5px 12px', 
+                      fontSize: '0.82rem', 
+                      cursor: 'pointer', 
+                      borderRadius: '6px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                    }}
+                    onClick={() => {
+                      setPosClient(c.cliente);
+                      setPosService(c.servicio);
+                      setPosAmount(c.monto.toString());
+                      showToast(`Cita de ${c.cliente} cargada al POS (S/ ${c.monto})`);
+                    }}
+                    title={`Haga clic para facturar la cita de ${c.cliente}`}
+                  >
+                    <strong>{c.hora}</strong> · {c.cliente} ({c.servicio} - <strong>S/ {c.monto}</strong>)
+                  </button>
+                ))}
+                {citas.filter(c => !c.cobrado && c.estado !== 'Cancelada').length === 0 && (
+                  <span style={{ fontSize: '0.82rem', color: '#666', fontStyle: 'italic' }}>
+                    Todas las citas agendadas han sido liquidadas. Puede facturar un servicio directo seleccionando un cliente.
+                  </span>
+                )}
+              </div>
+            </div>
+
             <div className="pos-layout">
               <div className="pos-checkout">
                 <h3>Terminal de Facturación Inmediata</h3>
                 <form onSubmit={handleExecutePayment}>
                   <div className="form-group">
-                    <label>Cliente Titular</label>
-                    <input type="text" value={posClient} onChange={(e) => setPosClient(e.target.value)} required />
+                    <label>Cliente Titular (Escriba o elija del Padrón)</label>
+                    <input 
+                      type="text" 
+                      value={posClient} 
+                      onChange={(e) => setPosClient(e.target.value)} 
+                      list="pos-clientes-list"
+                      placeholder="Escriba o seleccione cliente..."
+                      required 
+                    />
+                    <datalist id="pos-clientes-list">
+                      {clientes.map((cl, idx) => (
+                        <option key={cl.dni || idx} value={cl.nombre}>
+                          DNI: {cl.dni} · Tel: {cl.telefono} · {cl.preferencias ? cl.preferencias.slice(0, 30) : ''}
+                        </option>
+                      ))}
+                    </datalist>
                   </div>
                   <div className="form-group">
                     <label>Tratamiento Principal</label>
-                    <input type="text" value={posService} onChange={(e) => setPosService(e.target.value)} required />
+                    <input 
+                      type="text" 
+                      value={posService} 
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setPosService(val);
+                        const match = catalogo.find(cat => cat.nombre.toLowerCase() === val.toLowerCase());
+                        if (match) setPosAmount(match.precio.toString());
+                      }} 
+                      list="pos-servicios-list"
+                      placeholder="Escriba o seleccione tratamiento..."
+                      required 
+                    />
+                    <datalist id="pos-servicios-list">
+                      {catalogo.map(cat => (
+                        <option key={cat.id} value={cat.nombre}>
+                          S/ {cat.precio} ({cat.duracion} min) · {cat.categoria}
+                        </option>
+                      ))}
+                    </datalist>
                   </div>
                   <div className="form-row">
                     <div className="form-group">
@@ -719,7 +993,31 @@ export default function Dashboard({
                 {posPaymentMethod.includes('Yape') && (
                   <div style={{ textAlign: 'center', marginTop: '16px', background: '#F3E5F5', padding: '12px', borderRadius: '8px' }}>
                     <strong>[QR DIGITAL] Código QR de Cobro Digital Generado</strong><br />
-                    <small>Cliente escanea y confirma recepción instantánea.</small>
+                    <small>Cliente escanea y confirma recepción instantánea en Yape/Plin.</small>
+                  </div>
+                )}
+
+                {/* Historial de Comprobantes Emitidos en la Sesión */}
+                {salesHistory.length > 0 && (
+                  <div style={{ marginTop: '20px', borderTop: '1px solid #E2E8F0', paddingTop: '14px' }}>
+                    <h4 style={{ fontSize: '0.88rem', color: '#1B3D2B', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                      <span>🧾 Comprobantes Emitidos en Turno</span>
+                      <span style={{ color: '#666' }}>{salesHistory.length} emitidos</span>
+                    </h4>
+                    <div style={{ maxHeight: '160px', overflowY: 'auto', fontSize: '0.8rem' }}>
+                      {salesHistory.map((s, idx) => (
+                        <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px dashed #EEE' }}>
+                          <div>
+                            <strong>{s.numero_boleta}</strong> · {s.cliente}<br />
+                            <small style={{ color: '#666' }}>{s.servicio}</small>
+                          </div>
+                          <div style={{ textAlign: 'right' }}>
+                            <span style={{ fontWeight: 'bold', color: '#2E7D32' }}>S/ {s.total.toFixed(2)}</span><br />
+                            <small style={{ color: '#4A5568' }}>{s.medio_pago}</small>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>

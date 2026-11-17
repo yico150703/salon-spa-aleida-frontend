@@ -96,10 +96,49 @@ export const api = {
     return { message: 'Anulación procesada con Nota de Crédito' };
   },
 
+  async getClientes() {
+    try {
+      const res = await fetch(`${API_BASE}/clientes`);
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) return data;
+      }
+    } catch (_) {}
+    return initialMockState.clientes;
+  },
+
+  async createCliente(clienteData) {
+    try {
+      const res = await fetch(`${API_BASE}/clientes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(clienteData)
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return { success: true, cliente: clienteData };
+  },
+
   async getCaja() {
     try {
       const res = await fetch(`${API_BASE}/caja`);
-      if (res.ok) return await res.json();
+      if (res.ok) {
+        const data = await res.json();
+        const ap = Number(data.apertura) || 0;
+        const ef = Number(data.efectivo) || 0;
+        const di = Number(data.digital) || 0;
+        const eg = Number(data.egresos) || 0;
+        const total = Math.round((ap + ef + di - eg) * 100) / 100;
+        return {
+          ...data,
+          apertura: ap,
+          efectivo: ef,
+          digital: di,
+          egresos: eg,
+          saldo_teorico: data.saldo_teorico != null ? Number(data.saldo_teorico) : total,
+          total_teorico: data.total_teorico != null ? Number(data.total_teorico) : total
+        };
+      }
     } catch (_) {}
     return initialMockState.caja;
   }

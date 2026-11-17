@@ -33,7 +33,8 @@ export default function App() {
 
   useEffect(() => {
     api.getCitas().then(data => { if (data && data.length) setCitas(data); });
-    api.getCaja().then(data => { if (data && data.total_teorico) setCaja(data); });
+    api.getClientes().then(data => { if (data && data.length) setClientes(data); });
+    api.getCaja().then(data => { if (data) setCaja(data); });
   }, []);
 
   const showToast = (msg) => {
@@ -43,7 +44,9 @@ export default function App() {
 
   // DS_CU01: Login handler
   const handleLogin = (user) => {
-    setCurrentUser(user);
+    // Guardar originalRol para control estricto de RBAC
+    const userWithOriginal = { ...user, originalRol: user.rol };
+    setCurrentUser(userWithOriginal);
     showToast(`Bienvenido, ${user.nombre} · ${user.rol}`);
     // Redirigir según rol
     if (user.permisos.includes('agenda') || user.permisos.includes('caja')) {
@@ -65,8 +68,11 @@ export default function App() {
   };
 
   // DS_CU03: Registrar cliente
-  const handleAddClient = (newClient) => {
+  const handleAddClient = async (newClient) => {
     setClientes(prev => [newClient, ...prev]);
+    await api.createCliente(newClient);
+    const clientesActualizados = await api.getClientes();
+    if (clientesActualizados && clientesActualizados.length) setClientes(clientesActualizados);
   };
 
   const handleSaveClient = (updatedClient) => {
@@ -78,6 +84,13 @@ export default function App() {
     const citaWithId = { id: citas.length + 1, ...newCita };
     setCitas(prev => [citaWithId, ...prev]);
     await api.createCita(newCita);
+    // Sincronizar citas y clientes actualizados desde la base de datos
+    const [citasActualizadas, clientesActualizados] = await Promise.all([
+      api.getCitas(),
+      api.getClientes()
+    ]);
+    if (citasActualizadas && citasActualizadas.length) setCitas(citasActualizadas);
+    if (clientesActualizados && clientesActualizados.length) setClientes(clientesActualizados);
   };
 
   // DS_CU05: Reprogramar cita
@@ -110,30 +123,78 @@ export default function App() {
     setCaja(prev => ({ ...prev, apertura: aperturaData.saldo_inicial, estado: 'Abierta' }));
   };
 
-  // DS_CU08: Procesar venta y cobro
+  // DS_CU08: Procesar venta y cobro (Sincronización total de Caja)
   const handleProcessPayment = async (ventaData) => {
     const { cliente, monto, medio_pago } = ventaData;
-    const newCaja = { ...caja };
-    if (medio_pago === 'Efectivo') newCaja.efectivo += monto;
-    else newCaja.digital += monto;
-    setCaja(newCaja);
-    setCitas(citas.map(c =>
+    const numMonto = parseFloat(monto) || 0;
+
+    // 1. Actualización optimista de caja para reflejo visual inmediato
+    setCaja(prev => {
+      const nuevoEfectivo = medio_pago === 'Efectivo' ? prev.efectivo + numMonto : prev.efectivo;
+      const nuevoDigital = medio_pago !== 'Efectivo' ? prev.digital + numMonto : prev.digital;
+      const nuevoTotal = (prev.apertura || 0) + nuevoEfectivo + nuevoDigital - (prev.egresos || 0);
+      return {
+        ...prev,
+        efectivo: nuevoEfectivo,
+        digital: nuevoDigital,
+        total_teorico: nuevoTotal,
+        saldo_teorico: nuevoTotal
+      };
+    });
+
+    // 2. Marcar cita como atendida y cobrada
+    setCitas(prevCitas => prevCitas.map(c =>
       c.cliente.toLowerCase() === cliente.toLowerCase()
         ? { ...c, cobrado: true, estado: 'Atendida' } : c
     ));
-    await api.processVenta(ventaData);
+
+    // 3. Enviar a PostgreSQL en backend
+    try {
+      await api.processVenta(ventaData);
+      // 4. Traer balance consolidado de caja y estado desde la base de datos
+      const [cajaActualizada, citasActualizadas, clientesActualizados] = await Promise.all([
+        api.getCaja(),
+        api.getCitas(),
+        api.getClientes()
+      ]);
+      if (cajaActualizada) setCaja(cajaActualizada);
+      if (citasActualizadas && citasActualizadas.length) setCitas(citasActualizadas);
+      if (clientesActualizados && clientesActualizados.length) setClientes(clientesActualizados);
+    } catch (err) {
+      console.error('Error sincronizando venta con backend:', err);
+    }
   };
 
   // DS_CU09: Anular venta con nota de crédito
   const handleProcessAnnulment = async (monto) => {
-    const newCaja = { ...caja, digital: Math.max(0, caja.digital - monto) };
-    setCaja(newCaja);
-    await api.processAnulacion({ monto });
+    const numMonto = parseFloat(monto) || 0;
+    setCaja(prev => {
+      const digital = Math.max(0, prev.digital - numMonto);
+      const total = (prev.apertura || 0) + prev.efectivo + digital - (prev.egresos || 0);
+      return { ...prev, digital, total_teorico: total, saldo_teorico: total };
+    });
+    await api.processAnulacion({ monto: numMonto });
+    const cajaActual = await api.getCaja();
+    if (cajaActual) setCaja(cajaActual);
   };
 
   // DS_CU10: Registrar egreso
-  const handleExpense = (monto) => {
-    setCaja(prev => ({ ...prev, egresos: prev.egresos + monto }));
+  const handleExpense = async (monto, motivo) => {
+    const numMonto = parseFloat(monto) || 0;
+    setCaja(prev => {
+      const egresos = prev.egresos + numMonto;
+      const total = (prev.apertura || 0) + prev.efectivo + prev.digital - egresos;
+      return { ...prev, egresos, total_teorico: total, saldo_teorico: total };
+    });
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/caja/egreso`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ monto: numMonto, motivo: motivo || 'Egreso de caja' })
+      });
+      const cajaActual = await api.getCaja();
+      if (cajaActual) setCaja(cajaActual);
+    } catch (_) {}
   };
 
   // DS_CU10: Arqueo y cierre de caja
@@ -255,8 +316,29 @@ export default function App() {
           onSwitchToBooking={() => setView('reservar')}
           onSwitchToMovil={() => setView('movil')}
           onChangeRole={(newRol) => {
-            setCurrentUser(prev => ({ ...prev, rol: newRol }));
-            showToast(`Rol cambiado a: ${newRol}`);
+            // Regla estricta RBAC: Solo el Administrador puede alternar roles de prueba
+            const esAdmin = currentUser?.originalRol?.toLowerCase().includes('admin') ||
+                            currentUser?.rol?.toLowerCase().includes('admin');
+            if (!esAdmin) {
+              showToast('Acceso denegado: Solo el Administrador tiene autorización para cambiar de rol.');
+              return;
+            }
+            setCurrentUser(prev => ({ ...prev, rol: newRol, originalRol: prev?.originalRol || prev?.rol }));
+            showToast(`Vista de rol cambiada a: ${newRol}`);
+          }}
+          onRefreshClientes={async () => {
+            const data = await api.getClientes();
+            if (data && data.length) {
+              setClientes(data);
+              showToast(`Padrón sincronizado (${data.length} clientes en base de datos).`);
+            }
+          }}
+          onRefreshCaja={async () => {
+            const data = await api.getCaja();
+            if (data) {
+              setCaja(data);
+              showToast(`Caja de turno sincronizada: S/ ${((data.apertura || 0) + (data.efectivo || 0) + (data.digital || 0) - (data.egresos || 0)).toFixed(2)}`);
+            }
           }}
           showToast={showToast}
         />
