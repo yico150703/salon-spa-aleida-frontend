@@ -485,6 +485,13 @@ export default function App() {
         <SpecialistMobileApp
           citas={citas}
           onUpdateCitaEstado={handleUpdateCitaEstado}
+          onRefreshCitas={async () => {
+            const data = await api.getCitas();
+            if (data && data.length) {
+              setCitas(data);
+              showToast(`Agenda sincronizada (${data.length} citas desde base de datos).`);
+            }
+          }}
           onSwitchToPortal={() => setView('portal')}
           onSwitchToAdmin={() => setView('admin')}
           onSwitchToBooking={() => setView('reservar')}

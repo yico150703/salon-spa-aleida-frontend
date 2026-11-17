@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 export default function SpecialistMobileApp({
   citas = [],
   onUpdateCitaEstado,
+  onRefreshCitas,
   onSwitchToPortal,
   onSwitchToAdmin,
   onSwitchToBooking,
@@ -11,6 +12,17 @@ export default function SpecialistMobileApp({
   const [selectedTherapist, setSelectedTherapist] = useState('Carmen Sánchez');
   const [activeTab, setActiveTab] = useState('agenda'); // 'agenda' | 'comisiones' | 'notificaciones'
   const [showNotification, setShowNotification] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const handleSync = async () => {
+    if (!onRefreshCitas || isSyncing) return;
+    setIsSyncing(true);
+    try {
+      await onRefreshCitas();
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   // Filtrar citas de la especialista seleccionada
   const therapistCitas = citas.filter(c => 
@@ -116,6 +128,24 @@ export default function SpecialistMobileApp({
           >
             Reserva PWA
           </button>
+          {onRefreshCitas && (
+            <button
+              onClick={handleSync}
+              disabled={isSyncing}
+              style={{
+                background: '#1565C0',
+                color: '#FFFFFF',
+                border: 'none',
+                borderRadius: '20px',
+                padding: '6px 14px',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                cursor: 'pointer'
+              }}
+            >
+              {isSyncing ? 'Sincronizando...' : 'Sincronizar Agenda'}
+            </button>
+          )}
         </div>
       </header>
 
@@ -178,19 +208,40 @@ export default function SpecialistMobileApp({
                 </span>
                 <h3 style={{ margin: '2px 0 0', fontSize: '1.2rem', fontFamily: 'serif' }}>Mi Cabina Diaria</h3>
               </div>
-              <div style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: '50%',
-                background: '#D4AF37',
-                color: '#1B3D2B',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: 700,
-                fontSize: '0.9rem'
-              }}>
-                {selectedTherapist.split(' ').map(n=>n[0]).join('')}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {onRefreshCitas && (
+                  <button
+                    onClick={handleSync}
+                    disabled={isSyncing}
+                    title="Sincronizar agenda de citas"
+                    style={{
+                      background: 'rgba(212, 175, 55, 0.25)',
+                      color: '#D4AF37',
+                      border: '1px solid #D4AF37',
+                      borderRadius: '8px',
+                      padding: '4px 8px',
+                      fontSize: '0.72rem',
+                      fontWeight: 600,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {isSyncing ? 'Sincronizando...' : 'Sincronizar'}
+                  </button>
+                )}
+                <div style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '50%',
+                  background: '#D4AF37',
+                  color: '#1B3D2B',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 700,
+                  fontSize: '0.9rem'
+                }}>
+                  {selectedTherapist.split(' ').map(n=>n[0]).join('')}
+                </div>
               </div>
             </div>
 
@@ -211,9 +262,9 @@ export default function SpecialistMobileApp({
                   cursor: 'pointer'
                 }}
               >
-                <option value="Carmen Sánchez" style={{ color: '#000' }}>Especialista: Carmen Sánchez (Cosmiatra)</option>
-                <option value="Rosa Gómez" style={{ color: '#000' }}>Especialista: Rosa Gómez (Terapeuta Spa)</option>
-                <option value="Elena Torres" style={{ color: '#000' }}>Especialista: Elena Torres (Estilista Capilar)</option>
+                <option value="Carmen Sánchez" style={{ color: '#000' }}>Especialista: Carmen Sánchez (Cosmiatra Máster)</option>
+                <option value="Luisa Paredes" style={{ color: '#000' }}>Especialista: Luisa Paredes (Terapeuta Capilar)</option>
+                <option value="Ana Vargas" style={{ color: '#000' }}>Especialista: Ana Vargas (Especialista Spa)</option>
               </select>
             </div>
           </div>
@@ -271,11 +322,28 @@ export default function SpecialistMobileApp({
           }}>
             {activeTab === 'agenda' && (
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '6px' }}>
                   <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#1B3D2B' }}>
-                    Turnos Asignados para Hoy ({therapistCitas.length})
+                    Turnos Asignados ({therapistCitas.length})
                   </span>
-                  <span style={{ fontSize: '0.72rem', color: '#4A7C59' }}>Sincronizado vía REST API</span>
+                  {onRefreshCitas && (
+                    <button
+                      onClick={handleSync}
+                      disabled={isSyncing}
+                      style={{
+                        background: '#EBF5FF',
+                        color: '#1565C0',
+                        border: '1px solid #90CAF9',
+                        borderRadius: '6px',
+                        padding: '3px 8px',
+                        fontSize: '0.72rem',
+                        fontWeight: 600,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {isSyncing ? 'Sincronizando...' : 'Sincronizar Agenda'}
+                    </button>
+                  )}
                 </div>
 
                 {therapistCitas.length === 0 ? (
