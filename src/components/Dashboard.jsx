@@ -561,6 +561,7 @@ export default function Dashboard({
   onSwitchToBooking,
   onSwitchToMovil,
   onChangeRole,
+  onRefreshCitas,
   onRefreshClientes,
   onRefreshCaja,
   onRefreshAnulaciones,
@@ -926,6 +927,16 @@ export default function Dashboard({
             <button className="btn-outline" onClick={onSwitchToPortal} style={{ borderColor: 'var(--color-border)', color: 'var(--color-text)' }}>
               Portal Web
             </button>
+            {onRefreshCitas && (
+              <button
+                className="btn-outline"
+                onClick={async () => { await onRefreshCitas(); }}
+                title="Recargar todas las citas desde la base de datos sin cerrar sesion"
+                style={{ borderColor: '#1B6CA8', color: '#1B6CA8', fontWeight: 600, background: '#EBF5FF' }}
+              >
+                Sincronizar Agenda
+              </button>
+            )}
             <button 
               className="btn-outline" 
               onClick={onSwitchToBooking} 

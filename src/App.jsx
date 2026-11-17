@@ -449,6 +449,13 @@ export default function App() {
             setCurrentUser(prev => ({ ...prev, rol: newRol, originalRol: prev?.originalRol || prev?.rol }));
             showToast(`Vista de rol cambiada a: ${newRol}`);
           }}
+          onRefreshCitas={async () => {
+            const data = await api.getCitas();
+            if (data && data.length) {
+              setCitas(data);
+              showToast(`Agenda sincronizada (${data.length} citas desde base de datos).`);
+            }
+          }}
           onRefreshClientes={async () => {
             const data = await api.getClientes();
             if (data && data.length) {
