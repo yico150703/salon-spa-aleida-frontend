@@ -366,69 +366,6 @@ function CardPaymentForm({
         </span>
       </div>
 
-      {/* Previsualización Gráfica de Tarjeta Bancaria */}
-      <div style={{
-        background: 'linear-gradient(135deg, #1E293B 0%, #0F172A 100%)',
-        color: '#FFFFFF',
-        borderRadius: '12px',
-        padding: '16px 20px',
-        marginBottom: '14px',
-        boxShadow: '0 6px 16px rgba(15, 23, 42, 0.25)',
-        position: 'relative'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{
-              width: '32px',
-              height: '24px',
-              background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
-              borderRadius: '4px',
-              border: '1px solid #B45309'
-            }} />
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2">
-              <path d="M8.5 16.5a5 5 0 0 1 0-9" />
-              <path d="M12 19a8.5 8.5 0 0 0 0-14" />
-              <path d="M15.5 21.5a12 12 0 0 0 0-19" />
-            </svg>
-          </div>
-          <div style={{
-            fontSize: '0.9rem',
-            fontWeight: 800,
-            letterSpacing: '1px',
-            color: brand === 'Visa' ? '#60A5FA' : brand === 'Mastercard' ? '#F87171' : '#FBBF24'
-          }}>
-            {brand.toUpperCase()} {cardType.toUpperCase()}
-          </div>
-        </div>
-
-        <div style={{
-          fontSize: '1.15rem',
-          letterSpacing: '3px',
-          fontFamily: 'monospace',
-          fontWeight: 700,
-          color: '#F8FAFC',
-          marginBottom: '12px',
-          textShadow: '0 1px 2px rgba(0,0,0,0.5)'
-        }}>
-          {cardNumber || '•••• •••• •••• ••••'}
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', fontSize: '0.74rem' }}>
-          <div>
-            <span style={{ fontSize: '0.62rem', color: '#94A3B8', textTransform: 'uppercase', display: 'block' }}>Titular</span>
-            <strong style={{ letterSpacing: '0.5px', textTransform: 'uppercase', color: '#E2E8F0', fontSize: '0.8rem' }}>
-              {cardHolder || 'NOMBRE DEL TITULAR'}
-            </strong>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <span style={{ fontSize: '0.62rem', color: '#94A3B8', textTransform: 'uppercase', display: 'block' }}>Vence</span>
-            <strong style={{ fontFamily: 'monospace', color: '#E2E8F0', fontSize: '0.82rem' }}>
-              {cardExp || 'MM/AA'}
-            </strong>
-          </div>
-        </div>
-      </div>
-
       {/* Campos del Formulario de Tarjeta */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
         <div style={{ gridColumn: 'span 2' }}>
