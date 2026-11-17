@@ -109,11 +109,17 @@ export default function App() {
 
   // DS_CU05: Reprogramar cita
   const handleReprogramCita = async (citaId, nuevaFecha, nuevaHora) => {
+    const result = await api.reprogramarCita(citaId, nuevaFecha, nuevaHora);
+    if (result && result.success === false) {
+      return result; // Retorna el error para que el modal lo muestre
+    }
     setCitas(citas.map(c =>
       c.id === citaId ? { ...c, fecha: nuevaFecha, hora: nuevaHora, estado: 'Confirmada' } : c
     ));
-    // Persistir en PostgreSQL via API REST
-    await api.reprogramarCita(citaId, nuevaFecha, nuevaHora);
+    // Re-sincronizar desde BD
+    const citasActualizadas = await api.getCitas();
+    if (citasActualizadas && citasActualizadas.length) setCitas(citasActualizadas);
+    return { success: true };
   };
 
   const handleCancelCita = async (citaId, motivo) => {

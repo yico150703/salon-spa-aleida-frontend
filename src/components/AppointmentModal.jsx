@@ -20,10 +20,10 @@ export default function AppointmentModal({
   const [hora, setHora] = useState(citaEditando ? citaEditando.hora : '11:00 AM');
   const [motivoCancelacion, setMotivoCancelacion] = useState('');
   const [mode, setMode] = useState(isEditing ? 'reprogramar' : 'crear'); // 'crear' | 'reprogramar' | 'cancelar'
+  const [backendError, setBackendError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Validación de conflicto en tiempo real:
-  // Bloquea si ya existe una cita activa en la misma fecha+hora con el mismo especialista
-  // (normaliza el nombre para tolerar sufijos como "(Cosmiatra Máster)")
+  // Validación de conflicto en tiempo real (local — datos ya cargados):
   const normalizeEsp = (s = '') => s.split('(')[0].trim().toLowerCase();
   const estadosActivos = ['confirmada', 'en sala', 'pendiente', 'en atención'];
 
@@ -36,8 +36,9 @@ export default function AppointmentModal({
   );
   const hasConflict = !!conflictoCita;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setBackendError('');
 
     if (mode === 'cancelar') {
       if (!motivoCancelacion.trim()) {
@@ -49,13 +50,21 @@ export default function AppointmentModal({
       return;
     }
 
+    // Bloqueo local inmediato si ya tenemos la info
     if (hasConflict) {
-      alert(`Horario no disponible: ${especialista.split('(')[0].trim()} ya tiene una cita confirmada a las ${hora} del ${fecha}. Seleccione otro horario o especialista.`);
+      setBackendError(`Horario no disponible: ${especialista.split('(')[0].trim()} ya tiene una cita confirmada a las ${hora} del ${fecha}. Seleccione otro horario o especialista.`);
       return;
     }
 
+    setIsSubmitting(true);
+
     if (mode === 'reprogramar' && citaEditando) {
-      onReprogramCita(citaEditando.id, fecha, hora);
+      const result = await onReprogramCita(citaEditando.id, fecha, hora);
+      setIsSubmitting(false);
+      if (result && result.success === false) {
+        setBackendError(result.error || 'El horario solicitado ya se encuentra ocupado. Seleccione otro.');
+        return;
+      }
       onClose();
       return;
     }
@@ -68,7 +77,7 @@ export default function AppointmentModal({
       'Manicura Spa Premium': 150
     };
 
-    onSaveCita({
+    const result = await onSaveCita({
       cliente,
       dni: 'Mostrador',
       servicio,
@@ -79,6 +88,14 @@ export default function AppointmentModal({
       estado: 'Confirmada',
       cobrado: false
     });
+
+    setIsSubmitting(false);
+
+    if (result && result.success === false) {
+      setBackendError(result.error || 'El horario solicitado ya se encuentra ocupado. Seleccione otro.');
+      return;
+    }
+
     onClose();
   };
 
@@ -178,24 +195,28 @@ export default function AppointmentModal({
                   </div>
                 </div>
 
-                {hasConflict && conflictoCita && (
+                {(hasConflict || backendError) && (
                   <div className="alert-box warning" style={{
-                    background: '#FFF3CD',
-                    border: '1.5px solid #E6A817',
+                    background: '#fff3f3',
+                    border: '2px solid #d9534f',
                     borderRadius: '8px',
                     padding: '12px 14px',
                     marginTop: '10px',
                     fontSize: '0.85rem',
-                    color: '#7A4F01',
+                    color: '#a02020',
                     lineHeight: '1.5'
                   }}>
                     <strong style={{ display: 'block', marginBottom: '4px' }}>
-                      Horario No Disponible — Conflicto Detectado
+                      Horario No Disponible
                     </strong>
-                    La especialista <strong>{especialista.split('(')[0].trim()}</strong> ya tiene
-                    una cita confirmada a las <strong>{hora}</strong> del <strong>{fecha}</strong>
-                    {conflictoCita.cliente ? ` (Cliente: ${conflictoCita.cliente})` : ''}.
-                    Por favor seleccione un horario libre o una especialista disponible.
+                    {backendError || (
+                      <>
+                        La especialista <strong>{especialista.split('(')[0].trim()}</strong> ya tiene
+                        una cita confirmada a las <strong>{hora}</strong> del <strong>{fecha}</strong>
+                        {conflictoCita?.cliente ? ` (Cliente: ${conflictoCita.cliente})` : ''}.
+                        Por favor seleccione un horario libre o una especialista disponible.
+                      </>
+                    )}
                   </div>
                 )}
               </>
@@ -207,9 +228,11 @@ export default function AppointmentModal({
             <button 
               type="submit" 
               className={`btn-action ${mode === 'cancelar' ? 'danger' : 'primary'}`}
-              disabled={mode !== 'cancelar' && hasConflict}
+              disabled={(mode !== 'cancelar' && hasConflict) || isSubmitting}
             >
-              {mode === 'crear' ? 'Confirmar Cita' : mode === 'reprogramar' ? 'Guardar Reprogramación' : 'Confirmar Cancelación'}
+              {isSubmitting
+                ? 'Verificando disponibilidad...'
+                : mode === 'crear' ? 'Confirmar Cita' : mode === 'reprogramar' ? 'Guardar Reprogramación' : 'Confirmar Cancelación'}
             </button>
           </div>
         </form>
