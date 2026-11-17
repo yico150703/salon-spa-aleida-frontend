@@ -244,7 +244,7 @@ export default function BookingPage({
               style={{ background: '#EBF5F0', color: '#1B3D2B', borderColor: '#A3D9B5' }}
               title="Ver App Móvil para Especialistas"
             >
-              📱 Móvil Especialistas
+              Móvil Especialistas
             </button>
           </div>
         </div>

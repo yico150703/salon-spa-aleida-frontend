@@ -362,7 +362,7 @@ export default function Dashboard({
               style={{ borderColor: '#4A7C59', color: '#1B3D2B', fontWeight: 600, background: '#EBF5F0' }}
               title="Abrir la App Móvil de la Especialista (Simulador Smartphone)"
             >
-              📱 Móvil Especialistas
+              Móvil Especialistas
             </button>
             <span className="badge-status open">
               <span className="status-dot"></span> Caja Turno: <strong>S/ {(caja.apertura + caja.efectivo + caja.digital - caja.egresos).toFixed(2)}</strong>

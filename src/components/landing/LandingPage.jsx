@@ -116,7 +116,6 @@ export default function LandingPage({
               id="btn-nav-app-movil"
               style={{ background: 'rgba(74, 124, 89, 0.2)', borderColor: 'rgba(212, 175, 55, 0.5)', color: '#D4AF37' }}
             >
-              <Smartphone size={15} />
               <span>App Móvil Staff</span>
             </button>
 
@@ -186,7 +185,7 @@ export default function LandingPage({
                   onSwitchToMovil();
                 }}
               >
-                <Smartphone size={16} /> App Móvil Especialistas (Flutter)
+                App Móvil Especialistas (Flutter)
               </button>
             </div>
           </nav>

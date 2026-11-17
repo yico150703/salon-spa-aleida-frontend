@@ -184,7 +184,7 @@ export default function App() {
               Página Reservar Cita
             </button>
             <button className="user-session-bar__btn" onClick={() => setView('movil')} id="btn-ir-movil" style={{ background: '#1B3D2B', color: '#D4AF37', border: '1px solid #D4AF37' }}>
-              📱 App Móvil Especialista
+              App Móvil Especialista
             </button>
             {view !== 'admin' && (
               <button className="user-session-bar__btn" onClick={() => setView('admin')} id="btn-ir-admin">

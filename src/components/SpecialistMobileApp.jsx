@@ -60,7 +60,7 @@ export default function SpecialistMobileApp({
         gap: '12px'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span style={{ fontSize: '1.4rem' }}>📱</span>
+          <span style={{ fontSize: '1.4rem' }}>🌿</span>
           <div>
             <strong style={{ color: '#D4AF37', fontSize: '1rem', display: 'block' }}>
               CANAL MÓVIL (Flutter / Multiplataforma MVVM)
