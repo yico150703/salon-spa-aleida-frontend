@@ -53,9 +53,9 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
     <div className="uc-module">
       <div className="uc-module__header">
         <div>
-          <span className="uc-badge">Personal</span>
+          <span className="uc-badge">Personal de Salón</span>
           <h2 className="uc-module__title">Registrar Personal</h2>
-          <p className="uc-module__subtitle">Actor: Administrador · Gestión de usuarios del sistema</p>
+          <p className="uc-module__subtitle">Gestión de usuarios y accesos del sistema</p>
         </div>
         <button
           id="btn-nuevo-personal"
@@ -181,7 +181,7 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
         <div>
           <span className="uc-badge">Catálogo</span>
           <h2 className="uc-module__title">Registrar Servicio en Catálogo</h2>
-          <p className="uc-module__subtitle">Actor: Administrador · Tarifario de servicios del spa</p>
+          <p className="uc-module__subtitle">Tarifario oficial y servicios del salón spa</p>
         </div>
         <button id="btn-nuevo-servicio" className="btn-gold" onClick={() => setMode(mode === 'form' ? 'list' : 'form')}>
           {mode === 'form' ? '← Ver Catálogo' : '+ Nuevo Servicio'}
@@ -286,9 +286,8 @@ export function AperturasCaja({ onApertura, caja, cajaAbierta, currentUser, show
     <div className="uc-module">
       <div className="uc-module__header">
         <div>
-          <span className="uc-badge">DS_CU07 · RF07</span>
           <h2 className="uc-module__title">Aperturar Turno de Caja</h2>
-          <p className="uc-module__subtitle">Actor: Cajero / Administrador · Inicialización de caja y sincronización en PostgreSQL</p>
+          <p className="uc-module__subtitle">Control de apertura de turno, fondo inicial y balance operativo</p>
         </div>
         {cajaEstaAbierta && !modoEdicion ? (
           <span className="status-badge status-badge--success" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -307,11 +306,11 @@ export function AperturasCaja({ onApertura, caja, cajaAbierta, currentUser, show
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                <span style={{ fontSize: '1.4rem' }}>🟢</span>
-                <h3 style={{ margin: 0, color: '#1B3D2B', fontSize: '1.25rem' }}>Turno de Caja Activo en Base de Datos</h3>
+                <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#2E7D32', display: 'inline-block' }}></span>
+                <h3 style={{ margin: 0, color: '#1B3D2B', fontSize: '1.25rem' }}>Turno de Caja Activo</h3>
               </div>
               <p style={{ margin: 0, color: '#4A5568', fontSize: '0.88rem' }}>
-                Los cobros en efectivo y billeteras digitales se acreditan en tiempo real a este balance.
+                Los cobros en efectivo y pagos digitales se registran en tiempo real en la caja de turno.
               </p>
             </div>
             <button 
@@ -319,7 +318,7 @@ export function AperturasCaja({ onApertura, caja, cajaAbierta, currentUser, show
               onClick={() => setModoEdicion(true)}
               style={{ fontSize: '0.84rem' }}
             >
-              🔄 Re-Aperturar / Iniciar Nuevo Turno
+              Re-Aperturar / Iniciar Nuevo Turno
             </button>
           </div>
 
@@ -357,16 +356,15 @@ export function AperturasCaja({ onApertura, caja, cajaAbierta, currentUser, show
           </div>
 
           <div style={{ marginTop: '18px', background: '#E8F5E9', border: '1px solid #C8E6C9', borderRadius: '8px', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '1.2rem' }}>ℹ️</span>
             <div style={{ fontSize: '0.84rem', color: '#2E7D32' }}>
-              <strong>Sincronización Activa:</strong> El terminal POS y las citas cobradas impactan directamente la tabla <code>caja</code> y <code>caja_movimientos</code> en la base de datos PostgreSQL.
+              <strong>Sincronización de Caja:</strong> El terminal POS y las citas cobradas actualizan en tiempo real los movimientos y el balance de caja.
             </div>
           </div>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="uc-form" id="form-apertura-caja">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-            <h3 className="uc-form__title" style={{ margin: 0 }}>Registro Oficial de Apertura de Caja (RF07)</h3>
+            <h3 className="uc-form__title" style={{ margin: 0 }}>Registro Oficial de Apertura de Caja</h3>
             {cajaEstaAbierta && (
               <button type="button" className="btn-secondary" onClick={() => setModoEdicion(false)}>
                 ← Volver a Resumen de Turno
@@ -437,7 +435,7 @@ export function AperturasCaja({ onApertura, caja, cajaAbierta, currentUser, show
           </div>
 
           <div style={{ background: '#FFFDE7', border: '1px solid #FFE082', borderRadius: '8px', padding: '12px 16px', margin: '14px 0', fontSize: '0.84rem', color: '#795548' }}>
-            ⚡ <strong>Impacto Inmediato:</strong> Al registrar la apertura se inicializa el saldo en PostgreSQL, se asienta la apertura en <code>caja_movimientos</code> y se reinician los contadores diarios para garantizar la meta de exactitud del arqueo (OBJ-02).
+            <strong>Información Operativa:</strong> Al registrar la apertura se inicializa el fondo de mostrador y se habilitan las operaciones de venta del turno.
           </div>
 
           <div className="uc-form__actions">
@@ -447,7 +445,7 @@ export function AperturasCaja({ onApertura, caja, cajaAbierta, currentUser, show
               </button>
             )}
             <button type="submit" className="btn-gold btn-gold--large" id="btn-aperturar-caja">
-              💾 Aperturar Turno en Base de Datos (RF07)
+              Aperturar Turno de Caja
             </button>
           </div>
         </form>

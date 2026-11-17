@@ -627,7 +627,7 @@ export default function Dashboard({
                     title="Sincronizar clientes desde backend PostgreSQL"
                     style={{ borderColor: 'var(--color-border)', color: 'var(--color-text)' }}
                   >
-                    🔄 Sincronizar Padrón
+                    Sincronizar Padrón
                   </button>
                 )}
                 <button className="btn-action primary" onClick={() => {
@@ -667,7 +667,7 @@ export default function Dashboard({
               flexWrap: 'wrap'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: '280px' }}>
-                <span style={{ fontSize: '1.1rem' }}>🔍</span>
+                <span style={{ fontSize: '0.85rem', color: '#666', fontWeight: 600 }}>Buscar:</span>
                 <input 
                   type="text" 
                   value={clientSearchQuery} 
@@ -836,7 +836,7 @@ export default function Dashboard({
                   onClick={onRefreshCaja}
                   title="Sincronizar balance de caja desde backend"
                 >
-                  🔄 Sincronizar Caja
+                  Sincronizar Caja
                 </button>
               )}
             </div>
@@ -888,7 +888,7 @@ export default function Dashboard({
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                 <strong style={{ fontSize: '0.88rem', color: '#795548' }}>
-                  ⚡ Cobro Rápido: Citas Pendientes de Cobro ({citas.filter(c => !c.cobrado && c.estado !== 'Cancelada').length}):
+                  Cobro Rápido: Citas Pendientes de Cobro ({citas.filter(c => !c.cobrado && c.estado !== 'Cancelada').length}):
                 </strong>
                 <span style={{ fontSize: '0.78rem', color: '#8D6E63' }}>Haga clic en una cita para cargarla automáticamente</span>
               </div>
@@ -1023,7 +1023,7 @@ export default function Dashboard({
                   )}
 
                   <button type="submit" className="btn-pos-pay">
-                    Procesar Cobro & Generar Boleta Electrónica (AD03)
+                    Procesar Cobro y Emitir Boleta Electrónica
                   </button>
                 </form>
               </div>
@@ -1074,7 +1074,7 @@ export default function Dashboard({
                 {salesHistory.length > 0 && (
                   <div style={{ marginTop: '20px', borderTop: '1px solid #E2E8F0', paddingTop: '14px' }}>
                     <h4 style={{ fontSize: '0.88rem', color: '#1B3D2B', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
-                      <span>🧾 Comprobantes Emitidos en Turno</span>
+                      <span>Comprobantes Emitidos en Turno</span>
                       <span style={{ color: '#666' }}>{salesHistory.length} emitidos</span>
                     </h4>
                     <div style={{ maxHeight: '160px', overflowY: 'auto', fontSize: '0.8rem' }}>
@@ -1098,12 +1098,12 @@ export default function Dashboard({
           </section>
         )}
 
-        {/* TAB 4: ANULACIONES (DS_CU09 - RF06) */}
+        {/* TAB 4: ANULACIONES */}
         {activeTab === 'anulaciones' && (
           <section className="admin-tab">
             <div className="tab-header">
               <div>
-                <span className="badge-tag gold">DS_CU09 · RF06</span>
+                <span className="badge-tag gold">Notas de Crédito</span>
                 <h3>Gestión de Anulaciones &amp; Emisión de Notas de Crédito</h3>
                 <small style={{ color: 'var(--color-text-muted)' }}>
                   Requiere selección de boleta válida, motivo obligatorio, validación estricta de PIN gerencial (1234) y reversión automática en PostgreSQL.
@@ -1116,14 +1116,14 @@ export default function Dashboard({
                   onClick={onRefreshAnulaciones}
                   title="Refrescar notas de crédito desde la base de datos"
                 >
-                  🔄 Sincronizar NC
+                  Sincronizar NC
                 </button>
               )}
             </div>
 
             <div className="pos-layout">
               <div className="pos-checkout">
-                <h3>Formulario de Anulación Controlada (RF06)</h3>
+                <h3>Formulario de Anulación de Comprobante</h3>
                 <form onSubmit={handleExecuteAnnulment}>
                   {/* Selector Rápido de Boletas Emitidas */}
                   <div className="form-group">
@@ -1226,7 +1226,7 @@ export default function Dashboard({
                   </div>
 
                   <button type="submit" className="btn-action danger" style={{ width: '100%', padding: '12px', fontWeight: 700 }}>
-                    🔒 Autorizar Anulación & Emitir Nota de Crédito (RF06)
+                    Autorizar Anulación y Emitir Nota de Crédito
                   </button>
                 </form>
               </div>
@@ -1371,11 +1371,11 @@ export default function Dashboard({
               </div>
 
               <div className="pos-checkout">
-                <h3>Auditoría de Cuadre & Meta del Negocio</h3>
+                <h3>Auditoría y Control de Cuadre</h3>
                 <div style={{ background: '#E8F5E9', border: '1px solid #A5D6A7', padding: '16px', borderRadius: '8px', marginBottom: '14px' }}>
-                  <strong style={{ color: 'var(--color-success)' }}>Cumplimiento de Meta SMART (OBJ-02):</strong>
+                  <strong style={{ color: 'var(--color-success)' }}>Auditoría Diaria de Cuadre:</strong>
                   <p style={{ fontSize: '0.85rem', color: '#2E7D32', marginTop: '4px' }}>
-                    El sistema mantiene una exactitud de cuadre del <strong>98.2% (Meta ≥ 98%)</strong>. Al finalizar la jornada, la calculadora concilia billete por billete con el Reporte Z oficial.
+                    El sistema concilia en tiempo real el efectivo y las transferencias contra los comprobantes emitidos antes del cierre y emisión del Reporte Z.
                   </p>
                 </div>
                 <div style={{ fontSize: '0.84rem', color: 'var(--color-text-muted)' }}>

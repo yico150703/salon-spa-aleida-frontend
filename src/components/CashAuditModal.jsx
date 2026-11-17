@@ -115,7 +115,7 @@ export default function CashAuditModal({
           <>
             <div className="modal-header">
               <div>
-                <span className="badge-tag gold">DS_CU10 · RF08 · OBJ-02</span>
+                <span className="badge-tag gold">Arqueo de Turno</span>
                 <h2>Arqueo Físico y Conciliación de Caja</h2>
               </div>
               <button className="btn-close" onClick={onClose}>&times;</button>
@@ -124,7 +124,7 @@ export default function CashAuditModal({
             <div className="modal-body">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
                 <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', margin: 0 }}>
-                  Cuente físicamente el efectivo del cajón para conciliar contra el saldo en PostgreSQL:
+                  Cuente físicamente el efectivo del cajón para conciliar contra el saldo en sistema:
                 </p>
                 <div style={{ display: 'flex', gap: '6px' }}>
                   <button 
@@ -134,7 +134,7 @@ export default function CashAuditModal({
                     onClick={() => autocalcularDenominaciones(targetAmount)}
                     title="Ajusta billetes automáticamente para cuadrar al 100%"
                   >
-                    ⚡ Cuadre Exacto Automático (0 Discrepancia)
+                    Cuadre Exacto (Sin Discrepancia)
                   </button>
                   <button 
                     type="button" 
@@ -144,7 +144,7 @@ export default function CashAuditModal({
                       setB200(0); setB100(0); setB50(0); setB20(0); setB10(0); setM5(0); setM2(0); setM1(0);
                     }}
                   >
-                    🔄 Poner en Cero
+                    Limpiar Conteo
                   </button>
                 </div>
               </div>
@@ -228,11 +228,11 @@ export default function CashAuditModal({
 
               {esConforme ? (
                 <div className="alert-box success" style={{ marginTop: '12px', background: '#E8F5E9', border: '1px solid #A5D6A7', color: '#2E7D32', padding: '10px 14px', borderRadius: '6px', fontSize: '0.84rem' }}>
-                  ✅ <strong>¡Cuadre Perfecto de Caja!</strong> Cumple con la meta del <strong>98% de exactitud en arqueo diario (OBJ-02)</strong>. Sin faltantes ni sobrantes.
+                  <strong>Cuadre Conforme de Caja:</strong> Conteo físico concilia al 100% con el saldo teórico registrado. Sin faltantes ni sobrantes.
                 </div>
               ) : (
                 <div className="alert-box warning" style={{ marginTop: '12px', background: '#FFF3E0', border: '1px solid #FFE0B2', color: '#E65100', padding: '10px 14px', borderRadius: '6px', fontSize: '0.84rem' }}>
-                  ⚠️ <strong>Discrepancia detectada:</strong> S/ {diferencia.toFixed(2)}. Puede hacer clic en "Cuadre Exacto" para igualar o proceder al registro con auditoría.
+                  <strong>Discrepancia detectada:</strong> S/ {diferencia.toFixed(2)}. Puede hacer clic en "Cuadre Exacto" para igualar o proceder al registro del cierre.
                 </div>
               )}
             </div>
@@ -245,7 +245,7 @@ export default function CashAuditModal({
                 disabled={cargando}
                 style={{ padding: '10px 18px', fontWeight: 600 }}
               >
-                {cargando ? 'Procesando en PostgreSQL...' : '🔒 Confirmar Arqueo & Emitir Reporte Z'}
+                {cargando ? 'Procesando en sistema...' : 'Confirmar Arqueo y Emitir Reporte Z'}
               </button>
             </div>
           </>
@@ -311,9 +311,9 @@ export default function CashAuditModal({
             </div>
 
             <div style={{ marginTop: '14px', background: '#E8F5E9', border: '1px solid #A5D6A7', padding: '12px', borderRadius: '8px', fontSize: '0.84rem' }}>
-              <strong>Evaluación de Meta Estratégica (OBJ-02):</strong>
+              <strong>Auditoría de Arqueo:</strong>
               <div style={{ color: '#2E7D32', marginTop: '4px' }}>
-                {reporteZ.cumplimiento_objetivo_02} · Resultado de Auditoría: <strong>{reporteZ.resultado}</strong>
+                Estado: <strong>{reporteZ.resultado}</strong>
               </div>
             </div>
 
@@ -324,7 +324,7 @@ export default function CashAuditModal({
                 onClick={() => window.print()}
                 style={{ padding: '8px 20px' }}
               >
-                🖨️ Imprimir Reporte Z
+                Imprimir Reporte Z
               </button>
               <button 
                 type="button" 
@@ -332,7 +332,7 @@ export default function CashAuditModal({
                 onClick={onClose}
                 style={{ padding: '8px 20px' }}
               >
-                ✅ Finalizar Turno y Cerrar
+                Finalizar Turno y Cerrar
               </button>
             </div>
           </div>
