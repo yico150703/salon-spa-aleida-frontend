@@ -276,6 +276,35 @@ export default function BookingPage({
     }, 1500);
   };
 
+  const getWhatsAppShareUrl = () => {
+    const raw = (clientPhone || '').replace(/\D/g, '');
+    let targetPhone = '';
+    if (raw.length === 9) {
+      targetPhone = `51${raw}`;
+    } else if (raw.length > 9 && raw.startsWith('51')) {
+      targetPhone = raw;
+    } else if (raw.length > 6) {
+      targetPhone = `51${raw}`;
+    } else {
+      targetPhone = '51954561370';
+    }
+
+    const message = 
+      `🌿 *SALON SPA ALEIDA S.A.C.* · Voucher Oficial de Cita\n\n` +
+      `¡Hola *${clientName || 'Estimada Clienta'}*! Confirmamos tu cita con éxito:\n\n` +
+      `📋 *Código de Reserva:* #${ticketCode || 'ALE-78219'}\n` +
+      `💆‍♀️ *Tratamiento:* ${selectedService.nombre} (${selectedService.duracion} min)\n` +
+      `🛋️ *Cabina Asignada:* ${getCabinByService(selectedService.nombre)}\n` +
+      `👩‍⚕️ *Especialista:* ${selectedTherapist.nombre}\n` +
+      `📅 *Fecha:* ${selectedDate}\n` +
+      `⏰ *Hora:* ${selectedTime} en Punto\n` +
+      `💰 *Total a Cancelar:* S/ ${selectedService.precio.toFixed(2)}\n\n` +
+      `📍 *Dirección:* Av. Circunvalación del Golf 340, Santiago de Surco (Lima)\n` +
+      `ℹ️ _Por favor presentarse con 10 minutos de anticipación para su aromaterapia de cortesía._`;
+
+    return `https://wa.me/${targetPhone}?text=${encodeURIComponent(message)}`;
+  };
+
   return (
     <div className="booking-page-root">
       {/* 1. TOP HEADER DE LA PÁGINA DEDICADA DE RESERVAS */}
@@ -957,12 +986,13 @@ export default function BookingPage({
                           <a 
                             id="btn-whatsapp-share"
                             className="btn-luxury-action primary"
-                            href={`https://wa.me/51987654321?text=${encodeURIComponent(`Hola Salon Spa Aleida, confirmo mi reserva #${ticketCode} para el servicio ${selectedService.nombre} el día ${selectedDate} a las ${selectedTime}.`)}`}
+                            href={getWhatsAppShareUrl()}
                             target="_blank"
                             rel="noopener noreferrer"
-                            style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                            style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                            title="Abre WhatsApp para recibir o reenviar la constancia oficial de tu cita"
                           >
-                            Notificar por WhatsApp
+                            Recibir Voucher por WhatsApp
                           </a>
                           <button 
                             id="btn-new-reservation"
