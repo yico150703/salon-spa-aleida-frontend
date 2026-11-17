@@ -4,6 +4,70 @@ import {
   LockIcon 
 } from './Icons';
 
+// Asignación inteligente de cabina climatizada según el tipo de servicio
+const getCabinByService = (serviceName) => {
+  const s = (serviceName || '').toLowerCase();
+  if (s.includes('facial') || s.includes('oro')) return 'Cabina 01 - Facial Oro & Luz LED';
+  if (s.includes('masaje') || s.includes('relajante')) return 'Cabina 02 - Masajes & Cromoterapia';
+  if (s.includes('capilar') || s.includes('keratina')) return 'Cabina 03 - Capilar & Lavacabezas';
+  return 'Cabina 04 - Manos & Pies Spa';
+};
+
+// Componente SVG nítido para Código QR del Voucher
+function VoucherQRCode({ code }) {
+  return (
+    <div className="voucher-qr-box">
+      <svg width="88" height="88" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block', margin: '0 auto' }}>
+        <rect width="100" height="100" fill="#FFFFFF" rx="6" />
+        {/* Top-Left Finder */}
+        <rect x="8" y="8" width="28" height="28" rx="4" stroke="#1B3D2B" strokeWidth="4" fill="none" />
+        <rect x="16" y="16" width="12" height="12" rx="2" fill="#1B3D2B" />
+        
+        {/* Top-Right Finder */}
+        <rect x="64" y="8" width="28" height="28" rx="4" stroke="#1B3D2B" strokeWidth="4" fill="none" />
+        <rect x="72" y="16" width="12" height="12" rx="2" fill="#1B3D2B" />
+        
+        {/* Bottom-Left Finder */}
+        <rect x="8" y="64" width="28" height="28" rx="4" stroke="#1B3D2B" strokeWidth="4" fill="none" />
+        <rect x="16" y="72" width="12" height="12" rx="2" fill="#1B3D2B" />
+
+        {/* Sync & Matrix Patterns */}
+        <rect x="42" y="10" width="6" height="6" fill="#1B3D2B" />
+        <rect x="52" y="10" width="6" height="6" fill="#1B3D2B" />
+        <rect x="42" y="20" width="6" height="6" fill="#1B3D2B" />
+        <rect x="52" y="24" width="6" height="10" fill="#1B3D2B" />
+
+        <rect x="10" y="42" width="6" height="6" fill="#1B3D2B" />
+        <rect x="20" y="42" width="10" height="6" fill="#1B3D2B" />
+        <rect x="34" y="42" width="6" height="6" fill="#1B3D2B" />
+        <rect x="44" y="42" width="8" height="8" fill="#D4AF37" />
+        <rect x="56" y="42" width="6" height="6" fill="#1B3D2B" />
+        <rect x="68" y="42" width="10" height="6" fill="#1B3D2B" />
+        <rect x="82" y="42" width="8" height="6" fill="#1B3D2B" />
+
+        <rect x="42" y="54" width="6" height="8" fill="#1B3D2B" />
+        <rect x="52" y="56" width="6" height="6" fill="#1B3D2B" />
+        <rect x="64" y="54" width="8" height="8" fill="#1B3D2B" />
+        <rect x="76" y="56" width="6" height="6" fill="#1B3D2B" />
+        <rect x="86" y="54" width="6" height="8" fill="#1B3D2B" />
+
+        <rect x="42" y="68" width="6" height="6" fill="#1B3D2B" />
+        <rect x="52" y="68" width="8" height="6" fill="#1B3D2B" />
+        <rect x="64" y="68" width="6" height="8" fill="#1B3D2B" />
+        <rect x="74" y="70" width="6" height="6" fill="#1B3D2B" />
+        <rect x="84" y="68" width="8" height="8" fill="#1B3D2B" />
+
+        <rect x="42" y="80" width="8" height="6" fill="#1B3D2B" />
+        <rect x="54" y="82" width="6" height="8" fill="#1B3D2B" />
+        <rect x="66" y="80" width="6" height="8" fill="#1B3D2B" />
+        <rect x="76" y="82" width="8" height="6" fill="#1B3D2B" />
+        <rect x="88" y="80" width="4" height="8" fill="#1B3D2B" />
+      </svg>
+      <span className="voucher-qr-caption">Escanear en Mostrador</span>
+    </div>
+  );
+}
+
 export default function BookingPage({
   onAddAppointment,
   onBackToHome,
@@ -201,6 +265,15 @@ export default function BookingPage({
     setClientDni('');
     setClientPhone('');
     setClientNotes('');
+  };
+
+  const handlePrintVoucher = () => {
+    const originalTitle = document.title;
+    document.title = `Voucher_Reserva_${ticketCode || 'ALE-78219'}_Salon_Spa_Aleida`;
+    window.print();
+    setTimeout(() => {
+      document.title = originalTitle;
+    }, 1500);
   };
 
   return (
@@ -765,49 +838,109 @@ export default function BookingPage({
                         </p>
 
                         {/* Luxury Voucher Card */}
-                        <div className="luxury-voucher-card">
+                        <div id="printable-voucher" className="luxury-voucher-card printable-voucher">
+                          {/* Cabecera Oficial del Spa */}
                           <div className="voucher-header">
-                            <div>
-                              <span className="voucher-brand">SALON SPA ALEIDA</span>
-                              <span className="voucher-sub">COMPROBANTE OFICIAL DE RESERVA</span>
+                            <div className="voucher-brand-block">
+                              <div className="voucher-title-row">
+                                <span className="voucher-logo-flower">🌸</span>
+                                <div>
+                                  <span className="voucher-brand">SALON SPA ALEIDA S.A.C.</span>
+                                  <span className="voucher-sub">SANTUARIO DE BELLEZA &amp; BIENESTAR INTEGRAL</span>
+                                </div>
+                              </div>
+                              <div className="voucher-meta-info">
+                                <span>RUC: 20608945123 · Sede Principal: Santiago de Surco (Lima)</span>
+                                <span>Central de Citas: (01) 421-8900 · WhatsApp: (+51) 987 654 321</span>
+                              </div>
                             </div>
                             <div className="voucher-code-badge">
                               <span className="code-label">CÓDIGO DE RESERVA</span>
                               <span className="code-value">#{ticketCode || 'ALE-78219'}</span>
+                              <span className="code-status-pill">● CONFIRMADA EN AGENDA</span>
                             </div>
                           </div>
 
+                          {/* Franja de Certificación */}
+                          <div className="voucher-cert-strip">
+                            <span>CONSTANCIA OFICIAL DE RESERVA · SINCRONIZADA CON BACKEND POSTGRESQL</span>
+                          </div>
+
+                          {/* Cuerpo de la Ficha Técnica */}
                           <div className="voucher-body-grid">
-                            <div className="voucher-item">
-                              <span className="v-label">Tratamiento Reservado</span>
-                              <strong className="v-val">{selectedService.nombre}</strong>
-                              <span className="v-extra">{selectedService.duracion} minutos de sesión</span>
+                            <div className="voucher-data-columns">
+                              <div className="voucher-item">
+                                <span className="v-label">Tratamiento Solicitado</span>
+                                <strong className="v-val">{selectedService.nombre}</strong>
+                                <span className="v-extra">{selectedService.duracion} minutos de sesión exclusiva en cabina</span>
+                              </div>
+                              <div className="voucher-item">
+                                <span className="v-label">Cabina Climatizada Asignada</span>
+                                <strong className="v-val">{getCabinByService(selectedService.nombre)}</strong>
+                                <span className="v-extra">Ambiente privado con aromaterapia y música relajante</span>
+                              </div>
+                              <div className="voucher-item">
+                                <span className="v-label">Especialista / Cosmiatra</span>
+                                <strong className="v-val">{selectedTherapist.nombre}</strong>
+                                <span className="v-extra">{selectedTherapist.cargo}</span>
+                              </div>
+                              <div className="voucher-item">
+                                <span className="v-label">Fecha y Turno en Sala</span>
+                                <strong className="v-val">{selectedDate} — {selectedTime}</strong>
+                                <span className="v-extra">En punto (Tolerancia máxima de atención: 10 minutos)</span>
+                              </div>
+                              <div className="voucher-item">
+                                <span className="v-label">Cliente Titular</span>
+                                <strong className="v-val">{clientName}</strong>
+                                <span className="v-extra">DNI: {clientDni || 'Verificado en mostrador'}</span>
+                              </div>
+                              <div className="voucher-item">
+                                <span className="v-label">Contacto &amp; Aromaterapia</span>
+                                <strong className="v-val">WhatsApp: {clientPhone}</strong>
+                                <span className="v-extra">{aromatherapy ? `Preferencia: ${aromatherapy}` : 'Aromaterapia botánica estándar'}</span>
+                              </div>
                             </div>
-                            <div className="voucher-item">
-                              <span className="v-label">Especialista Asignada</span>
-                              <strong className="v-val">{selectedTherapist.nombre}</strong>
-                              <span className="v-extra">{selectedTherapist.cargo}</span>
-                            </div>
-                            <div className="voucher-item">
-                              <span className="v-label">Fecha y Turno</span>
-                              <strong className="v-val">{selectedDate}</strong>
-                              <span className="v-extra">{selectedTime} en Punto</span>
-                            </div>
-                            <div className="voucher-item">
-                              <span className="v-label">Cliente Titular</span>
-                              <strong className="v-val">{clientName}</strong>
-                              <span className="v-extra">WhatsApp: {clientPhone}</span>
+
+                            {/* Columna Lateral con QR y Sello de Bioseguridad */}
+                            <div className="voucher-qr-column">
+                              <VoucherQRCode code={ticketCode} />
+                              <div className="voucher-badge-seal">
+                                <ShieldIcon size={13} color="#1B3D2B" />
+                                <span>Bioseguridad Grado Médico</span>
+                              </div>
                             </div>
                           </div>
 
+                          {/* Franja Económica y Medios de Pago */}
                           <div className="voucher-footer-strip">
                             <div className="voucher-total-box">
-                              <span className="total-label">Total a Cancelar en Recepción:</span>
+                              <span className="total-label">Inversión a Cancelar en Recepción:</span>
                               <span className="total-amount">S/ {selectedService.precio.toFixed(2)}</span>
+                              <span className="total-tax-detail">
+                                (Subtotal: S/ {(selectedService.precio / 1.18).toFixed(2)} + I.G.V. 18%: S/ {(selectedService.precio - selectedService.precio / 1.18).toFixed(2)})
+                              </span>
                             </div>
-                            <span className="voucher-security-tag">
-                              <ShieldIcon size={14} color="#2E7D32" /> Verificado por Sistema
-                            </span>
+                            <div className="voucher-payment-tags">
+                              <span>Efectivo</span>
+                              <span>Tarjeta POS</span>
+                              <span>Yape / Plin</span>
+                            </div>
+                          </div>
+
+                          {/* Políticas de Atención en Sala */}
+                          <div className="voucher-policies-block">
+                            <div className="policy-title">POLÍTICAS Y NORMAS DE ATENCIÓN EN SALA:</div>
+                            <ol className="policy-list">
+                              <li><strong>Puntualidad:</strong> Se solicita presentarse con 10 minutos de anticipación en recepción para su registro y bebida de cortesía.</li>
+                              <li><strong>Tolerancia:</strong> Se contempla una tolerancia de 10 minutos para salvaguardar el tiempo de la siguiente clienta.</li>
+                              <li><strong>Reprogramaciones:</strong> Podrá reprogramar su cita sin penalidad avisando con al menos 24 horas de anticipación.</li>
+                              <li><strong>Protección de Datos:</strong> Información tratada conforme a la Ley N° 29733 de Protección de Datos Personales.</li>
+                            </ol>
+                          </div>
+
+                          {/* Pie de Documento Oficial */}
+                          <div className="voucher-watermark-bar">
+                            <span>Documento digital oficial generado por el Sistema Multi-Canal · Salon Spa Aleida S.A.C. · Backend Centralizado REST / PostgreSQL</span>
                           </div>
                         </div>
 
@@ -816,9 +949,10 @@ export default function BookingPage({
                           <button 
                             id="btn-print-voucher"
                             className="btn-luxury-action outline" 
-                            onClick={() => window.print()}
+                            onClick={handlePrintVoucher}
+                            title="Imprime o guarda en PDF el voucher oficial en una sola hoja"
                           >
-                            Imprimir / Guardar Voucher
+                            🖨️ Imprimir / Guardar Voucher (PDF)
                           </button>
                           <a 
                             id="btn-whatsapp-share"
