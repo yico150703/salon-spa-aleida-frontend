@@ -115,7 +115,7 @@ export default function LoginScreen({ onLogin, onBackToHome }) {
           </div>
 
           <div className="login-brand__badge">
-            <span>🍃 Santuario de Belleza & Bienestar</span>
+            <span>Santuario de Belleza & Bienestar</span>
           </div>
         </div>
 
@@ -131,7 +131,7 @@ export default function LoginScreen({ onLogin, onBackToHome }) {
                 ← Volver al Portal
               </button>
             )}
-            <span className="login-secure-indicator">🔒 Acceso Seguro SSL</span>
+            <span className="login-secure-indicator">Acceso Seguro SSL</span>
           </div>
 
           <div className="login-form-header">

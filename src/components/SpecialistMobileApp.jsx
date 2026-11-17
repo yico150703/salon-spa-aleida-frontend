@@ -60,7 +60,6 @@ export default function SpecialistMobileApp({
         gap: '12px'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span style={{ fontSize: '1.4rem' }}>🌿</span>
           <div>
             <strong style={{ color: '#D4AF37', fontSize: '1rem', display: 'block' }}>
               CANAL MÓVIL (Flutter / Multiplataforma MVVM)
@@ -163,7 +162,7 @@ export default function SpecialistMobileApp({
               borderRadius: '12px',
               margin: '0 auto'
             }} />
-            <span>5G 📶 100% 🔋</span>
+            <span>5G · 100%</span>
           </div>
 
           {/* Top Bar de la App Móvil */}
@@ -231,7 +230,7 @@ export default function SpecialistMobileApp({
               fontSize: '0.74rem',
               color: '#5D4037'
             }}>
-              <span>🔔 <strong>Notificación Push:</strong> Próxima cita inicia a las 10:00 AM en Cabina 1.</span>
+              <span><strong>Notificación Push:</strong> Próxima cita inicia a las 10:00 AM en Cabina 1.</span>
               <button
                 onClick={() => setShowNotification(false)}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700, color: '#5D4037' }}
@@ -325,7 +324,7 @@ export default function SpecialistMobileApp({
                           {cita.cliente}
                         </strong>
                         <span style={{ fontSize: '0.8rem', color: '#4A7C59', display: 'block', margin: '2px 0 4px' }}>
-                          ✨ {cita.servicio}
+                          {cita.servicio}
                         </span>
 
                         <div style={{
@@ -355,7 +354,7 @@ export default function SpecialistMobileApp({
                               cursor: isAtendida ? 'default' : 'pointer'
                             }}
                           >
-                            {isAtendida ? '✓ Servicio Concluido' : 'Finalizar Tratamiento'}
+                            {isAtendida ? 'Servicio Concluido' : 'Finalizar Tratamiento'}
                           </button>
                         </div>
                       </div>
@@ -412,15 +411,15 @@ export default function SpecialistMobileApp({
                 border: 'none',
                 color: activeTab === 'agenda' ? '#1B3D2B' : '#94A3B8',
                 fontWeight: activeTab === 'agenda' ? 700 : 500,
-                fontSize: '0.74rem',
+                fontSize: '0.78rem',
                 cursor: 'pointer',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                gap: '2px'
+                gap: '2px',
+                padding: '4px 10px'
               }}
             >
-              <span>📅</span>
               Agenda
             </button>
             <button
@@ -430,15 +429,15 @@ export default function SpecialistMobileApp({
                 border: 'none',
                 color: activeTab === 'comisiones' ? '#1B3D2B' : '#94A3B8',
                 fontWeight: activeTab === 'comisiones' ? 700 : 500,
-                fontSize: '0.74rem',
+                fontSize: '0.78rem',
                 cursor: 'pointer',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                gap: '2px'
+                gap: '2px',
+                padding: '4px 10px'
               }}
             >
-              <span>💰</span>
               Comisiones
             </button>
             <button
@@ -448,15 +447,15 @@ export default function SpecialistMobileApp({
                 border: 'none',
                 color: activeTab === 'notificaciones' ? '#1B3D2B' : '#94A3B8',
                 fontWeight: activeTab === 'notificaciones' ? 700 : 500,
-                fontSize: '0.74rem',
+                fontSize: '0.78rem',
                 cursor: 'pointer',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                gap: '2px'
+                gap: '2px',
+                padding: '4px 10px'
               }}
             >
-              <span>🔔</span>
               Alertas
             </button>
           </div>

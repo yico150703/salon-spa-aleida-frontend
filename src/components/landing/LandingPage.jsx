@@ -437,7 +437,7 @@ export default function LandingPage({
               </div>
 
               <span className={styles.bookingSecurityNote}>
-                🔒 Datos sincronizados en tiempo real con nuestra Base de Datos Oficial en PostgreSQL.
+                Datos sincronizados en tiempo real con la Base de Datos en PostgreSQL.
               </span>
             </div>
           </div>

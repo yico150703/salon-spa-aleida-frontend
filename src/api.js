@@ -43,10 +43,10 @@ export const initialMockState = {
   ],
   reportes: {
     objetivos_smart: [
-      { codigo: 'OBJ-01', nombre: 'Puntualidad en Citas', meta: '≥ 88%', actual: '88.5%', detalle: '35% menos inasistencias' },
-      { codigo: 'OBJ-02', nombre: 'Cuadre de Caja', meta: '≥ 98%', actual: '98.2%', detalle: '90% menos descuadres' },
-      { codigo: 'OBJ-03', nombre: 'Disponibilidad Insumos', meta: '≥ 95%', actual: '96.5%', detalle: '80% menos quiebres' },
-      { codigo: 'OBJ-04', nombre: 'Fidelización Clientes', meta: '≥ 70%', actual: '74.0%', detalle: '+25% retorno <45d' }
+      { codigo: 'Meta 1', nombre: 'Puntualidad en Citas', meta: '≥ 88%', actual: '88.5%', detalle: '35% menos inasistencias' },
+      { codigo: 'Meta 2', nombre: 'Cuadre de Caja', meta: '≥ 98%', actual: '98.2%', detalle: '90% menos descuadres' },
+      { codigo: 'Meta 3', nombre: 'Disponibilidad Insumos', meta: '≥ 95%', actual: '96.5%', detalle: '80% menos quiebres' },
+      { codigo: 'Meta 4', nombre: 'Fidelización Clientes', meta: '≥ 70%', actual: '74.0%', detalle: '+25% retorno <45d' }
     ]
   }
 };

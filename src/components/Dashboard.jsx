@@ -23,27 +23,27 @@ const ROLE_PERMISSIONS = {
       {
         label: 'Clientes & Citas',
         tabs: [
-          { id: 'clientes', label: 'Registrar Cliente', code: 'DS_CU03', icon: UsersIcon },
-          { id: 'agenda', label: 'Agendar Cita', code: 'DS_CU04', icon: CalendarIcon },
-          { id: 'reprogramar', label: 'Reprogramar Cita', code: 'DS_CU05', icon: CalendarIcon }
+          { id: 'clientes', label: 'Registrar Cliente', icon: UsersIcon },
+          { id: 'agenda', label: 'Agendar Cita', icon: CalendarIcon },
+          { id: 'reprogramar', label: 'Reprogramar Cita', icon: CalendarIcon }
         ]
       },
       {
         label: 'Caja & Ventas',
         tabs: [
-          { id: 'apertura', label: 'Aperturar Caja', code: 'DS_CU07', icon: LockIcon },
-          { id: 'caja', label: 'Procesar Venta', code: 'DS_CU08', icon: CreditCardIcon },
-          { id: 'anulaciones', label: 'Anular Venta', code: 'DS_CU09', icon: SlashIcon },
-          { id: 'operaciones-caja', label: 'Arqueo & Cierre', code: 'DS_CU10', icon: ChartIcon }
+          { id: 'apertura', label: 'Aperturar Caja', icon: LockIcon },
+          { id: 'caja', label: 'Procesar Venta', icon: CreditCardIcon },
+          { id: 'anulaciones', label: 'Anular Venta', icon: SlashIcon },
+          { id: 'operaciones-caja', label: 'Arqueo & Cierre', icon: ChartIcon }
         ]
       },
       {
         label: 'Administración & Estrategia',
         tabs: [
-          { id: 'personal', label: 'Registrar Personal', code: 'DS_CU02', icon: UserIcon },
-          { id: 'catalogo', label: 'Catálogo Servicios', code: 'DS_CU06', icon: TagIcon },
-          { id: 'compras', label: 'Compras & Insumos', code: '+', icon: BoxIcon },
-          { id: 'reportes', label: 'Reportes & Metas', code: '+', icon: ShieldIcon }
+          { id: 'personal', label: 'Registrar Personal', icon: UserIcon },
+          { id: 'catalogo', label: 'Catálogo Servicios', icon: TagIcon },
+          { id: 'compras', label: 'Compras & Insumos', icon: BoxIcon },
+          { id: 'reportes', label: 'Reportes & Metas', icon: ShieldIcon }
         ]
       }
     ]
@@ -60,15 +60,15 @@ const ROLE_PERMISSIONS = {
       {
         label: 'Clientes & Citas (Recepción)',
         tabs: [
-          { id: 'agenda', label: 'Agenda & Citas del Día', code: 'DS_CU04', icon: CalendarIcon },
-          { id: 'clientes', label: 'Registrar & Ver Clientes', code: 'DS_CU03', icon: UsersIcon },
-          { id: 'reprogramar', label: 'Reprogramar Citas', code: 'DS_CU05', icon: CalendarIcon }
+          { id: 'agenda', label: 'Agenda & Citas del Día', icon: CalendarIcon },
+          { id: 'clientes', label: 'Registrar & Ver Clientes', icon: UsersIcon },
+          { id: 'reprogramar', label: 'Reprogramar Citas', icon: CalendarIcon }
         ]
       },
       {
         label: 'Consultas de Servicios',
         tabs: [
-          { id: 'catalogo', label: 'Catálogo & Tarifario', code: 'DS_CU06', icon: TagIcon }
+          { id: 'catalogo', label: 'Catálogo & Tarifario', icon: TagIcon }
         ]
       }
     ]
@@ -85,22 +85,515 @@ const ROLE_PERMISSIONS = {
       {
         label: 'Operaciones de Caja (Cajero)',
         tabs: [
-          { id: 'caja', label: 'Terminal POS & Cobros', code: 'DS_CU08', icon: CreditCardIcon },
-          { id: 'apertura', label: 'Aperturar Turno', code: 'DS_CU07', icon: LockIcon },
-          { id: 'anulaciones', label: 'Notas de Crédito', code: 'DS_CU09', icon: SlashIcon },
-          { id: 'operaciones-caja', label: 'Arqueo & Cierre', code: 'DS_CU10', icon: ChartIcon }
+          { id: 'caja', label: 'Terminal POS & Cobros', icon: CreditCardIcon },
+          { id: 'apertura', label: 'Aperturar Turno', icon: LockIcon },
+          { id: 'anulaciones', label: 'Notas de Crédito', icon: SlashIcon },
+          { id: 'operaciones-caja', label: 'Arqueo & Cierre', icon: ChartIcon }
         ]
       },
       {
         label: 'Apoyo a Cobranzas',
         tabs: [
-          { id: 'agenda', label: 'Citas por Cobrar', code: 'DS_CU04', icon: CalendarIcon },
-          { id: 'clientes', label: 'Buscar Cliente / DNI', code: 'DS_CU03', icon: UsersIcon }
+          { id: 'agenda', label: 'Citas por Cobrar', icon: CalendarIcon },
+          { id: 'clientes', label: 'Buscar Cliente / DNI', icon: UsersIcon }
         ]
       }
     ]
   }
 };
+
+// =========================================================================
+// COMPONENTE: QR DE BILLETERA DIGITAL (YAPE / PLIN)
+// =========================================================================
+function DigitalWalletQR({
+  walletType,
+  onWalletTypeChange,
+  amount,
+  phone = '987 654 321',
+  opCode,
+  onOpCodeChange,
+  isVerified,
+  onVerify
+}) {
+  const isYape = walletType === 'yape';
+  const brandColor = isYape ? '#742284' : '#00A3C4';
+  const brandBg = isYape ? '#FAF4FB' : '#F0F9FB';
+  const brandName = isYape ? 'Yape' : 'Plin';
+
+  return (
+    <div style={{
+      background: brandBg,
+      border: `2px solid ${brandColor}`,
+      borderRadius: '12px',
+      padding: '16px',
+      marginBottom: '16px',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.04)'
+    }}>
+      {/* Selector de Billetera (Yape vs Plin) */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+        <div style={{ display: 'flex', gap: '6px' }}>
+          <button
+            type="button"
+            onClick={() => onWalletTypeChange('yape')}
+            style={{
+              background: isYape ? '#742284' : '#FFFFFF',
+              color: isYape ? '#FFFFFF' : '#742284',
+              border: '1px solid #742284',
+              borderRadius: '6px',
+              padding: '5px 14px',
+              fontSize: '0.8rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+          >
+            YAPE
+          </button>
+          <button
+            type="button"
+            onClick={() => onWalletTypeChange('plin')}
+            style={{
+              background: !isYape ? '#00A3C4' : '#FFFFFF',
+              color: !isYape ? '#FFFFFF' : '#00A3C4',
+              border: '1px solid #00A3C4',
+              borderRadius: '6px',
+              padding: '5px 14px',
+              fontSize: '0.8rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+          >
+            PLIN
+          </button>
+        </div>
+
+        <div style={{
+          background: isVerified ? '#E8F5E9' : '#FFF3E0',
+          color: isVerified ? '#2E7D32' : '#E65100',
+          fontSize: '0.74rem',
+          fontWeight: 700,
+          padding: '3px 10px',
+          borderRadius: '12px',
+          border: `1px solid ${isVerified ? '#A5D6A7' : '#FFE0B2'}`
+        }}>
+          {isVerified ? 'Pago Digital Verificado' : 'Escanee para Transferir'}
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '136px 1fr', gap: '14px', alignItems: 'center' }}>
+        {/* QR Gráfico Inventado de Alta Definición */}
+        <div style={{
+          background: '#FFFFFF',
+          padding: '8px',
+          borderRadius: '10px',
+          border: `1px solid ${brandColor}40`,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
+        }}>
+          <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="120" height="120" fill="#FFFFFF" rx="4" />
+            {/* Finder Superior Izquierdo */}
+            <rect x="8" y="8" width="32" height="32" rx="4" stroke={brandColor} strokeWidth="4" fill="none" />
+            <rect x="16" y="16" width="16" height="16" rx="2" fill={brandColor} />
+            {/* Finder Superior Derecho */}
+            <rect x="80" y="8" width="32" height="32" rx="4" stroke={brandColor} strokeWidth="4" fill="none" />
+            <rect x="88" y="16" width="16" height="16" rx="2" fill={brandColor} />
+            {/* Finder Inferior Izquierdo */}
+            <rect x="8" y="80" width="32" height="32" rx="4" stroke={brandColor} strokeWidth="4" fill="none" />
+            <rect x="16" y="88" width="16" height="16" rx="2" fill={brandColor} />
+
+            {/* Módulos de datos y alineación */}
+            <rect x="46" y="10" width="8" height="8" fill={brandColor} />
+            <rect x="58" y="12" width="6" height="6" fill={brandColor} />
+            <rect x="68" y="10" width="6" height="8" fill={brandColor} />
+            <rect x="46" y="22" width="6" height="10" fill={brandColor} />
+            <rect x="56" y="24" width="8" height="6" fill={brandColor} />
+            <rect x="68" y="22" width="6" height="10" fill={brandColor} />
+
+            <rect x="10" y="46" width="8" height="8" fill={brandColor} />
+            <rect x="22" y="48" width="6" height="6" fill={brandColor} />
+            <rect x="32" y="46" width="8" height="8" fill={brandColor} />
+            <rect x="80" y="46" width="8" height="8" fill={brandColor} />
+            <rect x="92" y="48" width="6" height="6" fill={brandColor} />
+            <rect x="102" y="46" width="8" height="8" fill={brandColor} />
+
+            {/* Logo Central de la Billetera */}
+            <circle cx="60" cy="60" r="16" fill="#FFFFFF" stroke={brandColor} strokeWidth="3" />
+            <circle cx="60" cy="60" r="12" fill={brandColor} />
+            <text x="60" y="65" textAnchor="middle" fill="#FFFFFF" fontSize="13" fontWeight="bold" fontFamily="sans-serif">
+              {isYape ? 'Y' : 'P'}
+            </text>
+
+            <rect x="46" y="82" width="8" height="6" fill={brandColor} />
+            <rect x="58" y="80" width="6" height="8" fill={brandColor} />
+            <rect x="68" y="82" width="8" height="6" fill={brandColor} />
+            <rect x="46" y="94" width="6" height="8" fill={brandColor} />
+            <rect x="56" y="96" width="8" height="6" fill={brandColor} />
+            <rect x="68" y="94" width="6" height="8" fill={brandColor} />
+
+            <rect x="82" y="82" width="6" height="8" fill={brandColor} />
+            <rect x="92" y="84" width="8" height="6" fill={brandColor} />
+            <rect x="104" y="82" width="6" height="8" fill={brandColor} />
+            <rect x="84" y="96" width="8" height="6" fill={brandColor} />
+            <rect x="96" y="94" width="6" height="8" fill={brandColor} />
+            <rect x="106" y="96" width="6" height="6" fill={brandColor} />
+          </svg>
+          <span style={{ fontSize: '0.68rem', color: brandColor, fontWeight: 700, marginTop: '4px' }}>
+            QR OFICIAL {brandName.toUpperCase()}
+          </span>
+        </div>
+
+        {/* Información y Validación del Pago */}
+        <div>
+          <div style={{ marginBottom: '6px' }}>
+            <span style={{ fontSize: '0.74rem', color: '#64748B', display: 'block' }}>Monto a Transferir:</span>
+            <strong style={{ fontSize: '1.4rem', color: brandColor, fontWeight: 800 }}>
+              S/ {Number(amount).toFixed(2)}
+            </strong>
+          </div>
+
+          <div style={{ fontSize: '0.78rem', color: '#334155', lineHeight: '1.45', marginBottom: '8px' }}>
+            <div>Titular: <strong>Salon Spa Aleida S.A.C.</strong></div>
+            <div>Número Celular: <strong>{phone}</strong></div>
+          </div>
+
+          <div>
+            <label style={{ fontSize: '0.72rem', fontWeight: 600, color: '#475569', display: 'block', marginBottom: '2px' }}>
+              Código de Operación {brandName} (Confirmación):
+            </label>
+            <div style={{ display: 'flex', gap: '6px' }}>
+              <input
+                type="text"
+                value={opCode}
+                onChange={(e) => onOpCodeChange(e.target.value)}
+                placeholder="Ej. 849201"
+                style={{
+                  flex: 1,
+                  padding: '6px 8px',
+                  fontSize: '0.82rem',
+                  border: `1px solid ${brandColor}`,
+                  borderRadius: '6px',
+                  background: '#FFFFFF',
+                  fontWeight: 600
+                }}
+              />
+              <button
+                type="button"
+                onClick={onVerify}
+                style={{
+                  background: isVerified ? '#2E7D32' : brandColor,
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: '6px',
+                  padding: '6px 12px',
+                  fontSize: '0.76rem',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              >
+                {isVerified ? 'Verificado' : 'Validar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// =========================================================================
+// COMPONENTE: FORMULARIO DE TARJETA DE CRÉDITO / DÉBITO POS
+// =========================================================================
+function CardPaymentForm({
+  cardNumber,
+  onCardNumberChange,
+  cardHolder,
+  onCardHolderChange,
+  cardExp,
+  onCardExpChange,
+  cardCvv,
+  onCardCvvChange,
+  cardType,
+  onCardTypeChange,
+  cardBrand,
+  onCardBrandChange,
+  cardInstallments,
+  onCardInstallmentsChange,
+  cardPosRef,
+  amount
+}) {
+  const clean = (cardNumber || '').replace(/\D/g, '');
+  const brand = clean.startsWith('4') 
+    ? 'Visa' 
+    : (clean.startsWith('51') || clean.startsWith('52') || clean.startsWith('53') || clean.startsWith('54') || clean.startsWith('55'))
+    ? 'Mastercard' 
+    : (clean.startsWith('34') || clean.startsWith('37'))
+    ? 'American Express' 
+    : cardBrand || 'Visa';
+
+  return (
+    <div style={{
+      background: '#F8FAFC',
+      border: '1px solid #CBD5E1',
+      borderRadius: '12px',
+      padding: '16px',
+      marginBottom: '16px',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.04)'
+    }}>
+      {/* Encabezado del Cuadro */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '1px solid #E2E8F0', paddingBottom: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{
+            background: '#1E293B',
+            color: '#FFFFFF',
+            fontWeight: 800,
+            fontSize: '0.75rem',
+            padding: '4px 8px',
+            borderRadius: '4px',
+            letterSpacing: '0.5px'
+          }}>
+            TERMINAL POS
+          </div>
+          <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1E293B' }}>
+            Datos de Tarjeta Crédito / Débito
+          </span>
+        </div>
+        <span style={{ fontSize: '0.72rem', color: '#16A34A', fontWeight: 700, background: '#DCFCE7', padding: '2px 8px', borderRadius: '10px' }}>
+          Cifrado Bancario Seguro
+        </span>
+      </div>
+
+      {/* Previsualización Gráfica de Tarjeta Bancaria */}
+      <div style={{
+        background: 'linear-gradient(135deg, #1E293B 0%, #0F172A 100%)',
+        color: '#FFFFFF',
+        borderRadius: '12px',
+        padding: '16px 20px',
+        marginBottom: '14px',
+        boxShadow: '0 6px 16px rgba(15, 23, 42, 0.25)',
+        position: 'relative'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{
+              width: '32px',
+              height: '24px',
+              background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+              borderRadius: '4px',
+              border: '1px solid #B45309'
+            }} />
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2">
+              <path d="M8.5 16.5a5 5 0 0 1 0-9" />
+              <path d="M12 19a8.5 8.5 0 0 0 0-14" />
+              <path d="M15.5 21.5a12 12 0 0 0 0-19" />
+            </svg>
+          </div>
+          <div style={{
+            fontSize: '0.9rem',
+            fontWeight: 800,
+            letterSpacing: '1px',
+            color: brand === 'Visa' ? '#60A5FA' : brand === 'Mastercard' ? '#F87171' : '#FBBF24'
+          }}>
+            {brand.toUpperCase()} {cardType.toUpperCase()}
+          </div>
+        </div>
+
+        <div style={{
+          fontSize: '1.15rem',
+          letterSpacing: '3px',
+          fontFamily: 'monospace',
+          fontWeight: 700,
+          color: '#F8FAFC',
+          marginBottom: '12px',
+          textShadow: '0 1px 2px rgba(0,0,0,0.5)'
+        }}>
+          {cardNumber || '•••• •••• •••• ••••'}
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', fontSize: '0.74rem' }}>
+          <div>
+            <span style={{ fontSize: '0.62rem', color: '#94A3B8', textTransform: 'uppercase', display: 'block' }}>Titular</span>
+            <strong style={{ letterSpacing: '0.5px', textTransform: 'uppercase', color: '#E2E8F0', fontSize: '0.8rem' }}>
+              {cardHolder || 'NOMBRE DEL TITULAR'}
+            </strong>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <span style={{ fontSize: '0.62rem', color: '#94A3B8', textTransform: 'uppercase', display: 'block' }}>Vence</span>
+            <strong style={{ fontFamily: 'monospace', color: '#E2E8F0', fontSize: '0.82rem' }}>
+              {cardExp || 'MM/AA'}
+            </strong>
+          </div>
+        </div>
+      </div>
+
+      {/* Campos del Formulario de Tarjeta */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
+        <div style={{ gridColumn: 'span 2' }}>
+          <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '3px' }}>
+            Número de Tarjeta (16 dígitos):
+          </label>
+          <input
+            type="text"
+            maxLength={19}
+            value={cardNumber}
+            onChange={(e) => {
+              const v = e.target.value.replace(/\D/g, '').slice(0, 16);
+              const formatted = v.match(/.{1,4}/g)?.join(' ') || v;
+              onCardNumberChange(formatted);
+              if (v.startsWith('4')) onCardBrandChange('Visa');
+              else if (v.startsWith('5')) onCardBrandChange('Mastercard');
+              else if (v.startsWith('3')) onCardBrandChange('American Express');
+            }}
+            placeholder="4557 8912 3456 7890"
+            style={{
+              width: '100%',
+              padding: '8px 10px',
+              fontSize: '0.88rem',
+              fontWeight: 700,
+              fontFamily: 'monospace',
+              border: '1px solid #CBD5E1',
+              borderRadius: '6px',
+              background: '#FFFFFF'
+            }}
+            required
+          />
+        </div>
+
+        <div style={{ gridColumn: 'span 2' }}>
+          <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '3px' }}>
+            Nombre del Titular (impreso en la tarjeta):
+          </label>
+          <input
+            type="text"
+            value={cardHolder}
+            onChange={(e) => onCardHolderChange(e.target.value.toUpperCase())}
+            placeholder="PATRICIA VALDIVIA"
+            style={{
+              width: '100%',
+              padding: '8px 10px',
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              border: '1px solid #CBD5E1',
+              borderRadius: '6px',
+              background: '#FFFFFF'
+            }}
+            required
+          />
+        </div>
+
+        <div>
+          <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '3px' }}>
+            Vencimiento (MM/AA):
+          </label>
+          <input
+            type="text"
+            maxLength={5}
+            value={cardExp}
+            onChange={(e) => {
+              let v = e.target.value.replace(/\D/g, '').slice(0, 4);
+              if (v.length > 2) v = v.slice(0, 2) + '/' + v.slice(2);
+              onCardExpChange(v);
+            }}
+            placeholder="08/28"
+            style={{
+              width: '100%',
+              padding: '8px 10px',
+              fontSize: '0.85rem',
+              textAlign: 'center',
+              fontWeight: 700,
+              fontFamily: 'monospace',
+              border: '1px solid #CBD5E1',
+              borderRadius: '6px',
+              background: '#FFFFFF'
+            }}
+            required
+          />
+        </div>
+
+        <div>
+          <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '3px' }}>
+            CVV / CVC (3 dígitos):
+          </label>
+          <input
+            type="password"
+            maxLength={4}
+            value={cardCvv}
+            onChange={(e) => onCardCvvChange(e.target.value.replace(/\D/g, '').slice(0, 4))}
+            placeholder="382"
+            style={{
+              width: '100%',
+              padding: '8px 10px',
+              fontSize: '0.85rem',
+              textAlign: 'center',
+              fontWeight: 700,
+              letterSpacing: '2px',
+              border: '1px solid #CBD5E1',
+              borderRadius: '6px',
+              background: '#FFFFFF'
+            }}
+            required
+          />
+        </div>
+
+        <div>
+          <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '3px' }}>
+            Tipo de Tarjeta:
+          </label>
+          <select
+            value={cardType}
+            onChange={(e) => onCardTypeChange(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '7px 8px',
+              fontSize: '0.82rem',
+              border: '1px solid #CBD5E1',
+              borderRadius: '6px',
+              background: '#FFFFFF'
+            }}
+          >
+            <option value="Credito">Crédito</option>
+            <option value="Debito">Débito</option>
+          </select>
+        </div>
+
+        <div>
+          <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '3px' }}>
+            Cuotas:
+          </label>
+          <select
+            value={cardInstallments}
+            onChange={(e) => onCardInstallmentsChange(e.target.value)}
+            disabled={cardType === 'Debito'}
+            style={{
+              width: '100%',
+              padding: '7px 8px',
+              fontSize: '0.82rem',
+              border: '1px solid #CBD5E1',
+              borderRadius: '6px',
+              background: cardType === 'Debito' ? '#F1F5F9' : '#FFFFFF'
+            }}
+          >
+            <option value="1">1 cuota (Sin intereses)</option>
+            <option value="2">2 cuotas</option>
+            <option value="3">3 cuotas</option>
+            <option value="6">6 cuotas</option>
+            <option value="12">12 cuotas</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Referencia Operativa POS */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F1F5F9', padding: '6px 10px', borderRadius: '6px', fontSize: '0.74rem', color: '#475569' }}>
+        <span>Lote / Ref POS: <strong>{cardPosRef}</strong></span>
+        <span>A Cobrar: <strong style={{ color: '#0F172A' }}>S/ {Number(amount).toFixed(2)}</strong></span>
+      </div>
+    </div>
+  );
+}
 
 export default function Dashboard({ 
   citas, 
@@ -148,6 +641,10 @@ export default function Dashboard({
 
   const [activeTab, setActiveTab] = useState(roleConfig.defaultTab);
 
+  // Fecha operativa actual y filtro de agenda por día
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const [agendaDateFilter, setAgendaDateFilter] = useState('hoy'); // 'hoy' | 'todas'
+
   // Auto-ajustar tab si no está permitido para el rol activo
   useEffect(() => {
     if (!allowedTabs.includes(activeTab)) {
@@ -170,7 +667,7 @@ export default function Dashboard({
   const [headerSearchQuery, setHeaderSearchQuery] = useState('');
   const [salesHistory, setSalesHistory] = useState([]);
 
-  // POS State (RF04, RF05)
+  // POS State
   const [posClient, setPosClient] = useState('Patricia Valdivia');
   const [posService, setPosService] = useState('Facial Rejuvenecedor con Oro');
   const [posAmount, setPosAmount] = useState('450.00');
@@ -179,7 +676,29 @@ export default function Dashboard({
   const [posPaymentMethod, setPosPaymentMethod] = useState('Yape/Plin');
   const [cashGiven, setCashGiven] = useState('500.00'); // para cálculo de vuelto
 
-  // Annulment State (RF06 - DS_CU09)
+  // Billetera Digital (QR Yape / Plin) State
+  const [digitalWalletType, setDigitalWalletType] = useState('yape'); // 'yape' | 'plin'
+  const [walletOpCode, setWalletOpCode] = useState('849201');
+  const [walletVerified, setWalletVerified] = useState(false);
+
+  // Tarjeta Crédito / Débito POS State
+  const [cardNumber, setCardNumber] = useState('4557 8912 3456 7890');
+  const [cardHolder, setCardHolder] = useState('PATRICIA VALDIVIA');
+  const [cardExp, setCardExp] = useState('08/28');
+  const [cardCvv, setCardCvv] = useState('382');
+  const [cardType, setCardType] = useState('Credito'); // 'Credito' | 'Debito'
+  const [cardBrand, setCardBrand] = useState('Visa');
+  const [cardInstallments, setCardInstallments] = useState('1');
+  const [cardPosRef, setCardPosRef] = useState('POS-482109');
+
+  // Sincronizar titular de tarjeta al seleccionar cliente
+  useEffect(() => {
+    if (posClient) {
+      setCardHolder(posClient.toUpperCase());
+    }
+  }, [posClient]);
+
+  // Annulment State
   const [annulTicket, setAnnulTicket] = useState('B001-0004820');
   const [annulPin, setAnnulPin] = useState('1234');
   const [annulMotivo, setAnnulMotivo] = useState('Error en digitación de importe');
@@ -265,15 +784,28 @@ export default function Dashboard({
     e.preventDefault();
     if (totalFacturado <= 0) return;
 
+    let formaPagoTexto = posPaymentMethod;
+    if (posPaymentMethod === 'Yape/Plin') {
+      formaPagoTexto = `${digitalWalletType === 'yape' ? 'Yape' : 'Plin'} (Op: ${walletOpCode || '849201'})`;
+    } else if (posPaymentMethod === 'Tarjeta POS') {
+      const last4 = (cardNumber || '').replace(/\D/g, '').slice(-4) || '7890';
+      formaPagoTexto = `Tarjeta ${cardType} ${cardBrand} ****${last4} (${cardInstallments} cuota${cardInstallments !== '1' ? 's' : ''})`;
+    }
+
+    const now = new Date();
+    const todayDateStr = now.toISOString().slice(0, 10);
+    const nowTimeStr = now.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+    const fullFechaStr = `${todayDateStr} ${nowTimeStr}`;
+
     const nuevaBoleta = {
       numero_boleta: `B001-000${citas.length + 4822}`,
-      fecha: 'Hoy (Ahora)',
+      fecha: fullFechaStr,
       cliente: posClient,
       servicio: extraPrice > 0 ? `${posService} + Insumo de Reventa` : posService,
       subtotal: subtotalSinIGV,
       igv: igvAmount,
       total: totalFacturado,
-      medio_pago: posPaymentMethod
+      medio_pago: formaPagoTexto
     };
 
     onProcessPayment({
@@ -288,19 +820,19 @@ export default function Dashboard({
     setReceiptType('boleta');
     setIsReceiptOpen(true);
 
-    showToast(`[VENTA] Boleta electrónica emitida con éxito a ${posClient} por S/ ${totalFacturado.toFixed(2)}.`);
+    showToast(`Boleta electrónica emitida con éxito a ${posClient} por S/ ${totalFacturado.toFixed(2)} (${formaPagoTexto}).`);
   };
 
   const handleExecuteAnnulment = async (e) => {
     e.preventDefault();
     if (annulPin !== '1234') {
-      showToast('[ERROR] Acceso denegado: PIN de autorización gerencial incorrecto (debe ingresar 1234).');
+      showToast('Acceso denegado: PIN de autorización incorrecto (debe ingresar 1234).');
       return;
     }
 
     const montoNum = parseFloat(annulMonto) || 0;
     if (montoNum <= 0) {
-      showToast('[ERROR] El monto a anular debe ser mayor a S/ 0.00.');
+      showToast('El monto a anular debe ser mayor a S/ 0.00.');
       return;
     }
 
@@ -318,8 +850,13 @@ export default function Dashboard({
     const res = await onProcessAnnulment(payload);
     const ncNumero = res?.anulacion?.nota_credito || `NC-0${(anulaciones?.length || 0) + annulHistory.length + 13}`;
 
+    const now = new Date();
+    const todayDateStr = now.toISOString().slice(0, 10);
+    const nowTimeStr = now.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+    const fullFechaStr = `${todayDateStr} ${nowTimeStr}`;
+
     const newNC = {
-      fecha: 'Hoy (Ahora)',
+      fecha: fullFechaStr,
       boleta: annulTicket,
       nota_credito: ncNumero,
       nc: ncNumero,
@@ -336,7 +873,7 @@ export default function Dashboard({
     setReceiptType('nota_credito');
     setIsReceiptOpen(true);
 
-    showToast(`[ANULACION] Aprobada por Gerencia. Se emitió ${ncNumero} y se reversó S/ ${montoNum.toFixed(2)} en PostgreSQL.`);
+    showToast(`Anulación aprobada. Se emitió ${ncNumero} y se reversó S/ ${montoNum.toFixed(2)} en PostgreSQL.`);
   };
 
   const handleOpenClientFile = (cliente) => {
@@ -444,6 +981,11 @@ export default function Dashboard({
             />
           </div>
           <div className="header-status">
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#F4F7F5', border: '1px solid #D1E7DD', padding: '5px 12px', borderRadius: '8px', fontSize: '0.82rem' }}>
+              <span style={{ color: '#555' }}>Fecha:</span> <strong style={{ color: '#1B3D2B' }}>{caja.fecha || todayStr}</strong>
+              <span style={{ color: '#CCC' }}>|</span>
+              <span style={{ color: '#555' }}>Turno:</span> <strong style={{ color: '#2E7D32' }}>{caja.turno || 'Turno Mañana'}</strong>
+            </div>
             <button className="btn-outline" onClick={onSwitchToPortal} style={{ borderColor: 'var(--color-border)', color: 'var(--color-text)' }}>
               Portal Web
             </button>
@@ -464,7 +1006,7 @@ export default function Dashboard({
               Móvil Especialistas
             </button>
             <span className="badge-status open">
-              <span className="status-dot"></span> Caja Turno: <strong>S/ {(caja.apertura + caja.efectivo + caja.digital - caja.egresos).toFixed(2)}</strong>
+              <span className="status-dot"></span> Caja Turno: <strong>S/ {((Number(caja.apertura) || 0) + (Number(caja.efectivo) || 0) + (Number(caja.digital) || 0) - (Number(caja.egresos) || 0)).toFixed(2)}</strong>
             </span>
           </div>
         </header>
@@ -502,110 +1044,182 @@ export default function Dashboard({
           </div>
         )}
 
-        {/* TAB DS_CU04 + DS_CU05: AGENDA DE CITAS */}
-        {activeTab === 'agenda' && (
-          <section className="admin-tab">
-            <div className="tab-header">
-              <div>
-                <span className="badge-tag gold">Agenda &amp; Citas del Spa</span>
-                <h3>Agenda de Citas &amp; Control de Sillones</h3>
-                <small style={{ color: 'var(--color-text-muted)' }}>
-                  Valida disponibilidad de especialistas y permite reprogramar, cancelar y registrar estados de atención.
-                </small>
+        {/* TAB: AGENDA DE CITAS */}
+        {activeTab === 'agenda' && (() => {
+          const citasFiltradas = citas.filter(c => {
+            if (agendaDateFilter === 'hoy') {
+              const cDate = String(c.fecha || '').slice(0, 10);
+              return cDate === todayStr || c.fecha === 'Hoy' || !c.fecha;
+            }
+            return true;
+          });
+
+          return (
+            <section className="admin-tab">
+              <div className="tab-header">
+                <div>
+                  <span className="badge-tag gold">Agenda &amp; Citas del Spa</span>
+                  <h3>Agenda de Citas &amp; Control de Sillones</h3>
+                  <small style={{ color: 'var(--color-text-muted)' }}>
+                    Valida disponibilidad de especialistas y permite reprogramar, cancelar y registrar estados de atención.
+                  </small>
+                </div>
+                <button className="btn-action primary" onClick={() => { setEditingAppt(null); setIsApptModalOpen(true); }}>
+                  + Agendar Cita en Mostrador
+                </button>
               </div>
-              <button className="btn-action primary" onClick={() => { setEditingAppt(null); setIsApptModalOpen(true); }}>
-                + Agendar Cita en Mostrador
-              </button>
-            </div>
-            <div className="agenda-table-wrapper">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Horario</th>
-                    <th>Cliente</th>
-                    <th>Servicio Solicitado</th>
-                    <th>Especialista</th>
-                    <th>Estado de Cita</th>
-                    <th>Monto</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {citas.map(c => (
-                    <tr key={c.id}>
-                      <td><strong>{c.hora}</strong><br /><small>{c.fecha}</small></td>
-                      <td>
-                        <strong>{c.cliente}</strong><br />
-                        <button 
-                          className="btn-table" 
-                          style={{ fontSize: '0.72rem', padding: '2px 6px', marginTop: '3px' }}
-                          onClick={() => {
-                            const cli = clientes.find(cl => cl.nombre.toLowerCase().includes(c.cliente.toLowerCase())) || {
-                              dni: c.dni,
-                              nombre: c.cliente,
-                              telefono: '987654321',
-                              preferencias: 'Cliente con cita agendada',
-                              visitas: 1
-                            };
-                            handleOpenClientFile(cli);
-                          }}
-                        >
-                          Ver Ficha Cliente
-                        </button>
-                      </td>
-                      <td>{c.servicio}</td>
-                      <td>{c.especialista}</td>
-                      <td>
-                        <span className={`tag ${c.estado === 'Atendida' ? 'attended' : c.estado === 'Confirmada' ? 'confirmed' : c.estado === 'Cancelada' ? 'neg' : 'in-progress'}`}>
-                          {c.estado}
-                        </span>
-                        {c.motivo_cancelacion && (
-                          <div style={{ fontSize: '0.7rem', color: 'var(--color-danger)', marginTop: '2px' }}>
-                            Motivo: {c.motivo_cancelacion}
-                          </div>
-                        )}
-                      </td>
-                      <td>S/ {c.monto.toFixed(2)}</td>
-                      <td>
-                        <div style={{ display: 'flex', gap: '6px' }}>
-                          {c.cobrado ? (
+
+              {/* Barra de Filtro y Organización por Día */}
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center', 
+                background: '#F8FBF9', 
+                border: '1px solid #D8E7DC', 
+                borderRadius: '8px', 
+                padding: '10px 16px', 
+                marginBottom: '14px', 
+                gap: '12px', 
+                flexWrap: 'wrap' 
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '0.86rem', fontWeight: 600, color: '#333' }}>Registro Diario:</span>
+                  <button
+                    type="button"
+                    style={{
+                      background: agendaDateFilter === 'hoy' ? '#1B3D2B' : '#FFF',
+                      color: agendaDateFilter === 'hoy' ? '#FFF' : '#1B3D2B',
+                      border: '1px solid #1B3D2B',
+                      padding: '6px 14px',
+                      borderRadius: '6px',
+                      fontSize: '0.82rem',
+                      fontWeight: 600,
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => setAgendaDateFilter('hoy')}
+                  >
+                    Citas de Hoy ({todayStr})
+                  </button>
+                  <button
+                    type="button"
+                    style={{
+                      background: agendaDateFilter === 'todas' ? '#1B3D2B' : '#FFF',
+                      color: agendaDateFilter === 'todas' ? '#FFF' : '#1B3D2B',
+                      border: '1px solid #CCD0D5',
+                      padding: '6px 14px',
+                      borderRadius: '6px',
+                      fontSize: '0.82rem',
+                      fontWeight: 600,
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => setAgendaDateFilter('todas')}
+                  >
+                    Ver Todas las Fechas
+                  </button>
+                </div>
+                <div style={{ fontSize: '0.84rem', color: '#555' }}>
+                  Mostrando <strong>{citasFiltradas.length}</strong> {agendaDateFilter === 'hoy' ? `citas de hoy (${todayStr})` : `citas registradas en el sistema`}
+                </div>
+              </div>
+
+              <div className="agenda-table-wrapper">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Horario</th>
+                      <th>Cliente</th>
+                      <th>Servicio Solicitado</th>
+                      <th>Especialista</th>
+                      <th>Estado de Cita</th>
+                      <th>Monto</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {citasFiltradas.length === 0 ? (
+                      <tr>
+                        <td colSpan="7" style={{ textAlign: 'center', padding: '36px', color: '#718096' }}>
+                          No hay citas programadas para hoy ({todayStr}). Puede agendar una nueva cita en mostrador o pulsar "Ver Todas las Fechas".
+                        </td>
+                      </tr>
+                    ) : (
+                      citasFiltradas.map(c => (
+                        <tr key={c.id}>
+                          <td><strong>{c.hora}</strong><br /><small>{c.fecha}</small></td>
+                          <td>
+                            <strong>{c.cliente}</strong><br />
                             <button 
                               className="btn-table" 
+                              style={{ fontSize: '0.72rem', padding: '2px 6px', marginTop: '3px' }}
                               onClick={() => {
-                                setReceiptData({
-                                  numero_boleta: `B001-0004820`,
-                                  fecha: 'Hoy',
-                                  cliente: c.cliente,
-                                  servicio: c.servicio,
-                                  total: c.monto,
-                                  medio_pago: 'Efectivo en Caja'
-                                });
-                                setReceiptType('boleta');
-                                setIsReceiptOpen(true);
+                                const cli = clientes.find(cl => cl.nombre.toLowerCase().includes(c.cliente.toLowerCase())) || {
+                                  dni: c.dni,
+                                  nombre: c.cliente,
+                                  telefono: '987654321',
+                                  preferencias: 'Cliente con cita agendada',
+                                  visitas: 1
+                                };
+                                handleOpenClientFile(cli);
                               }}
                             >
-                              Ver Boleta
+                              Ver Ficha Cliente
                             </button>
-                          ) : (
-                            <button className="btn-table primary" onClick={() => handleChargeFromAgenda(c)}>
-                              Cobrar en POS
-                            </button>
-                          )}
-                          <button 
-                            className="btn-table" 
-                            onClick={() => { setEditingAppt(c); setIsApptModalOpen(true); }}
-                          >
-                            Editar / Reprogramar
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        )}
+                          </td>
+                          <td>{c.servicio}</td>
+                          <td>{c.especialista}</td>
+                          <td>
+                            <span className={`tag ${c.estado === 'Atendida' ? 'attended' : c.estado === 'Confirmada' ? 'confirmed' : c.estado === 'Cancelada' ? 'neg' : 'in-progress'}`}>
+                              {c.estado}
+                            </span>
+                            {c.motivo_cancelacion && (
+                              <div style={{ fontSize: '0.7rem', color: 'var(--color-danger)', marginTop: '2px' }}>
+                                Motivo: {c.motivo_cancelacion}
+                              </div>
+                            )}
+                          </td>
+                          <td>S/ {c.monto.toFixed(2)}</td>
+                          <td>
+                            <div style={{ display: 'flex', gap: '6px' }}>
+                              {c.cobrado ? (
+                                <button 
+                                  className="btn-table" 
+                                  onClick={() => {
+                                    setReceiptData({
+                                      numero_boleta: `B001-0004820`,
+                                      fecha: c.fecha || todayStr,
+                                      cliente: c.cliente,
+                                      servicio: c.servicio,
+                                      total: c.monto,
+                                      medio_pago: 'Efectivo en Caja'
+                                    });
+                                    setReceiptType('boleta');
+                                    setIsReceiptOpen(true);
+                                  }}
+                                >
+                                  Ver Boleta
+                                </button>
+                              ) : (
+                                <button className="btn-table primary" onClick={() => handleChargeFromAgenda(c)}>
+                                  Cobrar en POS
+                                </button>
+                              )}
+                              <button 
+                                className="btn-table" 
+                                onClick={() => { setEditingAppt(c); setIsApptModalOpen(true); }}
+                              >
+                                Editar / Reprogramar
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          );
+        })()}
 
         {/* TAB DS_CU03: REGISTRAR CLIENTE */}
         {activeTab === 'clientes' && (
@@ -878,56 +1492,86 @@ export default function Dashboard({
               </div>
             </div>
 
-            {/* Selector Rápido de Citas Pendientes de Cobro del Día */}
-            <div style={{ 
-              background: '#FFFDE7', 
-              border: '1px solid #FFE082', 
-              borderRadius: '8px', 
-              padding: '12px 16px', 
-              marginBottom: '18px' 
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <strong style={{ fontSize: '0.88rem', color: '#795548' }}>
-                  Cobro Rápido: Citas Pendientes de Cobro ({citas.filter(c => !c.cobrado && c.estado !== 'Cancelada').length}):
-                </strong>
-                <span style={{ fontSize: '0.78rem', color: '#8D6E63' }}>Haga clic en una cita para cargarla automáticamente</span>
-              </div>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                {citas.filter(c => !c.cobrado && c.estado !== 'Cancelada').map(c => (
-                  <button
-                    key={c.id}
-                    type="button"
-                    style={{ 
-                      background: '#FFF', 
-                      border: '1px solid #D4AF37', 
-                      color: '#1B3D2B', 
-                      padding: '5px 12px', 
-                      fontSize: '0.82rem', 
-                      cursor: 'pointer', 
-                      borderRadius: '6px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-                    }}
-                    onClick={() => {
-                      setPosClient(c.cliente);
-                      setPosService(c.servicio);
-                      setPosAmount(c.monto.toString());
-                      showToast(`Cita de ${c.cliente} cargada al POS (S/ ${c.monto})`);
-                    }}
-                    title={`Haga clic para facturar la cita de ${c.cliente}`}
-                  >
-                    <strong>{c.hora}</strong> · {c.cliente} ({c.servicio} - <strong>S/ {c.monto}</strong>)
-                  </button>
-                ))}
-                {citas.filter(c => !c.cobrado && c.estado !== 'Cancelada').length === 0 && (
-                  <span style={{ fontSize: '0.82rem', color: '#666', fontStyle: 'italic' }}>
-                    Todas las citas agendadas han sido liquidadas. Puede facturar un servicio directo seleccionando un cliente.
-                  </span>
-                )}
-              </div>
-            </div>
+            {/* Selector Rápido de Citas Pendientes de Cobro Organizadas por Día */}
+            {(() => {
+              const pendingToday = citas.filter(c => !c.cobrado && c.estado !== 'Cancelada' && (String(c.fecha || '').slice(0, 10) === todayStr || c.fecha === 'Hoy' || !c.fecha));
+              const pendingOther = citas.filter(c => !c.cobrado && c.estado !== 'Cancelada' && String(c.fecha || '').slice(0, 10) !== todayStr && c.fecha !== 'Hoy' && c.fecha);
+
+              return (
+                <div style={{ 
+                  background: '#FFFDE7', 
+                  border: '1px solid #FFE082', 
+                  borderRadius: '8px', 
+                  padding: '12px 16px', 
+                  marginBottom: '18px' 
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
+                    <strong style={{ fontSize: '0.88rem', color: '#795548' }}>
+                      Cobro Rápido: Citas Pendientes de Hoy ({pendingToday.length}):
+                    </strong>
+                    <span style={{ fontSize: '0.78rem', color: '#8D6E63' }}>Fecha operativa: {caja.fecha || todayStr}</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: pendingOther.length > 0 ? '8px' : '0' }}>
+                    {pendingToday.map(c => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        style={{ 
+                          background: '#FFF', 
+                          border: '1px solid #D4AF37', 
+                          color: '#1B3D2B', 
+                          padding: '5px 12px', 
+                          fontSize: '0.82rem', 
+                          cursor: 'pointer', 
+                          borderRadius: '6px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                        }}
+                        onClick={() => {
+                          setPosClient(c.cliente);
+                          setPosService(c.servicio);
+                          setPosAmount(c.monto.toString());
+                          showToast(`Cita de ${c.cliente} cargada al POS (S/ ${c.monto})`);
+                        }}
+                        title={`Haga clic para facturar la cita de ${c.cliente}`}
+                      >
+                        <strong>{c.hora}</strong> · {c.cliente} ({c.servicio} - <strong>S/ {c.monto}</strong>)
+                      </button>
+                    ))}
+                    {pendingToday.length === 0 && (
+                      <span style={{ fontSize: '0.82rem', color: '#666', fontStyle: 'italic' }}>
+                        No hay citas pendientes de cobro para el día de hoy. Puede facturar un servicio directo seleccionando un cliente.
+                      </span>
+                    )}
+                  </div>
+
+                  {pendingOther.length > 0 && (
+                    <div style={{ borderTop: '1px dashed #FFE082', paddingTop: '8px', marginTop: '6px' }}>
+                      <span style={{ fontSize: '0.78rem', color: '#8D6E63', fontWeight: 600 }}>Pendientes de otras fechas ({pendingOther.length}): </span>
+                      <div style={{ display: 'inline-flex', gap: '6px', flexWrap: 'wrap', marginTop: '4px' }}>
+                        {pendingOther.map(c => (
+                          <button
+                            key={c.id}
+                            type="button"
+                            style={{ background: '#FFF9C4', border: '1px solid #FBC02D', color: '#5D4037', padding: '3px 8px', fontSize: '0.76rem', cursor: 'pointer', borderRadius: '4px' }}
+                            onClick={() => {
+                              setPosClient(c.cliente);
+                              setPosService(c.servicio);
+                              setPosAmount(c.monto.toString());
+                              showToast(`Cita de ${c.cliente} (${c.fecha}) cargada al POS`);
+                            }}
+                          >
+                            {c.fecha} {c.hora}: {c.cliente} (S/ {c.monto})
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             <div className="pos-layout">
               <div className="pos-checkout">
@@ -1007,6 +1651,51 @@ export default function Dashboard({
                     </div>
                   </div>
 
+                  {/* SECCIÓN REACTIVA 1: BILLETERA DIGITAL (YAPE / PLIN) CON QR INVENTADO */}
+                  {posPaymentMethod === 'Yape/Plin' && (
+                    <DigitalWalletQR
+                      walletType={digitalWalletType}
+                      onWalletTypeChange={(wt) => {
+                        setDigitalWalletType(wt);
+                        setWalletVerified(false);
+                      }}
+                      amount={totalFacturado}
+                      phone="987 654 321"
+                      opCode={walletOpCode}
+                      onOpCodeChange={setWalletOpCode}
+                      isVerified={walletVerified}
+                      onVerify={() => {
+                        const randomOp = Math.floor(100000 + Math.random() * 900000).toString();
+                        setWalletOpCode(randomOp);
+                        setWalletVerified(true);
+                        showToast(`Transferencia de S/ ${totalFacturado.toFixed(2)} verificada en ${digitalWalletType === 'yape' ? 'Yape' : 'Plin'} (Op: ${randomOp})`);
+                      }}
+                    />
+                  )}
+
+                  {/* SECCIÓN REACTIVA 2: FORMULARIO EXTRA PARA TARJETA DE CRÉDITO O DÉBITO */}
+                  {posPaymentMethod === 'Tarjeta POS' && (
+                    <CardPaymentForm
+                      cardNumber={cardNumber}
+                      onCardNumberChange={setCardNumber}
+                      cardHolder={cardHolder}
+                      onCardHolderChange={setCardHolder}
+                      cardExp={cardExp}
+                      onCardExpChange={setCardExp}
+                      cardCvv={cardCvv}
+                      onCardCvvChange={setCardCvv}
+                      cardType={cardType}
+                      onCardTypeChange={setCardType}
+                      cardBrand={cardBrand}
+                      onCardBrandChange={setCardBrand}
+                      cardInstallments={cardInstallments}
+                      onCardInstallmentsChange={setCardInstallments}
+                      cardPosRef={cardPosRef}
+                      amount={totalFacturado}
+                    />
+                  )}
+
+                  {/* SECCIÓN REACTIVA 3: EFECTIVO EN MOSTRADOR */}
                   {posPaymentMethod === 'Efectivo' && (
                     <div className="form-row" style={{ background: '#FFFDE7', padding: '12px', borderRadius: '8px', marginBottom: '14px' }}>
                       <div className="form-group">
@@ -1063,10 +1752,25 @@ export default function Dashboard({
                   </div>
                 </div>
 
-                {posPaymentMethod.includes('Yape') && (
-                  <div style={{ textAlign: 'center', marginTop: '16px', background: '#F3E5F5', padding: '12px', borderRadius: '8px' }}>
-                    <strong>[QR DIGITAL] Código QR de Cobro Digital Generado</strong><br />
-                    <small>Cliente escanea y confirma recepción instantánea en Yape/Plin.</small>
+                {posPaymentMethod === 'Yape/Plin' && (
+                  <div style={{ textAlign: 'center', marginTop: '16px', background: digitalWalletType === 'yape' ? '#FAF4FB' : '#EBF8FA', border: `1px solid ${digitalWalletType === 'yape' ? '#742284' : '#00A3C4'}`, padding: '12px', borderRadius: '8px' }}>
+                    <strong style={{ color: digitalWalletType === 'yape' ? '#742284' : '#00A3C4' }}>
+                      Código QR {digitalWalletType.toUpperCase()} Generado
+                    </strong><br />
+                    <small style={{ color: '#475569' }}>
+                      Cliente escanea en mostrador para transferir S/ {totalFacturado.toFixed(2)}.
+                    </small>
+                  </div>
+                )}
+
+                {posPaymentMethod === 'Tarjeta POS' && (
+                  <div style={{ textAlign: 'center', marginTop: '16px', background: '#F8FAFC', border: '1px solid #94A3B8', padding: '12px', borderRadius: '8px' }}>
+                    <strong style={{ color: '#1E293B' }}>
+                      Terminal POS Listo para Transacción
+                    </strong><br />
+                    <small style={{ color: '#475569' }}>
+                      Tarjeta {cardType} {cardBrand} conectada vía lector chip/contactless (Ref: {cardPosRef}).
+                    </small>
                   </div>
                 )}
 
@@ -1570,7 +2274,7 @@ export default function Dashboard({
               <div className="kpi-card">
                 <div className="kpi-icon blue"><TargetIcon size={20} /></div>
                 <div className="kpi-data">
-                  <span className="kpi-title">OBJ-01 Puntualidad y Citas</span>
+                  <span className="kpi-title">Puntualidad y Asistencia a Citas</span>
                   <strong className="kpi-val">88.5%</strong>
                   <small className="kpi-sub positive">Meta: ≥ 88% (-35% inasistencias)</small>
                 </div>
@@ -1578,7 +2282,7 @@ export default function Dashboard({
               <div className="kpi-card">
                 <div className="kpi-icon green"><TargetIcon size={20} /></div>
                 <div className="kpi-data">
-                  <span className="kpi-title">OBJ-02 Cuadre de Caja</span>
+                  <span className="kpi-title">Exactitud y Cuadre de Caja</span>
                   <strong className="kpi-val">98.2%</strong>
                   <small className="kpi-sub positive">Meta: ≥ 98% (-90% descuadres)</small>
                 </div>
@@ -1586,7 +2290,7 @@ export default function Dashboard({
               <div className="kpi-card">
                 <div className="kpi-icon purple"><TargetIcon size={20} /></div>
                 <div className="kpi-data">
-                  <span className="kpi-title">OBJ-03 Insumos Críticos</span>
+                  <span className="kpi-title">Disponibilidad de Insumos Críticos</span>
                   <strong className="kpi-val">96.5%</strong>
                   <small className="kpi-sub positive">Meta: ≥ 95% (-80% quiebres)</small>
                 </div>
@@ -1594,7 +2298,7 @@ export default function Dashboard({
               <div className="kpi-card">
                 <div className="kpi-icon red"><TargetIcon size={20} /></div>
                 <div className="kpi-data">
-                  <span className="kpi-title">OBJ-04 Fidelización Clientes</span>
+                  <span className="kpi-title">Fidelización y Retorno de Clientes</span>
                   <strong className="kpi-val">74.0%</strong>
                   <small className="kpi-sub positive">Meta: ≥ 70% (+25% retorno &lt;45d)</small>
                 </div>

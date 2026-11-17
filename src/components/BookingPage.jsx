@@ -279,30 +279,28 @@ export default function BookingPage({
   const getWhatsAppShareUrl = () => {
     const raw = (clientPhone || '').replace(/\D/g, '');
     let targetPhone = '';
-    if (raw.length === 9) {
-      targetPhone = `51${raw}`;
-    } else if (raw.length > 9 && raw.startsWith('51')) {
-      targetPhone = raw;
-    } else if (raw.length > 6) {
-      targetPhone = `51${raw}`;
-    } else {
-      targetPhone = '51954561370';
+    if (raw && raw !== '987654321' && raw.length >= 9) {
+      targetPhone = raw.startsWith('51') ? raw : `51${raw}`;
     }
 
     const message = 
-      `🌿 *SALON SPA ALEIDA S.A.C.* · Voucher Oficial de Cita\n\n` +
-      `¡Hola *${clientName || 'Estimada Clienta'}*! Confirmamos tu cita con éxito:\n\n` +
-      `📋 *Código de Reserva:* #${ticketCode || 'ALE-78219'}\n` +
-      `💆‍♀️ *Tratamiento:* ${selectedService.nombre} (${selectedService.duracion} min)\n` +
-      `🛋️ *Cabina Asignada:* ${getCabinByService(selectedService.nombre)}\n` +
-      `👩‍⚕️ *Especialista:* ${selectedTherapist.nombre}\n` +
-      `📅 *Fecha:* ${selectedDate}\n` +
-      `⏰ *Hora:* ${selectedTime} en Punto\n` +
-      `💰 *Total a Cancelar:* S/ ${selectedService.precio.toFixed(2)}\n\n` +
-      `📍 *Dirección:* Av. Circunvalación del Golf 340, Santiago de Surco (Lima)\n` +
-      `ℹ️ _Por favor presentarse con 10 minutos de anticipación para su aromaterapia de cortesía._`;
+      `*SALON SPA ALEIDA S.A.C.* · Voucher Oficial de Cita\n\n` +
+      `Estimada/o *${clientName || 'Cliente'}*: Confirmamos su cita con éxito:\n\n` +
+      `*Código de Reserva:* #${ticketCode || 'ALE-78219'}\n` +
+      `*Tratamiento:* ${selectedService.nombre} (${selectedService.duracion} min)\n` +
+      `*Cabina Asignada:* ${getCabinByService(selectedService.nombre)}\n` +
+      `*Especialista:* ${selectedTherapist.nombre}\n` +
+      `*Fecha:* ${selectedDate}\n` +
+      `*Hora:* ${selectedTime}\n` +
+      `*Total a Cancelar:* S/ ${selectedService.precio.toFixed(2)}\n\n` +
+      `*Dirección:* Av. Circunvalación del Golf 340, Santiago de Surco (Lima)\n` +
+      `_Por favor presentarse con 10 minutos de anticipación para su aromaterapia de cortesía._`;
 
-    return `https://wa.me/${targetPhone}?text=${encodeURIComponent(message)}`;
+    if (targetPhone) {
+      return `https://wa.me/${targetPhone}?text=${encodeURIComponent(message)}`;
+    } else {
+      return `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+    }
   };
 
   return (
@@ -872,7 +870,6 @@ export default function BookingPage({
                           <div className="voucher-header">
                             <div className="voucher-brand-block">
                               <div className="voucher-title-row">
-                                <span className="voucher-logo-flower">🌸</span>
                                 <div>
                                   <span className="voucher-brand">SALON SPA ALEIDA S.A.C.</span>
                                   <span className="voucher-sub">SANTUARIO DE BELLEZA &amp; BIENESTAR INTEGRAL</span>
@@ -981,7 +978,7 @@ export default function BookingPage({
                             onClick={handlePrintVoucher}
                             title="Imprime o guarda en PDF el voucher oficial en una sola hoja"
                           >
-                            🖨️ Imprimir / Guardar Voucher (PDF)
+                            Imprimir / Guardar Voucher (PDF)
                           </button>
                           <a 
                             id="btn-whatsapp-share"
