@@ -21,14 +21,20 @@ export default function AppointmentModal({
   const [motivoCancelacion, setMotivoCancelacion] = useState('');
   const [mode, setMode] = useState(isEditing ? 'reprogramar' : 'crear'); // 'crear' | 'reprogramar' | 'cancelar'
 
-  // Validación de conflicto en tiempo real (RF02)
-  const hasConflict = existingCitas.some(c => 
-    c.fecha === fecha && 
-    c.hora === hora && 
-    c.especialista === especialista && 
+  // Validación de conflicto en tiempo real:
+  // Bloquea si ya existe una cita activa en la misma fecha+hora con el mismo especialista
+  // (normaliza el nombre para tolerar sufijos como "(Cosmiatra Máster)")
+  const normalizeEsp = (s = '') => s.split('(')[0].trim().toLowerCase();
+  const estadosActivos = ['confirmada', 'en sala', 'pendiente', 'en atención'];
+
+  const conflictoCita = existingCitas.find(c =>
+    c.fecha === fecha &&
+    c.hora === hora &&
+    normalizeEsp(c.especialista) === normalizeEsp(especialista) &&
     (!citaEditando || c.id !== citaEditando.id) &&
-    c.estado !== 'Cancelada'
+    estadosActivos.includes((c.estado || '').toLowerCase())
   );
+  const hasConflict = !!conflictoCita;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -44,7 +50,7 @@ export default function AppointmentModal({
     }
 
     if (hasConflict) {
-      alert(`[CONFLICTO DE HORARIO] ${especialista} ya tiene una cita agendada a las ${hora}. Seleccione otro horario.`);
+      alert(`Horario no disponible: ${especialista.split('(')[0].trim()} ya tiene una cita confirmada a las ${hora} del ${fecha}. Seleccione otro horario o especialista.`);
       return;
     }
 
@@ -172,9 +178,24 @@ export default function AppointmentModal({
                   </div>
                 </div>
 
-                {hasConflict && (
-                  <div className="alert-box warning">
-                    [ALERTA] <strong>Conflicto de Horario Detectado:</strong> {especialista} ya tiene otra cita ocupando el bloque de las {hora}. Seleccione otra terapeuta o un horario libre.
+                {hasConflict && conflictoCita && (
+                  <div className="alert-box warning" style={{
+                    background: '#FFF3CD',
+                    border: '1.5px solid #E6A817',
+                    borderRadius: '8px',
+                    padding: '12px 14px',
+                    marginTop: '10px',
+                    fontSize: '0.85rem',
+                    color: '#7A4F01',
+                    lineHeight: '1.5'
+                  }}>
+                    <strong style={{ display: 'block', marginBottom: '4px' }}>
+                      Horario No Disponible — Conflicto Detectado
+                    </strong>
+                    La especialista <strong>{especialista.split('(')[0].trim()}</strong> ya tiene
+                    una cita confirmada a las <strong>{hora}</strong> del <strong>{fecha}</strong>
+                    {conflictoCita.cliente ? ` (Cliente: ${conflictoCita.cliente})` : ''}.
+                    Por favor seleccione un horario libre o una especialista disponible.
                   </div>
                 )}
               </>
