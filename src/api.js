@@ -183,5 +183,33 @@ export const api = {
       }
     } catch (_) {}
     return initialMockState.caja;
+  },
+
+  // Actualiza el estado de una cita en PostgreSQL via el backend Flask
+  async updateCitaEstado(citaId, nuevoEstado, motivo = null) {
+    try {
+      const body = { estado: nuevoEstado };
+      if (motivo) body.motivo = motivo;   // el backend espera 'motivo', no 'motivo_cancelacion'
+      const res = await fetch(`${API_BASE}/citas/${citaId}/estado`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return { success: false };
+  },
+
+  // Reprograma fecha/hora de una cita en PostgreSQL
+  async reprogramarCita(citaId, nuevaFecha, nuevaHora) {
+    try {
+      const res = await fetch(`${API_BASE}/citas/${citaId}/reprogramar`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nueva_fecha: nuevaFecha, nueva_hora: nuevaHora })
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return { success: false };
   }
 };

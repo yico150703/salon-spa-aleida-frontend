@@ -103,22 +103,30 @@ export default function App() {
   };
 
   // DS_CU05: Reprogramar cita
-  const handleReprogramCita = (citaId, nuevaFecha, nuevaHora) => {
+  const handleReprogramCita = async (citaId, nuevaFecha, nuevaHora) => {
     setCitas(citas.map(c =>
       c.id === citaId ? { ...c, fecha: nuevaFecha, hora: nuevaHora, estado: 'Confirmada' } : c
     ));
+    // Persistir en PostgreSQL via API REST
+    await api.reprogramarCita(citaId, nuevaFecha, nuevaHora);
   };
 
-  const handleCancelCita = (citaId, motivo) => {
+  const handleCancelCita = async (citaId, motivo) => {
+    // Actualizar estado local inmediatamente (optimistic update)
     setCitas(citas.map(c =>
       c.id === citaId ? { ...c, estado: 'Cancelada', motivo_cancelacion: motivo } : c
     ));
+    // Persistir en PostgreSQL via API REST
+    await api.updateCitaEstado(citaId, 'Cancelada', motivo);
   };
 
-  const handleUpdateCitaEstado = (citaId, nuevoEstado) => {
+  const handleUpdateCitaEstado = async (citaId, nuevoEstado) => {
+    // Actualizar estado local inmediatamente (optimistic update)
     setCitas(citas.map(c =>
       c.id === citaId ? { ...c, estado: nuevoEstado } : c
     ));
+    // Persistir en PostgreSQL via API REST
+    await api.updateCitaEstado(citaId, nuevoEstado);
   };
 
   // DS_CU06: Registrar servicio en catálogo
