@@ -17,7 +17,7 @@ export default function AppointmentModal({
   const [servicio, setServicio] = useState(citaEditando ? citaEditando.servicio : 'Masaje Relajante Aleida');
   const [especialista, setEspecialista] = useState(citaEditando ? citaEditando.especialista : 'Carmen Sánchez');
   const [fecha, setFecha] = useState(citaEditando ? citaEditando.fecha : new Date().toISOString().split('T')[0]);
-  const [hora, setHora] = useState(citaEditando ? citaEditando.hora : '11:00 AM');
+  const [hora, setHora] = useState(citaEditando ? citaEditando.hora : '09:00 AM');
   const [motivoCancelacion, setMotivoCancelacion] = useState('');
   const [mode, setMode] = useState(isEditing ? 'reprogramar' : 'crear'); // 'crear' | 'reprogramar' | 'cancelar'
   const [backendError, setBackendError] = useState('');
