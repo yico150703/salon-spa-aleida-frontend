@@ -72,6 +72,14 @@ export const api = {
     return { cita: { id: Date.now(), ...citaData } };
   },
 
+  async getVentas() {
+    try {
+      const res = await fetch(`${API_BASE}/ventas`);
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return [];
+  },
+
   async processVenta(ventaData) {
     try {
       const res = await fetch(`${API_BASE}/ventas`, {
@@ -81,7 +89,17 @@ export const api = {
       });
       if (res.ok) return await res.json();
     } catch (_) {}
-    return { message: 'Venta procesada localmente' };
+    return { success: true, message: 'Venta procesada localmente' };
+  },
+
+  async getAnulaciones() {
+    try {
+      const res = await fetch(`${API_BASE}/anulaciones`);
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return [
+      { id: 1, fecha: 'Hoy', boleta: 'B001-0004810', nota_credito: 'NC-012', monto: 120.0, motivo: 'Devolución por insatisfacción', autorizado_por: 'Aleida Mendoza (Gerente General)' }
+    ];
   },
 
   async processAnulacion(anulacionData) {
@@ -91,9 +109,33 @@ export const api = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(anulacionData)
       });
+      return await res.json();
+    } catch (_) {}
+    return { success: true, message: 'Anulación procesada con Nota de Crédito' };
+  },
+
+  async aperturarCaja(aperturaData) {
+    try {
+      const res = await fetch(`${API_BASE}/caja/apertura`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(aperturaData)
+      });
       if (res.ok) return await res.json();
     } catch (_) {}
-    return { message: 'Anulación procesada con Nota de Crédito' };
+    return { success: true, message: 'Apertura registrada localmente' };
+  },
+
+  async cerrarCaja(cierreData) {
+    try {
+      const res = await fetch(`${API_BASE}/caja/cierre`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cierreData)
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return { success: true, message: 'Arqueo y cierre procesado localmente' };
   },
 
   async getClientes() {

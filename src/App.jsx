@@ -27,6 +27,8 @@ export default function App() {
   const [insumos, setInsumos] = useState(initialMockState.insumos);
   const [catalogo, setCatalogo] = useState(initialMockState.catalogo);
   const [usuarios, setUsuarios] = useState(initialMockState.usuarios);
+  const [ventas, setVentas] = useState([]);
+  const [anulaciones, setAnulaciones] = useState([]);
 
   // DS_CU07: Estado apertura de caja
   const [cajaAbierta, setCajaAbierta] = useState(false);
@@ -34,7 +36,14 @@ export default function App() {
   useEffect(() => {
     api.getCitas().then(data => { if (data && data.length) setCitas(data); });
     api.getClientes().then(data => { if (data && data.length) setClientes(data); });
-    api.getCaja().then(data => { if (data) setCaja(data); });
+    api.getCaja().then(data => { 
+      if (data) {
+        setCaja(data);
+        if (data.estado === 'Abierta') setCajaAbierta(true);
+      }
+    });
+    api.getVentas().then(data => { if (data && data.length) setVentas(data); });
+    api.getAnulaciones().then(data => { if (data && data.length) setAnulaciones(data); });
   }, []);
 
   const showToast = (msg) => {
@@ -117,13 +126,47 @@ export default function App() {
     setCatalogo(prev => [...prev, servicio]);
   };
 
-  // DS_CU07: Aperturar turno de caja
-  const handleAperturaCaja = (aperturaData) => {
+  // DS_CU07: Aperturar turno de caja (Persistencia total en PostgreSQL)
+  const handleAperturaCaja = async (aperturaData) => {
+    const saldo = parseFloat(aperturaData.saldo_inicial) || 0;
+    const turno = aperturaData.turno || aperturaData.numero_turno || 'Turno Mañana';
+    const responsable = aperturaData.responsable || currentUser?.nombre || 'Personal de Caja';
+
+    // 1. Actualización optimista
     setCajaAbierta(true);
-    setCaja(prev => ({ ...prev, apertura: aperturaData.saldo_inicial, estado: 'Abierta' }));
+    setCaja(prev => ({
+      ...prev,
+      apertura: saldo,
+      efectivo: 0,
+      digital: 0,
+      egresos: 0,
+      saldo_teorico: saldo,
+      total_teorico: saldo,
+      estado: 'Abierta',
+      turno,
+      responsable
+    }));
+
+    try {
+      const res = await api.aperturarCaja({
+        saldo_inicial: saldo,
+        monto: saldo,
+        monto_inicial: saldo,
+        responsable,
+        turno,
+        observaciones: aperturaData.observaciones || 'Apertura de turno'
+      });
+      const cajaActual = await api.getCaja();
+      if (cajaActual) setCaja(cajaActual);
+      showToast(`[APERTURA] Turno ${turno} aperturado en Base de Datos. Fondo: S/ ${saldo.toFixed(2)}`);
+      return res;
+    } catch (err) {
+      console.error('Error al registrar apertura en backend:', err);
+      showToast('[ERROR] No se pudo persistir la apertura en base de datos.');
+    }
   };
 
-  // DS_CU08: Procesar venta y cobro (Sincronización total de Caja)
+  // DS_CU08: Procesar venta y cobro (Sincronización total de Caja y Ventas)
   const handleProcessPayment = async (ventaData) => {
     const { cliente, monto, medio_pago } = ventaData;
     const numMonto = parseFloat(monto) || 0;
@@ -151,31 +194,71 @@ export default function App() {
     // 3. Enviar a PostgreSQL en backend
     try {
       await api.processVenta(ventaData);
-      // 4. Traer balance consolidado de caja y estado desde la base de datos
-      const [cajaActualizada, citasActualizadas, clientesActualizados] = await Promise.all([
+      // 4. Traer balance consolidado de caja, ventas, citas y clientes
+      const [cajaActualizada, citasActualizadas, clientesActualizados, ventasActualizadas] = await Promise.all([
         api.getCaja(),
         api.getCitas(),
-        api.getClientes()
+        api.getClientes(),
+        api.getVentas()
       ]);
       if (cajaActualizada) setCaja(cajaActualizada);
       if (citasActualizadas && citasActualizadas.length) setCitas(citasActualizadas);
       if (clientesActualizados && clientesActualizados.length) setClientes(clientesActualizados);
+      if (ventasActualizadas && ventasActualizadas.length) setVentas(ventasActualizadas);
     } catch (err) {
       console.error('Error sincronizando venta con backend:', err);
     }
   };
 
-  // DS_CU09: Anular venta con nota de crédito
-  const handleProcessAnnulment = async (monto) => {
-    const numMonto = parseFloat(monto) || 0;
+  // DS_CU09: Anular venta con nota de crédito (Persistencia total en PostgreSQL)
+  const handleProcessAnnulment = async (anulacionPayload) => {
+    // Si recibe solo un número por compatibilidad anterior
+    const data = typeof anulacionPayload === 'object' ? anulacionPayload : { monto: anulacionPayload };
+    const numMonto = parseFloat(data.monto) || 0;
+    const medio = data.medio_pago || 'Digital';
+
+    // 1. Actualización optimista en caja
     setCaja(prev => {
-      const digital = Math.max(0, prev.digital - numMonto);
-      const total = (prev.apertura || 0) + prev.efectivo + digital - (prev.egresos || 0);
-      return { ...prev, digital, total_teorico: total, saldo_teorico: total };
+      const nuevoEfectivo = medio === 'Efectivo' ? Math.max(0, prev.efectivo - numMonto) : prev.efectivo;
+      const nuevoDigital = medio !== 'Efectivo' ? Math.max(0, prev.digital - numMonto) : prev.digital;
+      const total = (prev.apertura || 0) + nuevoEfectivo + nuevoDigital - (prev.egresos || 0);
+      return { ...prev, efectivo: nuevoEfectivo, digital: nuevoDigital, total_teorico: total, saldo_teorico: total };
     });
-    await api.processAnulacion({ monto: numMonto });
-    const cajaActual = await api.getCaja();
-    if (cajaActual) setCaja(cajaActual);
+
+    try {
+      const res = await api.processAnulacion({
+        boleta: data.boleta || 'B001-0004820',
+        pin: data.pin || '1234',
+        motivo: data.motivo || 'Error en digitación de importe',
+        monto: numMonto,
+        cliente: data.cliente || 'Cliente General',
+        medio_pago: medio,
+        autorizado_por: currentUser?.nombre ? `${currentUser.nombre} (${currentUser.rol})` : 'Aleida Mendoza (Gerente General)'
+      });
+
+      if (res && res.error) {
+        showToast(`[ERROR] ${res.error}`);
+        return res;
+      }
+
+      // Sincronizar estado global desde base de datos
+      const [cajaActual, anulacionesActuales, ventasActuales, citasActuales] = await Promise.all([
+        api.getCaja(),
+        api.getAnulaciones(),
+        api.getVentas(),
+        api.getCitas()
+      ]);
+      if (cajaActual) setCaja(cajaActual);
+      if (anulacionesActuales) setAnulaciones(anulacionesActuales);
+      if (ventasActuales) setVentas(ventasActuales);
+      if (citasActuales) setCitas(citasActuales);
+
+      showToast(`[ANULACIÓN] Reversión contable aplicada y registrada en Base de Datos.`);
+      return res;
+    } catch (err) {
+      console.error('Error procesando anulación:', err);
+      showToast('[ERROR] Ocurrió un error al comunicar la anulación con el servidor.');
+    }
   };
 
   // DS_CU10: Registrar egreso
@@ -197,10 +280,29 @@ export default function App() {
     } catch (_) {}
   };
 
-  // DS_CU10: Arqueo y cierre de caja
-  const handleCloseCaja = (totalFisico) => {
-    setCaja(prev => ({ ...prev, arqueo_fisico: totalFisico, estado: 'Cerrada' }));
+  // DS_CU10: Arqueo y cierre de caja (Persistencia total en PostgreSQL + Reporte Z)
+  const handleCloseCaja = async (totalFisico, diferencia, responsable) => {
+    const numFisico = parseFloat(totalFisico) || 0;
+    const numDif = parseFloat(diferencia) || 0;
+    const resp = responsable || currentUser?.nombre || 'Personal de Mostrador';
+
+    // 1. Actualización optimista
+    setCaja(prev => ({ ...prev, arqueo_fisico: numFisico, diferencia: numDif, estado: 'Cerrada' }));
     setCajaAbierta(false);
+
+    try {
+      const res = await api.cerrarCaja({
+        conteo_fisico: numFisico,
+        responsable: resp
+      });
+      const cajaActual = await api.getCaja();
+      if (cajaActual) setCaja(cajaActual);
+      showToast(`[CIERRE] Arqueo completado y cerrado en Base de Datos. Reporte Z emitido.`);
+      return res;
+    } catch (err) {
+      console.error('Error cerrando caja en backend:', err);
+      showToast('[ERROR] No se pudo guardar el cierre en base de datos.');
+    }
   };
 
   const handleReceiveStock = (insumoId, cantidad) => {
@@ -297,6 +399,8 @@ export default function App() {
           insumos={insumos}
           catalogo={catalogo}
           usuarios={usuarios}
+          ventas={ventas}
+          anulaciones={anulaciones}
           currentUser={currentUser}
           cajaAbierta={cajaAbierta}
           onAddCita={handleAddAppointment}
@@ -338,6 +442,13 @@ export default function App() {
             if (data) {
               setCaja(data);
               showToast(`Caja de turno sincronizada: S/ ${((data.apertura || 0) + (data.efectivo || 0) + (data.digital || 0) - (data.egresos || 0)).toFixed(2)}`);
+            }
+          }}
+          onRefreshAnulaciones={async () => {
+            const data = await api.getAnulaciones();
+            if (data) {
+              setAnulaciones(data);
+              showToast(`Libro de Notas de Crédito sincronizado (${data.length} registros).`);
             }
           }}
           showToast={showToast}

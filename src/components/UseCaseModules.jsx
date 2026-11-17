@@ -249,14 +249,20 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
 }
 
 // =============================================
-// DS_CU07: Aperturar Turno de Caja
+// DS_CU07: Aperturar Turno de Caja (Persistente con PostgreSQL)
 // =============================================
-export function AperturasCaja({ onApertura, cajaAbierta, showToast }) {
-  const [form, setForm] = useState({ responsable: '', saldo_inicial: '', observaciones: '' });
-  const [aperturaHecha, setAperturaHecha] = useState(cajaAbierta || false);
-  const [aperturaInfo, setAperturaInfo] = useState(null);
+export function AperturasCaja({ onApertura, caja, cajaAbierta, currentUser, showToast }) {
+  const [form, setForm] = useState({ 
+    responsable: currentUser?.nombre || 'Carmen Sánchez García', 
+    turno: 'Turno Mañana',
+    saldo_inicial: '150.00', 
+    observaciones: 'Fondo de sencillo verificado en billetes y monedas' 
+  });
+  const [modoEdicion, setModoEdicion] = useState(false);
 
-  const handleSubmit = (e) => {
+  const cajaEstaAbierta = (caja?.estado === 'Abierta') || cajaAbierta;
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const saldo = parseFloat(form.saldo_inicial);
     if (!form.responsable) { showToast('Ingrese el nombre del responsable de caja.'); return; }
@@ -264,88 +270,184 @@ export function AperturasCaja({ onApertura, cajaAbierta, showToast }) {
     
     const apertura = {
       responsable: form.responsable,
+      turno: form.turno,
       saldo_inicial: saldo,
       observaciones: form.observaciones,
-      hora_apertura: new Date().toLocaleTimeString('es-PE'),
+      hora_apertura: new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }),
       fecha: new Date().toLocaleDateString('es-PE'),
-      numero_turno: `T-${Date.now().toString().slice(-4)}`
+      numero_turno: form.turno === 'Turno Mañana' ? 'T-01' : 'T-02'
     };
-    setAperturaInfo(apertura);
-    setAperturaHecha(true);
-    onApertura(apertura);
-    showToast(`Turno ${apertura.numero_turno} aperturado. Saldo inicial: S/ ${saldo.toFixed(2)}`);
+
+    await onApertura(apertura);
+    setModoEdicion(false);
   };
 
   return (
     <div className="uc-module">
       <div className="uc-module__header">
         <div>
-          <span className="uc-badge">Caja</span>
+          <span className="uc-badge">DS_CU07 · RF07</span>
           <h2 className="uc-module__title">Aperturar Turno de Caja</h2>
-          <p className="uc-module__subtitle">Actor: Cajero · Inicio de operaciones del día</p>
+          <p className="uc-module__subtitle">Actor: Cajero / Administrador · Inicialización de caja y sincronización en PostgreSQL</p>
         </div>
-        {aperturaHecha && (
-          <span className="status-badge status-badge--success">Turno Activo</span>
+        {cajaEstaAbierta && !modoEdicion ? (
+          <span className="status-badge status-badge--success" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#4CAF50', display: 'inline-block' }}></span>
+            Caja Abierta (Operativa)
+          </span>
+        ) : (
+          <span className="status-badge status-badge--warning">
+            Apertura Requerida
+          </span>
         )}
       </div>
 
-      {aperturaHecha && aperturaInfo ? (
-        <div className="apertura-confirmacion">
-          <div className="apertura-confirmacion__icon">OK</div>
-          <h3>Turno de Caja Aperturado</h3>
-          <div className="apertura-info-grid">
-            <div className="apertura-info-item">
-              <span className="apertura-info-label">N° Turno</span>
-              <span className="apertura-info-value">{aperturaInfo.numero_turno}</span>
+      {cajaEstaAbierta && !modoEdicion ? (
+        <div className="apertura-confirmacion" style={{ border: '1px solid #C2E0C6', borderRadius: '12px', padding: '24px', background: '#F8FBF9' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                <span style={{ fontSize: '1.4rem' }}>🟢</span>
+                <h3 style={{ margin: 0, color: '#1B3D2B', fontSize: '1.25rem' }}>Turno de Caja Activo en Base de Datos</h3>
+              </div>
+              <p style={{ margin: 0, color: '#4A5568', fontSize: '0.88rem' }}>
+                Los cobros en efectivo y billeteras digitales se acreditan en tiempo real a este balance.
+              </p>
             </div>
-            <div className="apertura-info-item">
-              <span className="apertura-info-label">Responsable</span>
-              <span className="apertura-info-value">{aperturaInfo.responsable}</span>
+            <button 
+              className="btn-outline" 
+              onClick={() => setModoEdicion(true)}
+              style={{ fontSize: '0.84rem' }}
+            >
+              🔄 Re-Aperturar / Iniciar Nuevo Turno
+            </button>
+          </div>
+
+          <div className="apertura-info-grid" style={{ marginTop: '20px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '14px' }}>
+            <div className="apertura-info-item" style={{ background: '#FFF', padding: '12px 14px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+              <span className="apertura-info-label" style={{ fontSize: '0.74rem', textTransform: 'uppercase', color: '#718096', fontWeight: 600 }}>Turno Fiscal</span>
+              <strong className="apertura-info-value" style={{ display: 'block', fontSize: '1.1rem', color: '#1B3D2B', marginTop: '4px' }}>
+                {caja?.turno || 'Turno Mañana'}
+              </strong>
             </div>
-            <div className="apertura-info-item">
-              <span className="apertura-info-label">Hora de Apertura</span>
-              <span className="apertura-info-value">{aperturaInfo.hora_apertura}</span>
+            <div className="apertura-info-item" style={{ background: '#FFF', padding: '12px 14px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+              <span className="apertura-info-label" style={{ fontSize: '0.74rem', textTransform: 'uppercase', color: '#718096', fontWeight: 600 }}>Fondo de Sencillo</span>
+              <strong className="apertura-info-value" style={{ display: 'block', fontSize: '1.1rem', color: '#B38B28', marginTop: '4px' }}>
+                S/ {(Number(caja?.apertura) || 0).toFixed(2)}
+              </strong>
             </div>
-            <div className="apertura-info-item">
-              <span className="apertura-info-label">Saldo Inicial</span>
-              <span className="apertura-info-value apertura-info-value--gold">
-                S/ {aperturaInfo.saldo_inicial.toFixed(2)}
-              </span>
+            <div className="apertura-info-item" style={{ background: '#FFF', padding: '12px 14px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+              <span className="apertura-info-label" style={{ fontSize: '0.74rem', textTransform: 'uppercase', color: '#718096', fontWeight: 600 }}>Efectivo Mostrador</span>
+              <strong className="apertura-info-value" style={{ display: 'block', fontSize: '1.1rem', color: '#2E7D32', marginTop: '4px' }}>
+                S/ {(Number(caja?.efectivo) || 0).toFixed(2)}
+              </strong>
+            </div>
+            <div className="apertura-info-item" style={{ background: '#FFF', padding: '12px 14px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+              <span className="apertura-info-label" style={{ fontSize: '0.74rem', textTransform: 'uppercase', color: '#718096', fontWeight: 600 }}>Cobros Digitales</span>
+              <strong className="apertura-info-value" style={{ display: 'block', fontSize: '1.1rem', color: '#0277BD', marginTop: '4px' }}>
+                S/ {(Number(caja?.digital) || 0).toFixed(2)}
+              </strong>
+            </div>
+            <div className="apertura-info-item" style={{ background: '#FFF', padding: '12px 14px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+              <span className="apertura-info-label" style={{ fontSize: '0.74rem', textTransform: 'uppercase', color: '#718096', fontWeight: 600 }}>Saldo Teórico Total</span>
+              <strong className="apertura-info-value" style={{ display: 'block', fontSize: '1.25rem', color: '#1B3D2B', marginTop: '4px', fontWeight: 800 }}>
+                S/ {((Number(caja?.apertura) || 0) + (Number(caja?.efectivo) || 0) + (Number(caja?.digital) || 0) - (Number(caja?.egresos) || 0)).toFixed(2)}
+              </strong>
             </div>
           </div>
-          {aperturaInfo.observaciones && (
-            <p className="apertura-obs"><strong>Obs:</strong> {aperturaInfo.observaciones}</p>
-          )}
-          <p className="apertura-nota">
-            La caja está habilitada para procesar cobros y registrar operaciones.
-          </p>
+
+          <div style={{ marginTop: '18px', background: '#E8F5E9', border: '1px solid #C8E6C9', borderRadius: '8px', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '1.2rem' }}>ℹ️</span>
+            <div style={{ fontSize: '0.84rem', color: '#2E7D32' }}>
+              <strong>Sincronización Activa:</strong> El terminal POS y las citas cobradas impactan directamente la tabla <code>caja</code> y <code>caja_movimientos</code> en la base de datos PostgreSQL.
+            </div>
+          </div>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="uc-form" id="form-apertura-caja">
-          <h3 className="uc-form__title">Datos de Apertura</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+            <h3 className="uc-form__title" style={{ margin: 0 }}>Registro Oficial de Apertura de Caja (RF07)</h3>
+            {cajaEstaAbierta && (
+              <button type="button" className="btn-secondary" onClick={() => setModoEdicion(false)}>
+                ← Volver a Resumen de Turno
+              </button>
+            )}
+          </div>
+
           <div className="uc-form__grid">
             <div className="form-field">
-              <label htmlFor="apertura-responsable">Responsable de Caja *</label>
-              <input id="apertura-responsable" value={form.responsable}
-                onChange={e => setForm({...form, responsable: e.target.value})}
-                placeholder="Nombre del cajero responsable" required />
+              <label htmlFor="apertura-turno">Turno Operativo *</label>
+              <select 
+                id="apertura-turno" 
+                value={form.turno}
+                onChange={e => setForm({...form, turno: e.target.value})}
+              >
+                <option value="Turno Mañana">Turno Mañana (08:00 AM - 03:00 PM)</option>
+                <option value="Turno Tarde">Turno Tarde (03:00 PM - 09:00 PM)</option>
+                <option value="Turno Especial">Turno Especial (Sábados / Domingos)</option>
+              </select>
             </div>
+
             <div className="form-field">
-              <label htmlFor="apertura-saldo">Saldo Inicial (S/) *</label>
-              <input id="apertura-saldo" type="number" step="0.01" min="0" value={form.saldo_inicial}
-                onChange={e => setForm({...form, saldo_inicial: e.target.value})}
-                placeholder="Ej: 150.00" required />
+              <label htmlFor="apertura-responsable">Cajero Responsable *</label>
+              <input 
+                id="apertura-responsable" 
+                value={form.responsable}
+                onChange={e => setForm({...form, responsable: e.target.value})}
+                placeholder="Nombre completo del cajero responsable" 
+                required 
+              />
             </div>
-            <div className="form-field" style={{gridColumn:'1/-1'}}>
-              <label htmlFor="apertura-obs">Observaciones</label>
-              <input id="apertura-obs" value={form.observaciones}
+
+            <div className="form-field">
+              <label htmlFor="apertura-saldo">Fondo Inicial de Sencillo (S/) *</label>
+              <input 
+                id="apertura-saldo" 
+                type="number" 
+                step="0.01" 
+                min="0" 
+                value={form.saldo_inicial}
+                onChange={e => setForm({...form, saldo_inicial: e.target.value})}
+                placeholder="Ej: 150.00" 
+                required 
+              />
+              <div style={{ display: 'flex', gap: '6px', marginTop: '6px' }}>
+                {['100.00', '150.00', '200.00', '300.00'].map(val => (
+                  <button
+                    key={val}
+                    type="button"
+                    style={{ fontSize: '0.76rem', padding: '3px 8px', borderRadius: '4px', border: '1px solid #D4AF37', background: form.saldo_inicial === val ? '#1B3D2B' : '#FFF', color: form.saldo_inicial === val ? '#FFF' : '#1B3D2B', cursor: 'pointer' }}
+                    onClick={() => setForm({...form, saldo_inicial: val})}
+                  >
+                    S/ {val}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="form-field" style={{ gridColumn: '1/-1' }}>
+              <label htmlFor="apertura-obs">Observaciones de Entrega de Mostrador</label>
+              <input 
+                id="apertura-obs" 
+                value={form.observaciones}
                 onChange={e => setForm({...form, observaciones: e.target.value})}
-                placeholder="Billetes recibidos, condición de caja, etc." />
+                placeholder="Detalle de billetes/monedas recibidos, terminal POS verificado, etc." 
+              />
             </div>
           </div>
+
+          <div style={{ background: '#FFFDE7', border: '1px solid #FFE082', borderRadius: '8px', padding: '12px 16px', margin: '14px 0', fontSize: '0.84rem', color: '#795548' }}>
+            ⚡ <strong>Impacto Inmediato:</strong> Al registrar la apertura se inicializa el saldo en PostgreSQL, se asienta la apertura en <code>caja_movimientos</code> y se reinician los contadores diarios para garantizar la meta de exactitud del arqueo (OBJ-02).
+          </div>
+
           <div className="uc-form__actions">
+            {cajaEstaAbierta && (
+              <button type="button" className="btn-secondary" onClick={() => setModoEdicion(false)}>
+                Cancelar
+              </button>
+            )}
             <button type="submit" className="btn-gold btn-gold--large" id="btn-aperturar-caja">
-              Aperturar Turno de Caja
+              💾 Aperturar Turno en Base de Datos (RF07)
             </button>
           </div>
         </form>

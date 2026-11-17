@@ -109,6 +109,8 @@ export default function Dashboard({
   insumos, 
   catalogo, 
   usuarios, 
+  ventas = [],
+  anulaciones = [],
   currentUser,
   cajaAbierta,
   onAddCita,
@@ -131,6 +133,7 @@ export default function Dashboard({
   onChangeRole,
   onRefreshClientes,
   onRefreshCaja,
+  onRefreshAnulaciones,
   showToast 
 }) {
   // Resolver configuración de rol
@@ -176,13 +179,57 @@ export default function Dashboard({
   const [posPaymentMethod, setPosPaymentMethod] = useState('Yape/Plin');
   const [cashGiven, setCashGiven] = useState('500.00'); // para cálculo de vuelto
 
-  // Annulment State (RF06)
+  // Annulment State (RF06 - DS_CU09)
   const [annulTicket, setAnnulTicket] = useState('B001-0004820');
   const [annulPin, setAnnulPin] = useState('1234');
   const [annulMotivo, setAnnulMotivo] = useState('Error en digitación de importe');
+  const [annulCliente, setAnnulCliente] = useState('Mariana Torres');
+  const [annulMonto, setAnnulMonto] = useState('280.00');
+  const [annulMedio, setAnnulMedio] = useState('Efectivo');
+  const [annulServicio, setAnnulServicio] = useState('Masaje Relajante Aleida');
   const [annulHistory, setAnnulHistory] = useState([
-    { fecha: '05/10/2026', boleta: 'B001-0004810', nc: 'NC-012', monto: 120.0, motivo: 'Devolución por insatisfacción' }
+    { fecha: '2026-10-06 10:15', boleta: 'B001-0004810', nota_credito: 'NC-012', nc: 'NC-012', monto: 120.0, cliente: 'Rosa Quispe', servicio: 'Manicure Spa', motivo: 'Devolución por insatisfacción', autorizado_por: 'Aleida Mendoza (Gerente General)' }
   ]);
+
+  // Lista unificada de boletas emitidas disponibles para anular
+  const boletasDisponibles = [
+    ...(ventas || []).map(v => ({
+      numero_boleta: v.numero_boleta,
+      cliente: v.cliente,
+      servicio: v.servicio,
+      monto: v.total,
+      medio_pago: v.medio_pago,
+      fecha: v.fecha,
+      estado: v.estado
+    })),
+    ...(salesHistory || []).map(s => ({
+      numero_boleta: s.numero_boleta,
+      cliente: s.cliente,
+      servicio: s.servicio,
+      monto: s.total,
+      medio_pago: s.medio_pago,
+      fecha: s.fecha,
+      estado: 'Emitida'
+    })),
+    {
+      numero_boleta: 'B001-0004820',
+      cliente: 'Mariana Torres',
+      servicio: 'Masaje Relajante Aleida',
+      monto: 280.0,
+      medio_pago: 'Efectivo',
+      fecha: '09:45 AM',
+      estado: 'Emitida'
+    },
+    {
+      numero_boleta: 'B001-0004821',
+      cliente: 'Patricia Valdivia',
+      servicio: 'Facial Rejuvenecedor con Oro',
+      monto: 450.0,
+      medio_pago: 'Yape/Plin',
+      fecha: '11:30 AM',
+      estado: 'Emitida'
+    }
+  ];
 
   // Filtrado reactivo de clientes para el padrón
   const filteredClientes = clientes.filter(cl => {
@@ -244,32 +291,52 @@ export default function Dashboard({
     showToast(`[VENTA] Boleta electrónica emitida con éxito a ${posClient} por S/ ${totalFacturado.toFixed(2)}.`);
   };
 
-  const handleExecuteAnnulment = (e) => {
+  const handleExecuteAnnulment = async (e) => {
     e.preventDefault();
     if (annulPin !== '1234') {
-      showToast('[ERROR] Acceso denegado: PIN de autorización gerencial incorrecto.');
+      showToast('[ERROR] Acceso denegado: PIN de autorización gerencial incorrecto (debe ingresar 1234).');
       return;
     }
+
+    const montoNum = parseFloat(annulMonto) || 0;
+    if (montoNum <= 0) {
+      showToast('[ERROR] El monto a anular debe ser mayor a S/ 0.00.');
+      return;
+    }
+
+    const payload = {
+      boleta: annulTicket,
+      pin: annulPin,
+      motivo: annulMotivo,
+      monto: montoNum,
+      cliente: annulCliente,
+      medio_pago: annulMedio,
+      servicio: annulServicio,
+      autorizado_por: currentUser?.nombre ? `${currentUser.nombre} (${currentUser.rol})` : 'Aleida Mendoza (Gerente General)'
+    };
+
+    const res = await onProcessAnnulment(payload);
+    const ncNumero = res?.anulacion?.nota_credito || `NC-0${(anulaciones?.length || 0) + annulHistory.length + 13}`;
 
     const newNC = {
       fecha: 'Hoy (Ahora)',
       boleta: annulTicket,
-      nota_credito: `NC-0${annulHistory.length + 13}`,
-      nc: `NC-0${annulHistory.length + 13}`,
-      monto: 280.0,
-      cliente: 'Mariana Torres',
-      servicio: 'Servicio revertido por auditoría',
-      motivo: annulMotivo
+      nota_credito: ncNumero,
+      nc: ncNumero,
+      monto: montoNum,
+      cliente: annulCliente,
+      servicio: annulServicio || 'Tratamiento revertido por auditoría',
+      motivo: annulMotivo,
+      medio_pago: annulMedio,
+      autorizado_por: payload.autorizado_por
     };
 
-    setAnnulHistory([newNC, ...annulHistory]);
-    onProcessAnnulment(280.0);
-
+    setAnnulHistory(prev => [newNC, ...prev]);
     setReceiptData(newNC);
     setReceiptType('nota_credito');
     setIsReceiptOpen(true);
 
-    showToast(`[ANULACION] Aprobada por Gerencia. Se emitió ${newNC.nc} para ${annulTicket}.`);
+    showToast(`[ANULACION] Aprobada por Gerencia. Se emitió ${ncNumero} y se reversó S/ ${montoNum.toFixed(2)} en PostgreSQL.`);
   };
 
   const handleOpenClientFile = (cliente) => {
@@ -741,7 +808,13 @@ export default function Dashboard({
         {/* TAB DS_CU07: APERTURAR TURNO DE CAJA */}
         {activeTab === 'apertura' && (
           <section className="admin-tab">
-            <AperturasCaja onApertura={onAperturaCaja} cajaAbierta={cajaAbierta} showToast={showToast} />
+            <AperturasCaja 
+              onApertura={onAperturaCaja} 
+              caja={caja}
+              cajaAbierta={cajaAbierta} 
+              currentUser={currentUser}
+              showToast={showToast} 
+            />
           </section>
         )}
 
@@ -1025,79 +1098,211 @@ export default function Dashboard({
           </section>
         )}
 
-        {/* TAB 4: ANULACIONES */}
+        {/* TAB 4: ANULACIONES (DS_CU09 - RF06) */}
         {activeTab === 'anulaciones' && (
           <section className="admin-tab">
             <div className="tab-header">
               <div>
-                <span className="badge-tag gold">Anulaciones &amp; Devoluciones</span>
+                <span className="badge-tag gold">DS_CU09 · RF06</span>
                 <h3>Gestión de Anulaciones &amp; Emisión de Notas de Crédito</h3>
                 <small style={{ color: 'var(--color-text-muted)' }}>
-                  Requiere motivo obligatorio de anulación, validación estricta de PIN gerencial de auditoría y genera la reversión contable en caja.
+                  Requiere selección de boleta válida, motivo obligatorio, validación estricta de PIN gerencial (1234) y reversión automática en PostgreSQL.
                 </small>
               </div>
+              {onRefreshAnulaciones && (
+                <button 
+                  type="button" 
+                  className="btn-outline" 
+                  onClick={onRefreshAnulaciones}
+                  title="Refrescar notas de crédito desde la base de datos"
+                >
+                  🔄 Sincronizar NC
+                </button>
+              )}
             </div>
+
             <div className="pos-layout">
               <div className="pos-checkout">
-                <h3>Formulario de Anulación Controlada</h3>
+                <h3>Formulario de Anulación Controlada (RF06)</h3>
                 <form onSubmit={handleExecuteAnnulment}>
+                  {/* Selector Rápido de Boletas Emitidas */}
                   <div className="form-group">
-                    <label>Número de Boleta a Anular</label>
-                    <input type="text" value={annulTicket} onChange={(e) => setAnnulTicket(e.target.value)} required />
+                    <label>Seleccionar Boleta Emitida:</label>
+                    <select 
+                      value={annulTicket} 
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setAnnulTicket(val);
+                        const encontrada = boletasDisponibles.find(b => b.numero_boleta === val);
+                        if (encontrada) {
+                          setAnnulCliente(encontrada.cliente || 'Cliente General');
+                          setAnnulMonto((encontrada.monto || 280.0).toString());
+                          setAnnulMedio(encontrada.medio_pago || 'Efectivo');
+                          setAnnulServicio(encontrada.servicio || 'Servicio Spa');
+                          showToast(`Boleta ${val} cargada: S/ ${encontrada.monto} (${encontrada.cliente})`);
+                        }
+                      }}
+                      style={{ fontWeight: 600, color: '#1B3D2B' }}
+                    >
+                      <option value="">-- Seleccione una boleta de la lista --</option>
+                      {boletasDisponibles.map((b, idx) => (
+                        <option key={idx} value={b.numero_boleta}>
+                          {b.numero_boleta} · {b.cliente} · S/ {parseFloat(b.monto || 0).toFixed(2)} ({b.medio_pago})
+                        </option>
+                      ))}
+                    </select>
                   </div>
+
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>N° Boleta a Anular *</label>
+                      <input 
+                        type="text" 
+                        value={annulTicket} 
+                        onChange={(e) => setAnnulTicket(e.target.value)} 
+                        placeholder="B001-0004820"
+                        required 
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Cliente Titular</label>
+                      <input 
+                        type="text" 
+                        value={annulCliente} 
+                        onChange={(e) => setAnnulCliente(e.target.value)} 
+                        required 
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Importe a Devolver (S/) *</label>
+                      <input 
+                        type="number" 
+                        step="0.01" 
+                        value={annulMonto} 
+                        onChange={(e) => setAnnulMonto(e.target.value)} 
+                        required 
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Medio Original de Pago</label>
+                      <select value={annulMedio} onChange={(e) => setAnnulMedio(e.target.value)}>
+                        <option value="Efectivo">Efectivo en Mostrador</option>
+                        <option value="Yape/Plin">Billetera Digital (Yape / Plin)</option>
+                        <option value="Tarjeta POS">Tarjeta Crédito / Débito POS</option>
+                      </select>
+                    </div>
+                  </div>
+
                   <div className="form-group">
-                    <label>Motivo Obligatorio</label>
+                    <label>Motivo Obligatorio de Anulación *</label>
                     <select value={annulMotivo} onChange={(e) => setAnnulMotivo(e.target.value)}>
                       <option value="Error en digitación de importe">Error en digitación de importe</option>
                       <option value="Devolución por insatisfacción con tratamiento">Devolución por insatisfacción con tratamiento</option>
                       <option value="Comprobante duplicado por error de sistema">Comprobante duplicado por error de sistema</option>
+                      <option value="Reacción dérmica / Contraindicación médica">Reacción dérmica / Contraindicación médica</option>
                     </select>
                   </div>
+
                   <div className="form-group">
-                    <label>PIN de Autorización Gerencial (Auditoría)</label>
-                    <input type="password" value={annulPin} onChange={(e) => setAnnulPin(e.target.value)} placeholder="PIN (1234)" required />
+                    <label>
+                      PIN de Autorización Gerencial (Auditoría) * 
+                      <span style={{ color: '#B38B28', fontWeight: 600, marginLeft: '6px' }}>(PIN demo: 1234)</span>
+                    </label>
+                    <input 
+                      type="password" 
+                      value={annulPin} 
+                      onChange={(e) => setAnnulPin(e.target.value)} 
+                      placeholder="1234" 
+                      required 
+                    />
                   </div>
-                  <button type="submit" className="btn-action danger" style={{ width: '100%', padding: '12px' }}>
-                    Autorizar Anulación & Emitir Nota de Crédito
+
+                  {/* Resumen contable de la reversión */}
+                  <div style={{ background: '#FFFDE7', border: '1px solid #FFE082', borderRadius: '8px', padding: '12px', marginBottom: '14px', fontSize: '0.82rem', color: '#795548' }}>
+                    <strong>Impacto Contable:</strong> Al confirmar, se deducirá automáticamente <strong>S/ {parseFloat(annulMonto || 0).toFixed(2)}</strong> del balance de <strong>{annulMedio}</strong> en PostgreSQL y se emitirá la Nota de Crédito correlativa para SUNAT.
+                  </div>
+
+                  <button type="submit" className="btn-action danger" style={{ width: '100%', padding: '12px', fontWeight: 700 }}>
+                    🔒 Autorizar Anulación & Emitir Nota de Crédito (RF06)
                   </button>
                 </form>
               </div>
 
               <div className="pos-register">
-                <h3>Libro de Notas de Crédito Emitidas</h3>
-                <table className="data-table" style={{ fontSize: '0.8rem' }}>
-                  <thead>
-                    <tr>
-                      <th>Fecha</th>
-                      <th>Boleta</th>
-                      <th>Nota Crédito</th>
-                      <th>Monto</th>
-                      <th>Comprobante</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {annulHistory.map((h, i) => (
-                      <tr key={i}>
-                        <td>{h.fecha}</td>
-                        <td>{h.boleta}</td>
-                        <td><span className="tag attended">{h.nc || h.nota_credito}</span></td>
-                        <td>S/ {h.monto.toFixed(2)}</td>
-                        <td>
-                          <button 
-                            className="btn-table"
-                            onClick={() => {
-                              setReceiptData(h);
-                              setReceiptType('nota_credito');
-                              setIsReceiptOpen(true);
-                            }}
-                          >
-                            Ver NC
-                          </button>
-                        </td>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <h3 style={{ margin: 0 }}>Libro de Notas de Crédito</h3>
+                  <span style={{ fontSize: '0.8rem', color: '#666' }}>
+                    {((anulaciones?.length || 0) + annulHistory.length)} registros
+                  </span>
+                </div>
+                <div style={{ maxHeight: '420px', overflowY: 'auto' }}>
+                  <table className="data-table" style={{ fontSize: '0.8rem' }}>
+                    <thead>
+                      <tr>
+                        <th>Fecha</th>
+                        <th>Boleta</th>
+                        <th>Nota Crédito</th>
+                        <th>Cliente</th>
+                        <th>Monto</th>
+                        <th>Acción</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {/* Anulaciones provenientes del backend de PostgreSQL */}
+                      {(anulaciones || []).map((a, i) => (
+                        <tr key={`db-${a.id || i}`}>
+                          <td>{a.fecha ? a.fecha.slice(0, 16) : 'Hoy'}</td>
+                          <td><strong>{a.boleta}</strong></td>
+                          <td><span className="tag attended">{a.nota_credito}</span></td>
+                          <td>{a.cliente || 'Mariana Torres'}</td>
+                          <td style={{ color: '#C53030', fontWeight: 'bold' }}>- S/ {parseFloat(a.monto || 0).toFixed(2)}</td>
+                          <td>
+                            <button 
+                              className="btn-table"
+                              onClick={() => {
+                                setReceiptData({
+                                  ...a,
+                                  servicio: 'Reversión contable por auditoría',
+                                  total: a.monto
+                                });
+                                setReceiptType('nota_credito');
+                                setIsReceiptOpen(true);
+                              }}
+                            >
+                              Ver NC
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+
+                      {/* Anulaciones generadas en la sesión actual */}
+                      {annulHistory.map((h, i) => (
+                        <tr key={`local-${i}`}>
+                          <td>{h.fecha}</td>
+                          <td><strong>{h.boleta}</strong></td>
+                          <td><span className="tag attended">{h.nc || h.nota_credito}</span></td>
+                          <td>{h.cliente || 'Cliente General'}</td>
+                          <td style={{ color: '#C53030', fontWeight: 'bold' }}>- S/ {parseFloat(h.monto || 0).toFixed(2)}</td>
+                          <td>
+                            <button 
+                              className="btn-table"
+                              onClick={() => {
+                                setReceiptData(h);
+                                setReceiptType('nota_credito');
+                                setIsReceiptOpen(true);
+                              }}
+                            >
+                              Ver NC
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </section>
@@ -1114,32 +1319,34 @@ export default function Dashboard({
                   Apertura con fondo de sencillo, registro de salidas justificadas y conciliación física con emisión de Reporte Z.
                 </small>
               </div>
-              <span className="badge-status open"><span className="status-dot"></span> Caja Turno Mañana: Abierta</span>
+              <span className={`badge-status ${caja.estado === 'Abierta' ? 'open' : 'closed'}`}>
+                <span className="status-dot"></span> Caja {caja.turno || 'Turno Mañana'}: {caja.estado || 'Abierta'}
+              </span>
             </div>
             <div className="pos-layout">
               <div className="pos-register">
-                <h3>Balance de Caja de Turno</h3>
+                <h3>Balance Consolidado en PostgreSQL</h3>
                 <div className="register-summary">
                   <div className="reg-row">
                     <span>Fondo de Apertura (Sencillo):</span>
-                    <strong>S/ {caja.apertura.toFixed(2)}</strong>
+                    <strong>S/ {(Number(caja.apertura) || 0).toFixed(2)}</strong>
                   </div>
                   <div className="reg-row">
                     <span>Cobros en Efectivo:</span>
-                    <strong>S/ {caja.efectivo.toFixed(2)}</strong>
+                    <strong>S/ {(Number(caja.efectivo) || 0).toFixed(2)}</strong>
                   </div>
                   <div className="reg-row">
                     <span>Cobros Digitales (Yape / POS):</span>
-                    <strong>S/ {caja.digital.toFixed(2)}</strong>
+                    <strong>S/ {(Number(caja.digital) || 0).toFixed(2)}</strong>
                   </div>
                   <div className="reg-row">
                     <span>Egresos Menores Justificados:</span>
-                    <strong className="neg">- S/ {caja.egresos.toFixed(2)}</strong>
+                    <strong className="neg">- S/ {(Number(caja.egresos) || 0).toFixed(2)}</strong>
                   </div>
                   <hr />
                   <div className="reg-row total">
                     <span>Saldo Teórico en Sistema:</span>
-                    <strong className="pos">S/ {(caja.apertura + caja.efectivo + caja.digital - caja.egresos).toFixed(2)}</strong>
+                    <strong className="pos">S/ {((Number(caja.apertura) || 0) + (Number(caja.efectivo) || 0) + (Number(caja.digital) || 0) - (Number(caja.egresos) || 0)).toFixed(2)}</strong>
                   </div>
                 </div>
 
@@ -1172,13 +1379,23 @@ export default function Dashboard({
                   </p>
                 </div>
                 <div style={{ fontSize: '0.84rem', color: 'var(--color-text-muted)' }}>
-                  <strong>Últimos Movimientos del Turno:</strong>
-                  <ul style={{ paddingLeft: '18px', marginTop: '6px', lineHeight: '1.8' }}>
-                    <li>Apertura con sencillo: S/ 150.00</li>
-                    <li>Cobro Boleta B001-4820: +S/ 280.00 (Efectivo)</li>
-                    <li>Cobro Boleta B001-4821: +S/ 450.00 (Yape)</li>
-                    <li>Salida menor por refrigerio: -S/ 45.00</li>
-                  </ul>
+                  <strong>Movimientos Oficiales Registrados (caja_movimientos):</strong>
+                  <div style={{ maxHeight: '180px', overflowY: 'auto', marginTop: '6px', paddingRight: '4px' }}>
+                    {(caja.movimientos && caja.movimientos.length > 0) ? (
+                      <ul style={{ paddingLeft: '18px', margin: 0, lineHeight: '1.7' }}>
+                        {caja.movimientos.slice(-6).reverse().map((m, i) => (
+                          <li key={i}>
+                            <strong>{m.hora}</strong> · <span style={{ color: m.tipo === 'Egreso' || m.tipo === 'Reversión' ? '#C53030' : '#2E7D32', fontWeight: 600 }}>[{m.tipo}]</span> {m.detalle} (S/ {Math.abs(Number(m.monto || 0)).toFixed(2)})
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <ul style={{ paddingLeft: '18px', margin: 0, lineHeight: '1.7' }}>
+                        <li>Apertura con sencillo: S/ {(Number(caja.apertura) || 150).toFixed(2)}</li>
+                        <li>Cobros activos en turno</li>
+                      </ul>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -1391,10 +1608,12 @@ export default function Dashboard({
       <CashAuditModal 
         isOpen={isCashAuditOpen}
         onClose={() => setIsCashAuditOpen(false)}
-        saldoTeorico={caja.apertura + caja.efectivo + caja.digital - caja.egresos}
-        onConfirmCierre={(totalFisico, dif) => {
-          onCloseCaja(totalFisico);
-          showToast(`[CAJA] Arqueo completado. Saldo físico S/ ${totalFisico.toFixed(2)}. Reporte Z generado.`);
+        saldoTeorico={((Number(caja.apertura) || 0) + (Number(caja.efectivo) || 0) + (Number(caja.digital) || 0) - (Number(caja.egresos) || 0))}
+        caja={caja}
+        currentUser={currentUser}
+        onConfirmCierre={async (totalFisico, dif, resp) => {
+          const res = await onCloseCaja(totalFisico, dif, resp);
+          return res;
         }}
       />
 
