@@ -67,9 +67,13 @@ export const api = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(citaData)
       });
-      if (res.ok) return await res.json();
+      const data = await res.json();
+      if (res.ok) return data;
+      // El backend retorno error (ej. conflicto de horario) — propagar el mensaje
+      return { success: false, error: data.error || 'Error al registrar la cita.', sugerencia: data.sugerencia || '' };
     } catch (_) {}
-    return { cita: { id: Date.now(), ...citaData } };
+    // Error de red: crear localmente como fallback (sin conflicto detectado)
+    return { success: true, cita: { id: Date.now(), ...citaData } };
   },
 
   async getVentas() {

@@ -111,6 +111,8 @@ export default function BookingPage({
   const [aromatherapy, setAromatherapy] = useState('Lavanda Francesa (Relajante)');
   const [ticketCode, setTicketCode] = useState('');
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
+  const [conflictError, setConflictError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (preselectedService) {
@@ -217,26 +219,28 @@ export default function BookingPage({
     ? services 
     : services.filter(s => s.categoria === categoryFilter);
 
-  const handleConfirmReservation = (e) => {
+  const handleConfirmReservation = async (e) => {
     e.preventDefault();
     if (!clientName.trim() || !clientPhone.trim()) {
       alert('Por favor complete su nombre y número de WhatsApp.');
       return;
     }
 
+    setConflictError('');
+    setIsSubmitting(true);
+
     const assignedTherapist = selectedTherapist.nombre.includes('Cualquier') 
       ? 'Carmen Sánchez' 
       : selectedTherapist.nombre;
 
     const code = 'ALE-' + Math.floor(10000 + Math.random() * 90000);
-    setTicketCode(code);
 
     const fullNotes = [
       aromatherapy ? `Aromaterapia: ${aromatherapy}` : null,
       clientNotes ? `Observaciones: ${clientNotes}` : null
     ].filter(Boolean).join(' | ') || 'Sin notas especiales';
 
-    onAddAppointment({
+    const result = await onAddAppointment({
       cliente: clientName,
       dni: clientDni || 'Canal Web',
       telefono: clientPhone,
@@ -251,9 +255,19 @@ export default function BookingPage({
       codigoReserva: code
     });
 
+    setIsSubmitting(false);
+
+    if (result && result.success === false) {
+      const msg = result.error || 'El horario solicitado no está disponible.';
+      const sug = result.sugerencia ? ` ${result.sugerencia}` : '';
+      setConflictError(msg + sug);
+      return;
+    }
+
+    setTicketCode(code);
     setBookingConfirmed(true);
     if (showToast) {
-      showToast(`¡Reserva confirmada #${code}! Te esperamos el ${selectedDate} a las ${selectedTime}.`);
+      showToast(`Reserva confirmada #${code}! Te esperamos el ${selectedDate} a las ${selectedTime}.`);
     }
   };
 
@@ -265,6 +279,7 @@ export default function BookingPage({
     setClientDni('');
     setClientPhone('');
     setClientNotes('');
+    setConflictError('');
   };
 
   const handlePrintVoucher = () => {
@@ -1123,10 +1138,30 @@ export default function BookingPage({
                           </div>
 
                           <div className="luxury-wizard-footer">
+                            {conflictError && (
+                              <div style={{
+                                background: '#fff3f3',
+                                border: '2px solid #d9534f',
+                                borderRadius: '8px',
+                                padding: '12px 16px',
+                                marginBottom: '12px',
+                                color: '#a02020',
+                                fontWeight: 600,
+                                fontSize: '0.95rem',
+                                lineHeight: 1.5,
+                                width: '100%'
+                              }}>
+                                <div style={{ marginBottom: 4, fontSize: '1rem' }}>Horario No Disponible</div>
+                                <div style={{ fontWeight: 400 }}>{conflictError}</div>
+                                <div style={{ marginTop: 8, fontWeight: 400, color: '#555' }}>
+                                  Por favor regrese al paso anterior y seleccione otro horario o especialista.
+                                </div>
+                              </div>
+                            )}
                             <button 
                               id="btn-back-step-4"
                               className="btn-luxury-action outline" 
-                              onClick={() => setCurrentStep(4)}
+                              onClick={() => { setCurrentStep(4); setConflictError(''); }}
                             >
                               ← Anterior: Modificar Datos
                             </button>
@@ -1134,8 +1169,9 @@ export default function BookingPage({
                               id="btn-confirm-reservation-final"
                               className="btn-luxury-action success-glow" 
                               onClick={handleConfirmReservation}
+                              disabled={isSubmitting}
                             >
-                              Confirmar Reserva Oficial
+                              {isSubmitting ? 'Verificando disponibilidad...' : 'Confirmar Reserva Oficial'}
                             </button>
                           </div>
                         </div>

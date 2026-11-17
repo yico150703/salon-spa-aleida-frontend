@@ -88,11 +88,15 @@ export default function App() {
     setClientes(clientes.map(cl => cl.dni === updatedClient.dni ? updatedClient : cl));
   };
 
-  // DS_CU04: Agendar cita
+  // DS_CU04: Agendar cita — retorna el resultado del API para que BookingPage muestre conflictos
   const handleAddAppointment = async (newCita) => {
-    const citaWithId = { id: citas.length + 1, ...newCita };
+    const result = await api.createCita(newCita);
+    if (result && result.success === false) {
+      // Conflicto detectado — NO agregar localmente, retornar el error
+      return result;
+    }
+    const citaWithId = result?.cita || { id: Date.now(), ...newCita };
     setCitas(prev => [citaWithId, ...prev]);
-    await api.createCita(newCita);
     // Sincronizar citas y clientes actualizados desde la base de datos
     const [citasActualizadas, clientesActualizados] = await Promise.all([
       api.getCitas(),
@@ -100,6 +104,7 @@ export default function App() {
     ]);
     if (citasActualizadas && citasActualizadas.length) setCitas(citasActualizadas);
     if (clientesActualizados && clientesActualizados.length) setClientes(clientesActualizados);
+    return { success: true };
   };
 
   // DS_CU05: Reprogramar cita
