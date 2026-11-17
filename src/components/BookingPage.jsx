@@ -103,7 +103,7 @@ export default function BookingPage({
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedTime, setSelectedTime] = useState('10:30 AM');
 
-  // Intake Form (DS_CU03 & RF01)
+  // Intake Form State
   const [clientDni, setClientDni] = useState('');
   const [clientName, setClientName] = useState('');
   const [clientPhone, setClientPhone] = useState('');
@@ -202,7 +202,7 @@ export default function BookingPage({
 
   const timeSlots = ['09:00 AM', '10:30 AM', '11:45 AM', '02:30 PM', '04:30 PM', '06:00 PM'];
 
-  // Validar si el slot está ocupado por la especialista seleccionada (RF02)
+  // Validar si el slot está ocupado por la especialista seleccionada
   const isSlotOccupied = (slot) => {
     if (selectedTherapist.nombre.includes('Cualquier')) return false;
     return existingCitas.some(c => 
@@ -293,8 +293,8 @@ export default function BookingPage({
       `*Fecha:* ${selectedDate}\n` +
       `*Hora:* ${selectedTime}\n` +
       `*Total a Cancelar:* S/ ${selectedService.precio.toFixed(2)}\n\n` +
-      `*Dirección:* Av. Circunvalación del Golf 340, Santiago de Surco (Lima)\n` +
-      `_Por favor presentarse con 10 minutos de anticipación para su aromaterapia de cortesía._`;
+      `*Dirección:* Av. Circunvalación del Golf 340, Santiago de Surco (Lima)\n\n` +
+      `*IMPORTANTE - TOLERANCIA ESTRICTA:* Su cita cuenta con un máximo de 10 minutos de tolerancia. Pasado este tiempo, el sistema liberará automáticamente la cabina y la cosmiatra para clientas en espera. Por favor presentarse con 10 minutos de anticipación.`;
 
     if (targetPhone) {
       return `https://wa.me/${targetPhone}?text=${encodeURIComponent(message)}`;
@@ -819,6 +819,44 @@ export default function BookingPage({
                         ></textarea>
                       </div>
 
+                      {/* Aviso Destacado: Regla de los 10 Minutos de Tolerancia */}
+                      <div style={{
+                        background: '#F4F8F5',
+                        border: '2px solid #2E5D43',
+                        borderRadius: '10px',
+                        padding: '14px 18px',
+                        marginTop: '16px',
+                        marginBottom: '16px',
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '12px'
+                      }}>
+                        <div style={{ 
+                          background: '#2E5D43', 
+                          color: '#FFFFFF', 
+                          borderRadius: '50%', 
+                          width: '24px', 
+                          height: '24px', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center', 
+                          fontWeight: 'bold', 
+                          fontSize: '0.85rem', 
+                          flexShrink: 0,
+                          marginTop: '2px'
+                        }}>
+                          !
+                        </div>
+                        <div>
+                          <strong style={{ color: '#1B3D2B', fontSize: '0.9rem', display: 'block', marginBottom: '4px' }}>
+                            POLÍTICA OFICIAL DE ASISTENCIA Y LIBERACIÓN DE CABINA (10 MINUTOS)
+                          </strong>
+                          <p style={{ margin: 0, fontSize: '0.82rem', color: '#2C3E50', lineHeight: '1.45' }}>
+                            Para garantizar la puntualidad de todos nuestros tratamientos, <strong>su cita cuenta con una tolerancia máxima estricta de 10 minutos</strong>. Si transcurrido este lapso no se ha registrado su ingreso en la recepción del salón, <strong>el sistema liberará automáticamente la cabina y la especialista</strong> para asignar el turno a las clientas en sala de espera.
+                          </p>
+                        </div>
+                      </div>
+
                       <div className="luxury-privacy-box">
                         <LockIcon size={16} color="#C8A26A" />
                         <div>
@@ -848,7 +886,7 @@ export default function BookingPage({
                   </div>
                 )}
 
-                {/* STEP 5: SUMMARY & CONFIRMATION (DS_CU04 & VOUCHER) */}
+                {/* STEP 5: SUMMARY & CONFIRMATION & VOUCHER */}
                 {currentStep === 5 && (
                   <div className="wizard-step-body animate-fade-in">
                     {bookingConfirmed ? (
@@ -958,8 +996,8 @@ export default function BookingPage({
                             <div className="policy-title">POLÍTICAS Y NORMAS DE ATENCIÓN EN SALA:</div>
                             <ol className="policy-list">
                               <li><strong>Puntualidad:</strong> Se solicita presentarse con 10 minutos de anticipación en recepción para su registro y bebida de cortesía.</li>
-                              <li><strong>Tolerancia:</strong> Se contempla una tolerancia de 10 minutos para salvaguardar el tiempo de la siguiente clienta.</li>
-                              <li><strong>Reprogramaciones:</strong> Podrá reprogramar su cita sin penalidad avisando con al menos 24 horas de anticipación.</li>
+                              <li><strong>Tolerancia Estricta de 10 Minutos:</strong> Si la clienta no ingresa dentro de los 10 minutos de tolerancia de su horario fijado, el sistema liberará automáticamente la cabina y la especialista para reasignar el turno a clientas en sala de espera.</li>
+                              <li><strong>Reprogramaciones:</strong> Podrá reprogramar su cita sin recargo avisando con al menos 2 horas de anticipación.</li>
                               <li><strong>Protección de Datos:</strong> Información tratada conforme a la Ley N° 29733 de Protección de Datos Personales.</li>
                             </ol>
                           </div>
@@ -1067,11 +1105,20 @@ export default function BookingPage({
                             </div>
                           </div>
 
-                          {/* Cancellation Policy Box */}
-                          <div className="luxury-policy-box">
-                            <strong>Política de Puntualidad y Reprogramación:</strong>
-                            <p>
-                              Agradecemos presentarse con 10 minutos de anticipación. Podrá reprogramar o cancelar su cita comunicándose con recepción con un mínimo de 2 horas de anticipación sin ningún recargo.
+                          {/* Cancellation Policy Box & Cabin Release */}
+                          <div className="luxury-policy-box" style={{
+                            background: '#FBF8F2',
+                            border: '1.5px solid #C8A26A',
+                            borderRadius: '8px',
+                            padding: '12px 14px',
+                            marginTop: '14px',
+                            textAlign: 'left'
+                          }}>
+                            <strong style={{ color: '#8F5310', display: 'block', marginBottom: '4px', fontSize: '0.86rem' }}>
+                              Regla Oficial de Asistencia y Liberación Rápida de Cabina (10 Minutos):
+                            </strong>
+                            <p style={{ margin: 0, fontSize: '0.82rem', color: '#4A3B2C', lineHeight: '1.45' }}>
+                              Agradecemos presentarse con 10 minutos de anticipación. Para garantizar la disponibilidad del salón y el tiempo de las especialistas, <strong>su reserva cuenta con un margen de tolerancia estricta de 10 minutos</strong>. Si transcurrido ese tiempo no se registra en recepción, el sistema liberará automáticamente la cabina para reasignar el turno a clientas en espera.
                             </p>
                           </div>
 
@@ -1152,7 +1199,7 @@ export default function BookingPage({
                       </div>
                       <div className="sidebar-perk-item">
                         <CheckIcon size={13} color="#4A7C59" />
-                        <span>Cancelación flexible hasta 2h antes</span>
+                        <span>Tolerancia de 10 min (liberación de cabina)</span>
                       </div>
                     </div>
 
@@ -1161,7 +1208,7 @@ export default function BookingPage({
                         <span>Total Estimado:</span>
                         <span className="sidebar-grand-total">S/ {selectedService.precio.toFixed(2)}</span>
                       </div>
-                      <small className="sidebar-igv-note">IGV incluido · Cancelación en recepción</small>
+                      <small className="sidebar-igv-note">IGV incluido · Cancelación en recepción · Tolerancia 10m</small>
                     </div>
                   </div>
                 </div>
