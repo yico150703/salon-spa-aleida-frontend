@@ -1,11 +1,24 @@
 /**
- * SALON SPA ALEIDA - API CLIENT SERVICE
- * Conecta con el backend Flask desplegado en Render (o localhost)
+ * =============================================================================
+ * SALON SPA ALEIDA - SERVICIO CLIENTE API (REST API CLIENT)
+ * ÁREA DELIMITADA: Área de Recepción y Atención al Cliente
+ * Mapeo Oficial con los 10 Casos de Uso del Sistema (CUS):
+ *   - CUS01: Autenticar Usuario
+ *   - CUS02: Registrar Personal
+ *   - CUS03: Registrar Cliente
+ *   - CUS04: Agendar Cita
+ *   - CUS05: Reprogramar Cita
+ *   - CUS06: Consultar Catálogo de Servicios y Productos
+ *   - CUS07: Aperturar Turno de Caja
+ *   - CUS08: Procesar Venta y Cobro
+ *   - CUS09: Anular Venta con Nota de Crédito
+ *   - CUS10: Arqueo y Cierre de Caja
+ * =============================================================================
  */
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-// Fallback datos locales si el backend aún no está encendido o en cold start
+// Estado Mock inicial para contingencia / modo offline de mostrador
 export const initialMockState = {
   citas: [
     { id: 1, hora: '09:00 AM', fecha: '2026-10-06', cliente: 'Mariana Torres', dni: '72819382', servicio: 'Masaje Relajante Aleida', especialista: 'Carmen Sánchez', estado: 'Atendida', monto: 280, cobrado: true },
@@ -25,123 +38,58 @@ export const initialMockState = {
     egresos: 45.0,
     total_teorico: 2405.0
   },
-  insumos: [
-    { id: 1, nombre: 'Tinte Profesional 6.1 (Cenizo)', proveedor: "L'Oréal Professionnel Perú", stock: 2, stock_min: 6, alerta: true },
-    { id: 2, nombre: 'Crema Nutritiva Keratina 1L', proveedor: 'Distribuidora Belleza Total SAC', stock: 1, stock_min: 4, alerta: true },
-    { id: 3, nombre: 'Aceite de Argán Puro 250ml', proveedor: 'BioCosmetics Natura', stock: 8, stock_min: 3, alerta: false }
-  ],
   catalogo: [
-    { id: 1, nombre: 'Masaje Relajante Aleida', categoria: 'Spa & Bienestar', duracion: 90, precio: 280.0, comision: 25 },
-    { id: 2, nombre: 'Facial Rejuvenecedor con Oro', categoria: 'Cosmiatría Facial', duracion: 75, precio: 450.0, comision: 30 },
-    { id: 3, nombre: 'Tratamiento Capilar Keratina', categoria: 'Cuidado Capilar', duracion: 120, precio: 350.0, comision: 30 },
-    { id: 4, nombre: 'Manicura Spa Premium', categoria: 'Manos & Pies', duracion: 60, precio: 150.0, comision: 35 }
+    { id: 1, nombre: 'Masaje Relajante Aleida', categoria: 'Spa & Bienestar', duracion: 90, precio: 280.0, comision: 25, cabina: 'Cabina 02 - Masajes & Cromoterapia' },
+    { id: 2, nombre: 'Facial Rejuvenecedor con Oro', categoria: 'Cosmiatría Facial', duracion: 75, precio: 450.0, comision: 30, cabina: 'Cabina 01 - Facial Oro & Luz LED' },
+    { id: 3, nombre: 'Tratamiento Capilar Keratina', categoria: 'Cuidado Capilar', duracion: 120, precio: 350.0, comision: 30, cabina: 'Cabina 03 - Capilar & Lavacabezas' },
+    { id: 4, nombre: 'Manicura Spa Premium', categoria: 'Manos & Pies', duracion: 60, precio: 150.0, comision: 35, cabina: 'Cabina 04 - Manos & Pies Spa' },
+    { id: 5, nombre: 'Limpieza Facial Profunda', categoria: 'Cosmiatría Facial', duracion: 60, precio: 220.0, comision: 25, cabina: 'Cabina 01 - Facial Oro & Luz LED' },
+    { id: 6, nombre: 'Drenaje Linfático Manual', categoria: 'Spa & Bienestar', duracion: 60, precio: 260.0, comision: 25, cabina: 'Cabina 02 - Masajes & Cromoterapia' }
   ],
   usuarios: [
-    { usuario: 'cramos', nombre: 'Camila Ramos', rol: 'Recepcionista', permisos: 'Agenda de Citas, Padrón Clientes, Terminal POS' },
-    { usuario: 'aleida_admin', nombre: 'Aleida Mendoza', rol: 'Gerente General', permisos: 'Acceso Total (Todos los Módulos)' },
-    { usuario: 'csanchez', nombre: 'Carmen Sánchez', rol: 'Terapeuta / Cosmiatra', permisos: 'Agenda y Fichas Clínicas' }
-  ],
-  reportes: {
-    objetivos_smart: [
-      { codigo: 'Meta 1', nombre: 'Puntualidad en Citas', meta: '≥ 88%', actual: '88.5%', detalle: '35% menos inasistencias' },
-      { codigo: 'Meta 2', nombre: 'Cuadre de Caja', meta: '≥ 98%', actual: '98.2%', detalle: '90% menos descuadres' },
-      { codigo: 'Meta 3', nombre: 'Disponibilidad Insumos', meta: '≥ 95%', actual: '96.5%', detalle: '80% menos quiebres' },
-      { codigo: 'Meta 4', nombre: 'Fidelización Clientes', meta: '≥ 70%', actual: '74.0%', detalle: '+25% retorno <45d' }
-    ]
-  }
+    { usuario: 'cramos', nombre: 'Camila Ramos', rol: 'Recepcionista', permisos: 'Agenda de Citas, Padrón Clientes, Terminal POS, Caja' },
+    { usuario: 'csanchez', nombre: 'Carmen Sánchez', rol: 'Cajero', permisos: 'Cobranzas, Arqueo de Caja, Notas de Crédito' },
+    { usuario: 'admin', nombre: 'Aleida Mendoza', rol: 'Administrador', permisos: 'Acceso Total al Área de Recepción y Parámetros' }
+  ]
 };
 
 export const api = {
-  async getCitas() {
+  // CUS01: Autenticar Usuario
+  async login(credenciales) {
     try {
-      const res = await fetch(`${API_BASE}/citas`);
-      if (res.ok) return await res.json();
-    } catch (_) {}
-    return initialMockState.citas;
-  },
-
-  async createCita(citaData) {
-    try {
-      const res = await fetch(`${API_BASE}/citas`, {
+      const res = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(citaData)
-      });
-      const data = await res.json();
-      if (res.ok) return data;
-      // El backend retorno error (ej. conflicto de horario) — propagar el mensaje
-      return { success: false, error: data.error || 'Error al registrar la cita.', sugerencia: data.sugerencia || '' };
-    } catch (_) {}
-    // Error de red: crear localmente como fallback (sin conflicto detectado)
-    return { success: true, cita: { id: Date.now(), ...citaData } };
-  },
-
-  async getVentas() {
-    try {
-      const res = await fetch(`${API_BASE}/ventas`);
-      if (res.ok) return await res.json();
-    } catch (_) {}
-    return [];
-  },
-
-  async processVenta(ventaData) {
-    try {
-      const res = await fetch(`${API_BASE}/ventas`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(ventaData)
-      });
-      if (res.ok) return await res.json();
-    } catch (_) {}
-    return { success: true, message: 'Venta procesada localmente' };
-  },
-
-  async getAnulaciones() {
-    try {
-      const res = await fetch(`${API_BASE}/anulaciones`);
-      if (res.ok) return await res.json();
-    } catch (_) {}
-    return [
-      { id: 1, fecha: 'Hoy', boleta: 'B001-0004810', nota_credito: 'NC-012', monto: 120.0, motivo: 'Devolución por insatisfacción', autorizado_por: 'Aleida Mendoza (Gerente General)' }
-    ];
-  },
-
-  async processAnulacion(anulacionData) {
-    try {
-      const res = await fetch(`${API_BASE}/anulaciones`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(anulacionData)
+        body: JSON.stringify(credenciales)
       });
       return await res.json();
-    } catch (_) {}
-    return { success: true, message: 'Anulación procesada con Nota de Crédito' };
+    } catch (_) {
+      return { success: false, error: 'Servidor no disponible' };
+    }
   },
 
-  async aperturarCaja(aperturaData) {
+  // CUS02: Personal del Área
+  async getPersonal() {
     try {
-      const res = await fetch(`${API_BASE}/caja/apertura`, {
+      const res = await fetch(`${API_BASE}/personal`);
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return initialMockState.usuarios;
+  },
+
+  async createPersonal(personalData) {
+    try {
+      const res = await fetch(`${API_BASE}/personal`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(aperturaData)
+        body: JSON.stringify(personalData)
       });
       if (res.ok) return await res.json();
     } catch (_) {}
-    return { success: true, message: 'Apertura registrada localmente' };
+    return { success: true, personal: personalData };
   },
 
-  async cerrarCaja(cierreData) {
-    try {
-      const res = await fetch(`${API_BASE}/caja/cierre`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(cierreData)
-      });
-      if (res.ok) return await res.json();
-    } catch (_) {}
-    return { success: true, message: 'Arqueo y cierre procesado localmente' };
-  },
-
+  // CUS03: Registrar y Consultar Clientes
   async getClientes() {
     try {
       const res = await fetch(`${API_BASE}/clientes`);
@@ -165,6 +113,66 @@ export const api = {
     return { success: true, cliente: clienteData };
   },
 
+  // CUS04: Agendar Cita
+  async getCitas() {
+    try {
+      const res = await fetch(`${API_BASE}/citas`);
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return initialMockState.citas;
+  },
+
+  async createCita(citaData) {
+    try {
+      const res = await fetch(`${API_BASE}/citas`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(citaData)
+      });
+      const data = await res.json();
+      if (res.ok) return data;
+      return { success: false, error: data.error || 'Error al registrar la cita.', sugerencia: data.sugerencia || '' };
+    } catch (_) {}
+    return { success: true, cita: { id: Date.now(), ...citaData } };
+  },
+
+  // CUS05: Reprogramar Cita y Control de Estados
+  async updateCitaEstado(citaId, nuevoEstado, motivo = null) {
+    try {
+      const body = { estado: nuevoEstado };
+      if (motivo) body.motivo = motivo;
+      const res = await fetch(`${API_BASE}/citas/${citaId}/estado`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return { success: false };
+  },
+
+  async reprogramarCita(citaId, nuevaFecha, nuevaHora) {
+    try {
+      const res = await fetch(`${API_BASE}/citas/${citaId}/reprogramar`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nueva_fecha: nuevaFecha, nueva_hora: nuevaHora })
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return { success: false };
+  },
+
+  // CUS06: Consultar Catálogo de Servicios y Productos
+  async getCatalogo() {
+    try {
+      const res = await fetch(`${API_BASE}/catalogo`);
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return initialMockState.catalogo;
+  },
+
+  // CUS07: Aperturar Turno de Caja
   async getCaja() {
     try {
       const res = await fetch(`${API_BASE}/caja`);
@@ -189,31 +197,72 @@ export const api = {
     return initialMockState.caja;
   },
 
-  // Actualiza el estado de una cita en PostgreSQL via el backend Flask
-  async updateCitaEstado(citaId, nuevoEstado, motivo = null) {
+  async aperturarCaja(aperturaData) {
     try {
-      const body = { estado: nuevoEstado };
-      if (motivo) body.motivo = motivo;   // el backend espera 'motivo', no 'motivo_cancelacion'
-      const res = await fetch(`${API_BASE}/citas/${citaId}/estado`, {
-        method: 'PUT',
+      const res = await fetch(`${API_BASE}/caja/apertura`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
+        body: JSON.stringify(aperturaData)
       });
       if (res.ok) return await res.json();
     } catch (_) {}
-    return { success: false };
+    return { success: true, message: 'Apertura registrada localmente' };
   },
 
-  // Reprograma fecha/hora de una cita en PostgreSQL
-  async reprogramarCita(citaId, nuevaFecha, nuevaHora) {
+  // CUS08: Procesar Venta y Cobro
+  async getVentas() {
     try {
-      const res = await fetch(`${API_BASE}/citas/${citaId}/reprogramar`, {
-        method: 'PUT',
+      const res = await fetch(`${API_BASE}/ventas`);
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return [];
+  },
+
+  async processVenta(ventaData) {
+    try {
+      const res = await fetch(`${API_BASE}/ventas`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nueva_fecha: nuevaFecha, nueva_hora: nuevaHora })
+        body: JSON.stringify(ventaData)
       });
       if (res.ok) return await res.json();
     } catch (_) {}
-    return { success: false };
+    return { success: true, message: 'Venta procesada localmente' };
+  },
+
+  // CUS09: Anular Venta con Nota de Crédito
+  async getAnulaciones() {
+    try {
+      const res = await fetch(`${API_BASE}/anulaciones`);
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return [
+      { id: 1, fecha: 'Hoy', boleta: 'B001-0004810', nota_credito: 'NC-012', monto: 120.0, motivo: 'Devolución por insatisfacción', autorizado_por: 'Aleida Mendoza (Gerente General)' }
+    ];
+  },
+
+  async processAnulacion(anulacionData) {
+    try {
+      const res = await fetch(`${API_BASE}/anulaciones`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(anulacionData)
+      });
+      return await res.json();
+    } catch (_) {}
+    return { success: true, message: 'Anulación procesada con Nota de Crédito' };
+  },
+
+  // CUS10: Arqueo y Cierre de Caja
+  async cerrarCaja(cierreData) {
+    try {
+      const res = await fetch(`${API_BASE}/caja/cierre`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cierreData)
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return { success: true, message: 'Arqueo y cierre procesado localmente' };
   }
 };

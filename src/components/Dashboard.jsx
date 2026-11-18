@@ -15,35 +15,33 @@ const ROLE_PERMISSIONS = {
   Administrador: {
     nombre: 'Administrador',
     badgeText: 'Administrador',
-    badgeFull: 'Administrador · Control Total',
+    badgeFull: 'Administrador · Control General',
     badgeClass: 'rol-admin',
-    descripcion: 'Control total del sistema de gestión, personal, finanzas y configuración.',
+    descripcion: 'Supervisión integral de los 10 Casos de Uso del Área de Recepción y Atención al Cliente.',
     defaultTab: 'agenda',
     sections: [
       {
-        label: 'Clientes & Citas',
+        label: '1. Citas & Clientes',
         tabs: [
-          { id: 'clientes', label: 'Registrar Cliente', icon: UsersIcon },
-          { id: 'agenda', label: 'Agendar Cita', icon: CalendarIcon },
-          { id: 'reprogramar', label: 'Reprogramar Cita', icon: CalendarIcon }
+          { id: 'agenda', label: 'CUS04 · Agendar Cita', icon: CalendarIcon },
+          { id: 'clientes', label: 'CUS03 · Registrar Cliente', icon: UsersIcon },
+          { id: 'reprogramar', label: 'CUS05 · Reprogramar Cita', icon: CalendarIcon }
         ]
       },
       {
-        label: 'Caja & Ventas',
+        label: '2. Caja & Mostrador',
         tabs: [
-          { id: 'apertura', label: 'Aperturar Caja', icon: LockIcon },
-          { id: 'caja', label: 'Procesar Venta', icon: CreditCardIcon },
-          { id: 'anulaciones', label: 'Anular Venta', icon: SlashIcon },
-          { id: 'operaciones-caja', label: 'Arqueo & Cierre', icon: ChartIcon }
+          { id: 'apertura', label: 'CUS07 · Aperturar Caja', icon: LockIcon },
+          { id: 'caja', label: 'CUS08 · Procesar Venta / Cobro', icon: CreditCardIcon },
+          { id: 'anulaciones', label: 'CUS09 · Anular Venta (NC)', icon: SlashIcon },
+          { id: 'operaciones-caja', label: 'CUS10 · Arqueo & Cierre', icon: ChartIcon }
         ]
       },
       {
-        label: 'Administración & Estrategia',
+        label: '3. Catálogo & Personal',
         tabs: [
-          { id: 'personal', label: 'Registrar Personal', icon: UserIcon },
-          { id: 'catalogo', label: 'Catálogo Servicios', icon: TagIcon },
-          { id: 'compras', label: 'Compras & Insumos', icon: BoxIcon },
-          { id: 'reportes', label: 'Reportes & Metas', icon: ShieldIcon }
+          { id: 'catalogo', label: 'CUS06 · Consultar Catálogo', icon: TagIcon },
+          { id: 'personal', label: 'CUS02 · Registrar Personal', icon: UserIcon }
         ]
       }
     ]
@@ -52,23 +50,33 @@ const ROLE_PERMISSIONS = {
   Recepcionista: {
     nombre: 'Recepcionista',
     badgeText: 'Recepcionista',
-    badgeFull: 'Recepción & Atención al Cliente',
+    badgeFull: 'Área de Recepción y Atención al Cliente',
     badgeClass: 'rol-recepcion',
-    descripcion: 'Gestión de pacientes, agendamiento en mostrador, reprogramaciones y consulta de catálogo.',
+    descripcion: 'Atención directa en mostrador, agendamiento de citas, consulta de catálogo y cobranza de tratamientos.',
     defaultTab: 'agenda',
     sections: [
       {
-        label: 'Clientes & Citas (Recepción)',
+        label: 'Citas & Clientes',
         tabs: [
-          { id: 'agenda', label: 'Agenda & Citas del Día', icon: CalendarIcon },
-          { id: 'clientes', label: 'Registrar & Ver Clientes', icon: UsersIcon },
-          { id: 'reprogramar', label: 'Reprogramar Citas', icon: CalendarIcon }
+          { id: 'agenda', label: 'CUS04 · Agendar Cita', icon: CalendarIcon },
+          { id: 'clientes', label: 'CUS03 · Registrar Cliente', icon: UsersIcon },
+          { id: 'reprogramar', label: 'CUS05 · Reprogramar Cita', icon: CalendarIcon }
         ]
       },
       {
-        label: 'Consultas de Servicios',
+        label: 'Caja & Mostrador',
         tabs: [
-          { id: 'catalogo', label: 'Catálogo & Tarifario', icon: TagIcon }
+          { id: 'caja', label: 'CUS08 · Procesar Venta / Cobro', icon: CreditCardIcon },
+          { id: 'apertura', label: 'CUS07 · Aperturar Turno', icon: LockIcon },
+          { id: 'anulaciones', label: 'CUS09 · Anular Venta (NC)', icon: SlashIcon },
+          { id: 'operaciones-caja', label: 'CUS10 · Arqueo de Caja', icon: ChartIcon }
+        ]
+      },
+      {
+        label: 'Catálogo & Personal',
+        tabs: [
+          { id: 'catalogo', label: 'CUS06 · Consultar Catálogo', icon: TagIcon },
+          { id: 'personal', label: 'CUS02 · Personal / Terapeutas', icon: UserIcon }
         ]
       }
     ]
@@ -77,25 +85,26 @@ const ROLE_PERMISSIONS = {
   Cajero: {
     nombre: 'Cajero',
     badgeText: 'Cajero',
-    badgeFull: 'Caja & Facturación Oficial',
+    badgeFull: 'Caja & Mostrador de Recepción',
     badgeClass: 'rol-cajero',
     descripcion: 'Cobranzas en mostrador, emisión de boletas, notas de crédito autorizadas y arqueo de caja.',
     defaultTab: 'caja',
     sections: [
       {
-        label: 'Operaciones de Caja (Cajero)',
+        label: 'Operaciones de Caja',
         tabs: [
-          { id: 'caja', label: 'Terminal POS & Cobros', icon: CreditCardIcon },
-          { id: 'apertura', label: 'Aperturar Turno', icon: LockIcon },
-          { id: 'anulaciones', label: 'Notas de Crédito', icon: SlashIcon },
-          { id: 'operaciones-caja', label: 'Arqueo & Cierre', icon: ChartIcon }
+          { id: 'apertura', label: 'CUS07 · Aperturar Turno', icon: LockIcon },
+          { id: 'caja', label: 'CUS08 · Procesar Venta', icon: CreditCardIcon },
+          { id: 'anulaciones', label: 'CUS09 · Anular Venta (NC)', icon: SlashIcon },
+          { id: 'operaciones-caja', label: 'CUS10 · Arqueo & Cierre', icon: ChartIcon }
         ]
       },
       {
-        label: 'Apoyo a Cobranzas',
+        label: 'Consultas de Mostrador',
         tabs: [
-          { id: 'agenda', label: 'Citas por Cobrar', icon: CalendarIcon },
-          { id: 'clientes', label: 'Buscar Cliente / DNI', icon: UsersIcon }
+          { id: 'agenda', label: 'CUS04 · Citas por Cobrar', icon: CalendarIcon },
+          { id: 'clientes', label: 'CUS03 · Buscar Cliente', icon: UsersIcon },
+          { id: 'catalogo', label: 'CUS06 · Consultar Tarifario', icon: TagIcon }
         ]
       }
     ]
@@ -826,7 +835,12 @@ export default function Dashboard({
       <aside className="admin-sidebar">
         <div className="sidebar-brand">
           <span className="brand-badge">SPA</span>
-          <span>Salon Spa Aleida</span>
+          <div>
+            <span style={{ fontWeight: 700, fontSize: '1rem', display: 'block' }}>Salon Spa Aleida</span>
+            <span style={{ fontSize: '0.70rem', color: '#D4AF37', letterSpacing: '0.5px', textTransform: 'uppercase', fontWeight: 600 }}>
+              Área de Recepción
+            </span>
+          </div>
         </div>
 
         {/* Menú de Navegación según Rol */}

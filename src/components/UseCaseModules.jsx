@@ -1,16 +1,17 @@
 /**
- * DS_CU02 - Registrar Personal
- * Actor: Administrador
- * DS_CU06 - Registrar Servicio en Catálogo  
- * Actor: Administrador
- * DS_CU07 - Aperturar Turno de Caja
- * Actor: Cajero
+ * =============================================================================
+ * SALON SPA ALEIDA - MÓDULOS DE CASOS DE USO DEL SISTEMA (CUS)
+ * ÁREA DELIMITADA: Área de Recepción y Atención al Cliente
+ *   - CUS02: Registrar Personal (Recepción y Especialistas)
+ *   - CUS06: Consultar Catálogo de Servicios y Productos
+ *   - CUS07: Aperturar Turno de Caja
+ * =============================================================================
  */
 
 import React, { useState } from 'react';
 
 // =============================================
-// DS_CU02: Formulario Registrar Personal
+// CUS02: Formulario Registrar Personal
 // =============================================
 export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
   const [form, setForm] = useState({
@@ -153,15 +154,17 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
 }
 
 // =============================================
-// DS_CU06: Formulario Registrar Servicio en Catálogo
+// CUS06: Consultar Catálogo de Servicios y Productos
 // =============================================
 export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
   const [form, setForm] = useState({
-    nombre: '', categoria: 'Spa & Bienestar', duracion: 60, precio: '', comision: 25, descripcion: ''
+    nombre: '', categoria: 'Spa & Bienestar', duracion: 60, precio: '', comision: 25, descripcion: '', cabina: 'Cabina 01 - Facial Oro & Luz LED'
   });
   const [mode, setMode] = useState('list');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCat, setSelectedCat] = useState('Todas');
 
-  const CATEGORIAS = ['Spa & Bienestar', 'Cosmiatría Facial', 'Cuidado Capilar', 'Manos & Pies', 'Masajes', 'Tratamientos Corporales'];
+  const CATEGORIAS = ['Todas', 'Spa & Bienestar', 'Cosmiatría Facial', 'Cuidado Capilar', 'Manos & Pies', 'Masajes', 'Tratamientos Corporales'];
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -171,26 +174,33 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
     }
     onAddServicio({ ...form, id: Date.now(), precio: parseFloat(form.precio) });
     showToast(`Servicio "${form.nombre}" registrado en catálogo.`);
-    setForm({ nombre: '', categoria: 'Spa & Bienestar', duracion: 60, precio: '', comision: 25, descripcion: '' });
+    setForm({ nombre: '', categoria: 'Spa & Bienestar', duracion: 60, precio: '', comision: 25, descripcion: '', cabina: 'Cabina 01 - Facial Oro & Luz LED' });
     setMode('list');
   };
+
+  const filteredCatalogo = (catalogo || []).filter(s => {
+    const matchesSearch = s.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          (s.categoria && s.categoria.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesCat = selectedCat === 'Todas' || s.categoria === selectedCat;
+    return matchesSearch && matchesCat;
+  });
 
   return (
     <div className="uc-module">
       <div className="uc-module__header">
         <div>
-          <span className="uc-badge">Catálogo</span>
-          <h2 className="uc-module__title">Registrar Servicio en Catálogo</h2>
-          <p className="uc-module__subtitle">Tarifario oficial y servicios del salón spa</p>
+          <span className="uc-badge">CUS06 · Área de Recepción</span>
+          <h2 className="uc-module__title">Consultar Catálogo de Servicios y Productos</h2>
+          <p className="uc-module__subtitle">Tarifario oficial, duración, cabinas asignadas y disponibilidad para mostrador</p>
         </div>
         <button id="btn-nuevo-servicio" className="btn-gold" onClick={() => setMode(mode === 'form' ? 'list' : 'form')}>
-          {mode === 'form' ? '← Ver Catálogo' : '+ Nuevo Servicio'}
+          {mode === 'form' ? '← Ver Catálogo de Consulta' : '+ Agregar Servicio al Catálogo'}
         </button>
       </div>
 
       {mode === 'form' && (
         <form onSubmit={handleSubmit} className="uc-form" id="form-registrar-servicio">
-          <h3 className="uc-form__title">Ficha de Servicio</h3>
+          <h3 className="uc-form__title">Ficha Técnica de Servicio</h3>
           <div className="uc-form__grid">
             <div className="form-field" style={{gridColumn:'1/-1'}}>
               <label htmlFor="servicio-nombre">Nombre del Servicio *</label>
@@ -202,7 +212,7 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
               <label htmlFor="servicio-categoria">Categoría *</label>
               <select id="servicio-categoria" value={form.categoria}
                 onChange={e => setForm({...form, categoria: e.target.value})}>
-                {CATEGORIAS.map(c => <option key={c}>{c}</option>)}
+                {CATEGORIAS.filter(c => c !== 'Todas').map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div className="form-field">
@@ -211,45 +221,89 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
                 onChange={e => setForm({...form, duracion: parseInt(e.target.value)})} />
             </div>
             <div className="form-field">
-              <label htmlFor="servicio-precio">Precio (S/) *</label>
+              <label htmlFor="servicio-precio">Precio al Público (S/) *</label>
               <input id="servicio-precio" type="number" step="0.01" min="0" value={form.precio}
                 onChange={e => setForm({...form, precio: e.target.value})}
                 placeholder="0.00" required />
             </div>
             <div className="form-field">
-              <label htmlFor="servicio-comision">Comisión Terapeuta (%)</label>
-              <input id="servicio-comision" type="number" min="0" max="50" value={form.comision}
-                onChange={e => setForm({...form, comision: parseInt(e.target.value)})} />
+              <label htmlFor="servicio-cabina">Cabina Sugerida</label>
+              <input id="servicio-cabina" value={form.cabina}
+                onChange={e => setForm({...form, cabina: e.target.value})}
+                placeholder="Cabina 01, 02, etc." />
             </div>
           </div>
           <div className="uc-form__actions">
             <button type="button" className="btn-secondary" onClick={() => setMode('list')}>Cancelar</button>
-            <button type="submit" className="btn-gold" id="btn-guardar-servicio">Registrar Servicio</button>
+            <button type="submit" className="btn-gold" id="btn-guardar-servicio">Guardar en Catálogo</button>
           </div>
         </form>
       )}
 
       {mode === 'list' && (
-        <div className="catalogo-grid" id="grid-catalogo">
-          {(catalogo || []).map((s, i) => (
-            <div key={i} className="catalogo-card">
-              <div className="catalogo-card__cat">{s.categoria}</div>
-              <h4 className="catalogo-card__name">{s.nombre}</h4>
-              <div className="catalogo-card__details">
-                <span>{s.duracion} min</span>
-                <span>S/ {parseFloat(s.precio).toFixed(2)}</span>
-                <span>{s.comision}% comisión</span>
-              </div>
+        <>
+          {/* Barra de Filtro y Búsqueda Rápida para Recepción */}
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <input
+              type="text"
+              placeholder="Buscar servicio o tratamiento por nombre..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              style={{
+                flex: 1, minWidth: '240px', padding: '10px 14px', borderRadius: '8px',
+                border: '1px solid #D1D5DB', fontSize: '0.92rem'
+              }}
+            />
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              {CATEGORIAS.map(cat => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setSelectedCat(cat)}
+                  style={{
+                    padding: '6px 12px', borderRadius: '20px', fontSize: '0.8rem', cursor: 'pointer',
+                    border: selectedCat === cat ? '1px solid #1B3D2B' : '1px solid #E5E7EB',
+                    background: selectedCat === cat ? '#1B3D2B' : '#FFF',
+                    color: selectedCat === cat ? '#FFF' : '#374151',
+                    fontWeight: selectedCat === cat ? 600 : 400
+                  }}
+                >
+                  {cat}
+                </button>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+
+          <div className="catalogo-grid" id="grid-catalogo">
+            {filteredCatalogo.map((s, i) => (
+              <div key={i} className="catalogo-card" style={{ borderTop: '3px solid #D4AF37' }}>
+                <div className="catalogo-card__cat">{s.categoria || 'Tratamiento Spa'}</div>
+                <h4 className="catalogo-card__name">{s.nombre}</h4>
+                <div style={{ fontSize: '0.78rem', color: '#6B7280', margin: '4px 0 8px 0' }}>
+                  {s.cabina || 'Cabina Especializada'}
+                </div>
+                <div className="catalogo-card__details">
+                  <span>⏱ {s.duracion} min</span>
+                  <span style={{ fontWeight: 700, color: '#1B3D2B', fontSize: '1.05rem' }}>
+                    S/ {parseFloat(s.precio).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            ))}
+            {filteredCatalogo.length === 0 && (
+              <p style={{ gridColumn: '1/-1', textAlign: 'center', color: '#6B7280', padding: '30px' }}>
+                No se encontraron servicios que coincidan con la búsqueda.
+              </p>
+            )}
+          </div>
+        </>
       )}
     </div>
   );
 }
 
 // =============================================
-// DS_CU07: Aperturar Turno de Caja (Persistente con PostgreSQL)
+// CUS07: Aperturar Turno de Caja (Persistente con PostgreSQL)
 // =============================================
 export function AperturasCaja({ onApertura, caja, cajaAbierta, currentUser, showToast }) {
   const [form, setForm] = useState({ 

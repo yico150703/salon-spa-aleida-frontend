@@ -7,7 +7,7 @@ export default function LayerInspectorModal({ isOpen, onClose, currentAction = '
 
   const scenarios = {
     agendar_cita: {
-      title: 'Flujo 1: Agendamiento de Cita en Tiempo Real (CU01 / RF02)',
+      title: 'Flujo 1: Agendamiento de Cita en Mostrador (CUS04 / CUN-01)',
       actor: 'Cliente o Recepcionista',
       layer1: {
         nombre: 'Capa 1: Presentación (Frontend React SPA)',
@@ -31,7 +31,7 @@ export default function LayerInspectorModal({ isOpen, onClose, currentAction = '
       }
     },
     cobro_venta: {
-      title: 'Flujo 2: Registro de Venta y Cobro en Caja (CU03 / RF04, RF05)',
+      title: 'Flujo 2: Registro de Venta y Cobro en Mostrador (CUS08 / CUN-02)',
       actor: 'Cajero o Recepcionista',
       layer1: {
         nombre: 'Capa 1: Presentación (Frontend React SPA)',
@@ -55,8 +55,8 @@ export default function LayerInspectorModal({ isOpen, onClose, currentAction = '
       }
     },
     arqueo_caja: {
-      title: 'Flujo 3: Operaciones de Caja y Arqueo de Fin de Turno (CU05 / RF08)',
-      actor: 'Cajero',
+      title: 'Flujo 3: Operaciones de Caja y Arqueo de Fin de Turno (CUS10 / CUN-03)',
+      actor: 'Cajero / Recepcionista',
       layer1: {
         nombre: 'Capa 1: Presentación (Frontend React SPA)',
         componente: 'CashAuditModal.jsx (Calculadora de Arqueo Físico)',

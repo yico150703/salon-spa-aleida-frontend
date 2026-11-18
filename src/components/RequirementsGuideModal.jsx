@@ -5,88 +5,74 @@ export default function RequirementsGuideModal({ isOpen, onClose, onSelectTab })
 
   const requirements = [
     {
-      code: 'RF01',
-      title: 'Padrón de Clientes & Ficha de Historial Clínico',
+      code: 'CUS01',
+      title: 'Autenticar Usuario en el Mostrador',
+      tab: 'personal',
+      prioridad: 'Alta',
+      desc: 'El sistema valida las credenciales y el turno del personal asignado al Área de Recepción y Caja.'
+    },
+    {
+      code: 'CUS02',
+      title: 'Registrar Personal & Especialistas',
+      tab: 'personal',
+      prioridad: 'Media',
+      desc: 'El sistema gestiona el padrón de terapeutas, cosmiatras y recepcionistas para la disponibilidad de agenda.'
+    },
+    {
+      code: 'CUS03',
+      title: 'Registrar y Consultar Clientes',
       tab: 'clientes',
       prioridad: 'Alta',
-      desc: 'El sistema debe permitir registrar, actualizar y consultar clientes junto con su historial de citas, atenciones y condiciones dérmicas/capilares.'
+      desc: 'El sistema permite registrar nuevos clientes con DNI, teléfono y consultar su historial o ficha estética.'
     },
     {
-      code: 'RF02',
-      title: 'Agendamiento de Citas con Validación en Tiempo Real',
+      code: 'CUS04',
+      title: 'Agendar Cita en Mostrador',
       tab: 'agenda',
       prioridad: 'Alta',
-      desc: 'El sistema debe permitir agendar citas validando en tiempo real la disponibilidad de fecha, horario y especialista, evitando choques de sillón.'
+      desc: 'La recepcionista reserva citas validando en tiempo real la disponibilidad de cabina, horario y especialista.'
     },
     {
-      code: 'RF03',
-      title: 'Reprogramación, Cancelación y Control de Estados',
-      tab: 'agenda',
+      code: 'CUS05',
+      title: 'Reprogramar Cita y Control de Estados',
+      tab: 'reprogramar',
       prioridad: 'Alta',
-      desc: 'El sistema debe permitir reprogramar, cancelar y actualizar el estado de las citas (Confirmada, En Atención, Atendida, No Asistió).'
+      desc: 'Permite actualizar fecha y hora de citas previas o cambiar el estado (Confirmada, En Atención, Cancelada).'
     },
     {
-      code: 'RF04',
-      title: 'Registro de Ventas, Subtotales, Descuentos e IGV',
+      code: 'CUS06',
+      title: 'Consultar Catálogo de Servicios y Tarifario',
+      tab: 'catalogo',
+      prioridad: 'Alta',
+      desc: 'Permite a la recepcionista consultar la duración, tarifa base, cabinas sugeridas y promociones vigentes.'
+    },
+    {
+      code: 'CUS07',
+      title: 'Aperturar Turno de Caja',
+      tab: 'apertura',
+      prioridad: 'Alta',
+      desc: 'La recepcionista/cajera inicializa el fondo fijo de sencillo en mostrador para habilitar las transacciones del turno.'
+    },
+    {
+      code: 'CUS08',
+      title: 'Procesar Venta y Cobro en Mostrador',
       tab: 'caja',
       prioridad: 'Alta',
-      desc: 'El sistema debe permitir registrar la venta de servicios y productos, calculando montos, subtotales, descuentos promocionales y desglose del IGV (18%).'
+      desc: 'Liquida servicios prestados o productos vendidos con cálculo de IGV (18%), cobro multicanal y emisión de boleta.'
     },
     {
-      code: 'RF05',
-      title: 'Cobro Multicanal & Emisión de Boleta Electrónica',
-      tab: 'caja',
-      prioridad: 'Alta',
-      desc: 'El sistema debe procesar el cobro en múltiples formas de pago (efectivo con cálculo de vuelto, POS y billetera digital Yape/Plin) y emitir comprobante.'
-    },
-    {
-      code: 'RF06',
-      title: 'Anulación Controlada de Venta & Notas de Crédito',
+      code: 'CUS09',
+      title: 'Anular Venta con Nota de Crédito',
       tab: 'anulaciones',
       prioridad: 'Alta',
-      desc: 'El sistema debe permitir anular ventas registradas, exigiendo motivo obligatorio, validando PIN de Gerencia y emitiendo Nota de Crédito con reversión en caja.'
+      desc: 'Permite reversar una venta con motivo sustentado y emisión de Nota de Crédito autorizada.'
     },
     {
-      code: 'RF07',
-      title: 'Apertura de Caja & Registro de Egresos Menores',
+      code: 'CUS10',
+      title: 'Arqueo Físico y Cierre de Caja',
       tab: 'operaciones-caja',
       prioridad: 'Alta',
-      desc: 'El sistema debe gestionar la apertura de caja diaria con fondo inicial de sencillo y registrar ingresos y egresos menores con justificación.'
-    },
-    {
-      code: 'RF08',
-      title: 'Arqueo Físico vs. Sistema & Cierre con Reporte Z',
-      tab: 'operaciones-caja',
-      prioridad: 'Alta',
-      desc: 'El sistema debe realizar el arqueo y cierre de caja comparando el efectivo físico contado contra el saldo del sistema para conciliar diferencias.'
-    },
-    {
-      code: 'RF09',
-      title: 'Gestión de Proveedores & Órdenes de Compra',
-      tab: 'compras',
-      prioridad: 'Media',
-      desc: 'El sistema debe permitir gestionar proveedores y registrar compras de productos e insumos, actualizando las existencias en inventario.'
-    },
-    {
-      code: 'RF10',
-      title: 'Catálogo de Servicios, Tarifas & Alertas de Stock',
-      tab: 'catalogo',
-      prioridad: 'Media',
-      desc: 'El sistema debe administrar el catálogo de servicios (precios, duración, comisión) y productos con alerta de stock de reposición.'
-    },
-    {
-      code: 'RF11',
-      title: 'Administración de Usuarios, Roles & Permisos',
-      tab: 'usuarios',
-      prioridad: 'Media',
-      desc: 'El sistema debe gestionar las cuentas de usuario del personal, controlando credenciales, roles y permisos de acceso según perfil de puesto.'
-    },
-    {
-      code: 'RF12',
-      title: 'Reportes Gerenciales & Objetivos Realistas SMART',
-      tab: 'reportes',
-      prioridad: 'Media',
-      desc: 'El sistema debe generar reportes estadísticos consolidados (ventas, citas, balance y compras) y seguimiento de los 4 objetivos con porcentajes.'
+      desc: 'Compara el efectivo físico contado frente al saldo del sistema para conciliar diferencias y emitir Reporte Z.'
     }
   ];
 
@@ -95,8 +81,8 @@ export default function RequirementsGuideModal({ isOpen, onClose, onSelectTab })
       <div className="modal-content large" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div>
-            <span className="badge-tag gold">TABLA 12 DEL INFORME TÉCNICO</span>
-            <h2>Matriz Didáctica de Requerimientos Funcionales (RF01 - RF12)</h2>
+            <span className="badge-tag gold">ÁREA DE RECEPCIÓN Y ATENCIÓN AL CLIENTE</span>
+            <h2>Matriz de Casos de Uso del Sistema (CUS01 - CUS10)</h2>
           </div>
           <button className="btn-close" onClick={onClose}>&times;</button>
         </div>
