@@ -2237,17 +2237,21 @@ export default function Dashboard({
         citaEditando={editingAppt}
         existingCitas={citas}
         catalogo={catalogo}
-        onSaveCita={(newCita) => {
-          onAddCita(newCita);
+        clientes={clientes}
+        onSaveCita={async (newCita) => {
+          const res = await onAddCita(newCita);
           showToast(`Cita agendada para ${newCita.cliente} con ${newCita.especialista}.`);
+          return res;
         }}
-        onReprogramCita={(id, nFecha, nHora) => {
-          onReprogramCita(id, nFecha, nHora);
+        onReprogramCita={async (id, nFecha, nHora) => {
+          const res = await onReprogramCita(id, nFecha, nHora);
           showToast(`Cita reprogramada para ${nFecha} a las ${nHora}.`);
+          return res;
         }}
-        onCancelCita={(id, motivo) => {
-          onCancelCita(id, motivo);
+        onCancelCita={async (id, motivo) => {
+          const res = await onCancelCita(id, motivo);
           showToast(`Cita cancelada con motivo: ${motivo}`);
+          return res;
         }}
       />
 
@@ -2257,7 +2261,7 @@ export default function Dashboard({
         onClose={() => setIsClientRegisterModalOpen(false)}
         onAddClient={onAddClient}
         onSelectForBooking={(cl) => {
-          setEditingAppt({ cliente: cl.nombre, dni: cl.dni });
+          setEditingAppt({ cliente: cl.nombre, dni: cl.dni, telefono: cl.telefono, preferencias: cl.preferencias });
           setIsApptModalOpen(true);
         }}
         onSelectForPOS={(cl) => {
