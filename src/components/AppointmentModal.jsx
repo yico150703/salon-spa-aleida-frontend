@@ -19,11 +19,11 @@ function VoucherQRCode({ code }) {
         {/* Top-Left Finder */}
         <rect x="8" y="8" width="28" height="28" rx="4" stroke="#1B3D2B" strokeWidth="4" fill="none" />
         <rect x="16" y="16" width="12" height="12" rx="2" fill="#1B3D2B" />
-        
+
         {/* Top-Right Finder */}
         <rect x="64" y="8" width="28" height="28" rx="4" stroke="#1B3D2B" strokeWidth="4" fill="none" />
         <rect x="72" y="16" width="12" height="12" rx="2" fill="#1B3D2B" />
-        
+
         {/* Bottom-Left Finder */}
         <rect x="8" y="64" width="28" height="28" rx="4" stroke="#1B3D2B" strokeWidth="4" fill="none" />
         <rect x="16" y="72" width="12" height="12" rx="2" fill="#1B3D2B" />
@@ -65,16 +65,16 @@ function VoucherQRCode({ code }) {
   );
 }
 
-export default function AppointmentModal({ 
-  isOpen, 
-  onClose, 
-  citaEditando = null, 
+export default function AppointmentModal({
+  isOpen,
+  onClose,
+  citaEditando = null,
   existingCitas = [],
   catalogo = [],
   clientes = [],
-  onSaveCita, 
-  onReprogramCita, 
-  onCancelCita 
+  onSaveCita,
+  onReprogramCita,
+  onCancelCita
 }) {
   if (!isOpen) return null;
 
@@ -82,7 +82,7 @@ export default function AppointmentModal({
   const isExistingCita = Boolean(citaEditando && citaEditando.id && (citaEditando.estado || citaEditando.fecha));
 
   const [mode, setMode] = useState(isExistingCita ? 'reprogramar' : 'crear');
-  
+
   // Datos del Cliente
   const [dni, setDni] = useState('');
   const [cliente, setCliente] = useState('');
@@ -95,7 +95,7 @@ export default function AppointmentModal({
   const [especialista, setEspecialista] = useState('Carmen Sánchez');
   const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
   const [hora, setHora] = useState('09:00 AM');
-  
+
   // Preferencias y Personalización
   const [aromaterapia, setAromaterapia] = useState('Lavanda Francesa (Relajante)');
   const [notas, setNotas] = useState('');
@@ -341,7 +341,7 @@ export default function AppointmentModal({
       targetPhone = raw.startsWith('51') ? raw : `51${raw}`;
     }
 
-    const message = 
+    const message =
       `*SALON SPA ALEIDA S.A.C.* · Voucher Oficial de Cita\n\n` +
       `Estimada/o *${confirmedVoucher.cliente}*: Su cita ha sido registrada con éxito en mostrador:\n\n` +
       `*Código de Reserva:* #${confirmedVoucher.codigo}\n` +
@@ -363,8 +363,8 @@ export default function AppointmentModal({
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div 
-        className="modal-content" 
+      <div
+        className="modal-content"
         onClick={(e) => e.stopPropagation()}
         style={{ maxWidth: confirmedVoucher ? '760px' : '680px', maxHeight: '92vh', overflowY: 'auto' }}
       >
@@ -372,17 +372,17 @@ export default function AppointmentModal({
         <div className="modal-header">
           <div>
             <span className="badge-tag gold">
-              {mode === 'crear' 
-                ? 'Gestión de Citas - Atención en Mostrador' 
+              {mode === 'crear'
+                ? 'Gestión de Citas - Atención en Mostrador'
                 : 'Reprogramar o Cancelar Cita'}
             </span>
             <h2 style={{ fontSize: '1.28rem', marginTop: '4px' }}>
-              {confirmedVoucher 
+              {confirmedVoucher
                 ? 'Voucher de Confirmación Emitido'
-                : mode === 'crear' 
-                  ? 'Formulario de Registro de Cita' 
-                  : mode === 'reprogramar' 
-                    ? `Reprogramar Cita: ${cliente}` 
+                : mode === 'crear'
+                  ? 'Formulario de Registro de Cita'
+                  : mode === 'reprogramar'
+                    ? `Reprogramar Cita: ${cliente}`
                     : `Cancelar Cita: ${cliente}`}
             </h2>
           </div>
@@ -392,15 +392,15 @@ export default function AppointmentModal({
         {/* Pestañas de Reprogramar / Cancelar en modo edición */}
         {isExistingCita && !confirmedVoucher && (
           <div className="filter-buttons" style={{ padding: '0 24px', marginTop: '12px' }}>
-            <button 
-              type="button" 
+            <button
+              type="button"
               className={`btn-pill ${mode === 'reprogramar' ? 'active' : ''}`}
               onClick={() => setMode('reprogramar')}
             >
               Opción A: Reprogramar Cita
             </button>
-            <button 
-              type="button" 
+            <button
+              type="button"
               className={`btn-pill ${mode === 'cancelar' ? 'active' : ''}`}
               onClick={() => setMode('cancelar')}
             >
@@ -544,24 +544,24 @@ export default function AppointmentModal({
 
             {/* Acciones del Voucher */}
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '16px' }}>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="btn-outline"
                 onClick={handlePrintVoucher}
               >
                 🖨️ Imprimir Voucher
               </button>
-              <a 
-                href={getWhatsAppShareUrl()} 
-                target="_blank" 
-                rel="noopener noreferrer" 
+              <a
+                href={getWhatsAppShareUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="btn-action primary"
                 style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
               >
                 💬 Enviar por WhatsApp
               </a>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="btn-action gold"
                 onClick={onClose}
               >
@@ -575,13 +575,13 @@ export default function AppointmentModal({
             <div className="modal-body" style={{ padding: '20px 24px' }}>
               {mode === 'cancelar' ? (
                 <div className="form-group">
-                  <div style={{ 
-                    background: '#FFF3E0', 
-                    border: '1px solid #FFE0B2', 
-                    padding: '12px 14px', 
-                    borderRadius: '8px', 
-                    marginBottom: '14px', 
-                    fontSize: '0.88rem', 
+                  <div style={{
+                    background: '#FFF3E0',
+                    border: '1px solid #FFE0B2',
+                    padding: '12px 14px',
+                    borderRadius: '8px',
+                    marginBottom: '14px',
+                    fontSize: '0.88rem',
                     color: '#E65100',
                     lineHeight: '1.45'
                   }}>
@@ -590,8 +590,8 @@ export default function AppointmentModal({
                   <label style={{ fontWeight: 600, color: '#1B3D2B', marginBottom: '6px', display: 'block' }}>
                     Motivo Justificado de Cancelación <span style={{ color: '#C53030' }}>*</span>
                   </label>
-                  <textarea 
-                    rows="3" 
+                  <textarea
+                    rows="3"
                     value={motivoCancelacion}
                     onChange={(e) => setMotivoCancelacion(e.target.value)}
                     placeholder="Ej: Inasistencia por motivos de salud / Solicitud expresa del cliente..."
@@ -602,12 +602,12 @@ export default function AppointmentModal({
               ) : (
                 <>
                   {/* SECCIÓN 1: DATOS DEL CLIENTE CON VALIDACIÓN DNI */}
-                  <div style={{ 
-                    background: '#F8FAF8', 
-                    border: '1px solid #D8E6DC', 
-                    borderRadius: '10px', 
-                    padding: '14px 16px', 
-                    marginBottom: '16px' 
+                  <div style={{
+                    background: '#F8FAF8',
+                    border: '1px solid #D8E6DC',
+                    borderRadius: '10px',
+                    padding: '14px 16px',
+                    marginBottom: '16px'
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                       <span style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', color: '#1B3D2B', letterSpacing: '0.04em' }}>
@@ -625,13 +625,13 @@ export default function AppointmentModal({
                         <label style={{ fontWeight: 600, fontSize: '0.85rem' }}>
                           DNI del Cliente (8 dígitos) <span style={{ color: '#C53030' }}>*</span>
                         </label>
-                        <input 
-                          type="text" 
-                          value={dni} 
-                          onChange={(e) => handleDniChange(e.target.value)} 
-                          placeholder="Ej. 72819382" 
+                        <input
+                          type="text"
+                          value={dni}
+                          onChange={(e) => handleDniChange(e.target.value)}
+                          placeholder="Ej. 72819382"
                           maxLength={8}
-                          required 
+                          required
                           disabled={isExistingCita}
                           style={{ fontWeight: 700, letterSpacing: '0.05em' }}
                         />
@@ -644,12 +644,12 @@ export default function AppointmentModal({
                         <label style={{ fontWeight: 600, fontSize: '0.85rem' }}>
                           Teléfono / WhatsApp <span style={{ color: '#C53030' }}>*</span>
                         </label>
-                        <input 
-                          type="tel" 
-                          value={telefono} 
-                          onChange={(e) => setTelefono(e.target.value)} 
-                          placeholder="Ej. 987 654 321" 
-                          required 
+                        <input
+                          type="tel"
+                          value={telefono}
+                          onChange={(e) => setTelefono(e.target.value)}
+                          placeholder="Ej. 987 654 321"
+                          required
                           disabled={isExistingCita}
                         />
                       </div>
@@ -659,24 +659,24 @@ export default function AppointmentModal({
                       <label style={{ fontWeight: 600, fontSize: '0.85rem' }}>
                         Nombre y Apellidos Completos <span style={{ color: '#C53030' }}>*</span>
                       </label>
-                      <input 
-                        type="text" 
-                        value={cliente} 
-                        onChange={(e) => setCliente(e.target.value)} 
-                        placeholder="Ej. Valeria Carranza Morales" 
-                        required 
+                      <input
+                        type="text"
+                        value={cliente}
+                        onChange={(e) => setCliente(e.target.value)}
+                        placeholder="Ej. Valeria Carranza Morales"
+                        required
                         disabled={isExistingCita}
                       />
                     </div>
                   </div>
 
                   {/* SECCIÓN 2: SERVICIO, CABINA Y ESPECIALISTA */}
-                  <div style={{ 
-                    background: '#FFFFFF', 
-                    border: '1px solid #E2E8F0', 
-                    borderRadius: '10px', 
-                    padding: '14px 16px', 
-                    marginBottom: '16px' 
+                  <div style={{
+                    background: '#FFFFFF',
+                    border: '1px solid #E2E8F0',
+                    borderRadius: '10px',
+                    padding: '14px 16px',
+                    marginBottom: '16px'
                   }}>
                     <span style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', color: '#1B3D2B', letterSpacing: '0.04em', display: 'block', marginBottom: '10px' }}>
                       2. Tratamiento y Asignación de Recursos
@@ -684,9 +684,9 @@ export default function AppointmentModal({
 
                     <div className="form-group">
                       <label style={{ fontWeight: 600, fontSize: '0.85rem' }}>Servicio Requerido</label>
-                      <select 
-                        value={servicio} 
-                        onChange={(e) => handleServiceChange(e.target.value)} 
+                      <select
+                        value={servicio}
+                        onChange={(e) => handleServiceChange(e.target.value)}
                         disabled={isExistingCita}
                       >
                         {serviciosDisponibles.map(s => (
@@ -700,9 +700,9 @@ export default function AppointmentModal({
                     <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginTop: '10px' }}>
                       <div className="form-group">
                         <label style={{ fontWeight: 600, fontSize: '0.85rem' }}>Cabina Climatizada</label>
-                        <select 
-                          value={cabina} 
-                          onChange={(e) => setCabina(e.target.value)} 
+                        <select
+                          value={cabina}
+                          onChange={(e) => setCabina(e.target.value)}
                           disabled={isExistingCita}
                         >
                           <option value="Cabina 01 - Facial Oro & Luz LED">Cabina 01 - Facial Oro &amp; Luz LED</option>
@@ -714,9 +714,9 @@ export default function AppointmentModal({
 
                       <div className="form-group">
                         <label style={{ fontWeight: 600, fontSize: '0.85rem' }}>Especialista Asignada</label>
-                        <select 
-                          value={especialista} 
-                          onChange={(e) => setEspecialista(e.target.value)} 
+                        <select
+                          value={especialista}
+                          onChange={(e) => setEspecialista(e.target.value)}
                           disabled={isExistingCita}
                         >
                           <option value="Carmen Sánchez">Carmen Sánchez (Cosmiatra &amp; Masajista)</option>
@@ -728,12 +728,12 @@ export default function AppointmentModal({
                   </div>
 
                   {/* SECCIÓN 3: FECHA, HORARIO Y VALIDACIÓN DE CONFLICTO */}
-                  <div style={{ 
-                    background: '#FFFFFF', 
-                    border: '1px solid #E2E8F0', 
-                    borderRadius: '10px', 
-                    padding: '14px 16px', 
-                    marginBottom: '16px' 
+                  <div style={{
+                    background: '#FFFFFF',
+                    border: '1px solid #E2E8F0',
+                    borderRadius: '10px',
+                    padding: '14px 16px',
+                    marginBottom: '16px'
                   }}>
                     <span style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', color: '#1B3D2B', letterSpacing: '0.04em', display: 'block', marginBottom: '10px' }}>
                       3. Programación de Agenda y Horario
@@ -742,11 +742,11 @@ export default function AppointmentModal({
                     <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
                       <div className="form-group">
                         <label style={{ fontWeight: 600, fontSize: '0.85rem' }}>Fecha de Atención</label>
-                        <input 
-                          type="date" 
-                          value={fecha} 
-                          onChange={(e) => setFecha(e.target.value)} 
-                          required 
+                        <input
+                          type="date"
+                          value={fecha}
+                          onChange={(e) => setFecha(e.target.value)}
+                          required
                         />
                       </div>
 
@@ -809,12 +809,12 @@ export default function AppointmentModal({
                   </div>
 
                   {/* SECCIÓN 4: PREFERENCIAS Y CONDICIONES DÉRMICAS */}
-                  <div style={{ 
-                    background: '#F8FAF8', 
-                    border: '1px solid #D8E6DC', 
-                    borderRadius: '10px', 
-                    padding: '14px 16px', 
-                    marginBottom: '16px' 
+                  <div style={{
+                    background: '#F8FAF8',
+                    border: '1px solid #D8E6DC',
+                    borderRadius: '10px',
+                    padding: '14px 16px',
+                    marginBottom: '16px'
                   }}>
                     <span style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', color: '#1B3D2B', letterSpacing: '0.04em', display: 'block', marginBottom: '10px' }}>
                       4. Aromaterapia de Cabina y Preferencias
@@ -822,8 +822,8 @@ export default function AppointmentModal({
 
                     <div className="form-group">
                       <label style={{ fontWeight: 600, fontSize: '0.85rem' }}>Aromaterapia de Cortesía</label>
-                      <select 
-                        value={aromaterapia} 
+                      <select
+                        value={aromaterapia}
                         onChange={(e) => setAromaterapia(e.target.value)}
                         disabled={isExistingCita}
                       >
@@ -839,10 +839,10 @@ export default function AppointmentModal({
                       <label style={{ fontWeight: 600, fontSize: '0.85rem' }}>
                         Condiciones Dérmicas, Alergias o Preferencias Clínicas
                       </label>
-                      <textarea 
-                        rows="2" 
-                        value={notas} 
-                        onChange={(e) => setNotas(e.target.value)} 
+                      <textarea
+                        rows="2"
+                        value={notas}
+                        onChange={(e) => setNotas(e.target.value)}
                         placeholder="Ej. Piel reactiva, prefiere presión media en espalda, etc."
                         disabled={isExistingCita}
                         style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #CBD5E0', fontSize: '0.85rem' }}
@@ -875,17 +875,17 @@ export default function AppointmentModal({
             {/* Pie del Modal */}
             <div className="modal-footer">
               <button type="button" className="btn-outline" onClick={onClose}>Cerrar</button>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className={`btn-action ${mode === 'cancelar' ? 'danger' : 'primary'}`}
                 disabled={(mode !== 'cancelar' && hasConflict) || isSubmitting}
               >
                 {isSubmitting
                   ? 'Procesando en base de datos...'
-                  : mode === 'crear' 
-                    ? `Confirmar Cita (S/ ${Number(currentServiceObj?.precio || 250).toFixed(2)})` 
-                    : mode === 'reprogramar' 
-                      ? 'Guardar Reprogramación' 
+                  : mode === 'crear'
+                    ? `Confirmar Cita (S/ ${Number(currentServiceObj?.precio || 250).toFixed(2)})`
+                    : mode === 'reprogramar'
+                      ? 'Guardar Reprogramación'
                       : 'Confirmar Cancelación'}
               </button>
             </div>
