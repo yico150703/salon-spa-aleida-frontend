@@ -4,7 +4,6 @@ import Dashboard from './components/Dashboard';
 import BookingPage from './components/BookingPage';
 import LoginScreen from './components/LoginScreen';
 import LandingPage from './components/landing/LandingPage';
-import SpecialistMobileApp from './components/SpecialistMobileApp';
 import { api, initialMockState } from './api';
 
 export default function App() {
@@ -14,9 +13,8 @@ export default function App() {
     const requested = new URLSearchParams(window.location.search).get('vista');
     if (requested === 'reservar') return 'reservar';
     if (requested === 'admin') return 'admin';
-    if (requested === 'movil') return 'movil';
     return 'portal';
-  }); // 'portal' | 'reservar' | 'admin' | 'movil'
+  }); // 'portal' | 'reservar' | 'admin'
   const [preselectedService, setPreselectedService] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
 
@@ -36,6 +34,8 @@ export default function App() {
   useEffect(() => {
     api.getCitas().then(data => { if (data && data.length) setCitas(data); });
     api.getClientes().then(data => { if (data && data.length) setClientes(data); });
+    api.getPersonal().then(data => { if (data && data.length) setUsuarios(data); });
+    api.getCatalogo().then(data => { if (data && data.length) setCatalogo(data); });
     api.getCaja().then(data => { 
       if (data) {
         setCaja(data);
@@ -58,7 +58,7 @@ export default function App() {
     setCurrentUser(userWithOriginal);
     showToast(`Bienvenido, ${user.nombre} · ${user.rol}`);
     // Redirigir según rol
-    if (user.permisos.includes('agenda') || user.permisos.includes('caja')) {
+    if (user.permisos?.includes('agenda') || user.permisos?.includes('caja') || user.rol === 'Administrador' || user.rol === 'Recepcionista') {
       setView('admin');
     }
   };
@@ -71,78 +71,95 @@ export default function App() {
     showToast('Sesión cerrada correctamente.');
   };
 
-  // DS_CU02: Agregar personal
-  const handleAddPersonal = (personal) => {
-    setUsuarios(prev => [personal, ...prev]);
+  // CUS02: Registrar personal con persistencia en PostgreSQL
+  const handleAddPersonal = async (personal) => {
+    const res = await api.createPersonal(personal);
+    if (res && res.success) {
+      const personalGuardado = res.personal || personal;
+      setUsuarios(prev => [personalGuardado, ...prev]);
+      const usuariosActualizados = await api.getPersonal();
+      if (usuariosActualizados && usuariosActualizados.length) setUsuarios(usuariosActualizados);
+    }
+    return res;
   };
 
-  // DS_CU03: Registrar cliente
+  // CUS03: Registrar cliente con persistencia en PostgreSQL
   const handleAddClient = async (newClient) => {
-    setClientes(prev => [newClient, ...prev]);
-    await api.createCliente(newClient);
-    const clientesActualizados = await api.getClientes();
-    if (clientesActualizados && clientesActualizados.length) setClientes(clientesActualizados);
+    const res = await api.createCliente(newClient);
+    if (res && res.success) {
+      const clienteGuardado = res.cliente || newClient;
+      setClientes(prev => [clienteGuardado, ...prev]);
+      const clientesActualizados = await api.getClientes();
+      if (clientesActualizados && clientesActualizados.length) setClientes(clientesActualizados);
+    }
+    return res;
   };
 
   const handleSaveClient = (updatedClient) => {
     setClientes(clientes.map(cl => cl.dni === updatedClient.dni ? updatedClient : cl));
   };
 
-  // DS_CU04: Agendar cita — retorna el resultado del API para que BookingPage muestre conflictos
+  // CUS04: Gestionar Citas (Antes Agendar Cita)
   const handleAddAppointment = async (newCita) => {
     const result = await api.createCita(newCita);
     if (result && result.success === false) {
-      // Conflicto detectado — NO agregar localmente, retornar el error
       return result;
     }
     const citaWithId = result?.cita || { id: Date.now(), ...newCita };
     setCitas(prev => [citaWithId, ...prev]);
-    // Sincronizar citas y clientes actualizados desde la base de datos
     const [citasActualizadas, clientesActualizados] = await Promise.all([
       api.getCitas(),
       api.getClientes()
     ]);
     if (citasActualizadas && citasActualizadas.length) setCitas(citasActualizadas);
     if (clientesActualizados && clientesActualizados.length) setClientes(clientesActualizados);
-    return { success: true };
+    return { success: true, cita: citaWithId };
   };
 
-  // DS_CU05: Reprogramar cita
+  // CUS05: Reprogramar cita
   const handleReprogramCita = async (citaId, nuevaFecha, nuevaHora) => {
     const result = await api.reprogramarCita(citaId, nuevaFecha, nuevaHora);
     if (result && result.success === false) {
-      return result; // Retorna el error para que el modal lo muestre
+      return result;
     }
     setCitas(citas.map(c =>
-      c.id === citaId ? { ...c, fecha: nuevaFecha, hora: nuevaHora, estado: 'Confirmada' } : c
+      c.id === citaId ? { ...c, fecha: nuevaFecha, hora: nuevaHora, estado: 'Reprogramada' } : c
     ));
-    // Re-sincronizar desde BD
     const citasActualizadas = await api.getCitas();
     if (citasActualizadas && citasActualizadas.length) setCitas(citasActualizadas);
-    return { success: true };
+    return { success: true, message: result?.message || 'Cita reprogramada exitosamente.' };
   };
 
   const handleCancelCita = async (citaId, motivo) => {
-    // Actualizar estado local inmediatamente (optimistic update)
     setCitas(citas.map(c =>
       c.id === citaId ? { ...c, estado: 'Cancelada', motivo_cancelacion: motivo } : c
     ));
-    // Persistir en PostgreSQL via API REST
-    await api.updateCitaEstado(citaId, 'Cancelada', motivo);
+    const res = await api.updateCitaEstado(citaId, 'Cancelada', motivo);
+    const citasActualizadas = await api.getCitas();
+    if (citasActualizadas && citasActualizadas.length) setCitas(citasActualizadas);
+    return res;
   };
 
   const handleUpdateCitaEstado = async (citaId, nuevoEstado) => {
-    // Actualizar estado local inmediatamente (optimistic update)
     setCitas(citas.map(c =>
       c.id === citaId ? { ...c, estado: nuevoEstado } : c
     ));
-    // Persistir en PostgreSQL via API REST
-    await api.updateCitaEstado(citaId, nuevoEstado);
+    const res = await api.updateCitaEstado(citaId, nuevoEstado);
+    const citasActualizadas = await api.getCitas();
+    if (citasActualizadas && citasActualizadas.length) setCitas(citasActualizadas);
+    return res;
   };
 
-  // DS_CU06: Registrar servicio en catálogo
-  const handleAddServicio = (servicio) => {
-    setCatalogo(prev => [...prev, servicio]);
+  // CUS06: Registrar servicio en catálogo con persistencia en PostgreSQL
+  const handleAddServicio = async (servicio) => {
+    const res = await api.createServicio(servicio);
+    if (res && res.success) {
+      const servGuardado = res.servicio || servicio;
+      setCatalogo(prev => [...prev, servGuardado]);
+      const catalogoActualizado = await api.getCatalogo();
+      if (catalogoActualizado && catalogoActualizado.length) setCatalogo(catalogoActualizado);
+    }
+    return res;
   };
 
   // DS_CU07: Aperturar turno de caja (Persistencia total en PostgreSQL)
@@ -365,9 +382,6 @@ export default function App() {
             <button className="user-session-bar__btn" onClick={() => setView('reservar')} id="btn-ir-reservar">
               Página Reservar Cita
             </button>
-            <button className="user-session-bar__btn" onClick={() => setView('movil')} id="btn-ir-movil" style={{ background: '#1B3D2B', color: '#D4AF37', border: '1px solid #D4AF37' }}>
-              App Móvil Especialista
-            </button>
             {view !== 'admin' && (
               <button className="user-session-bar__btn" onClick={() => setView('admin')} id="btn-ir-admin">
                 Panel Administrativo
@@ -386,7 +400,6 @@ export default function App() {
         <LandingPage
           onAddAppointment={handleAddAppointment}
           onSwitchToAdmin={() => setView('admin')}
-          onSwitchToMovil={() => setView('movil')}
           onNavigateToBooking={(service = null) => {
             setPreselectedService(service);
             setView('reservar');
@@ -403,7 +416,6 @@ export default function App() {
           onAddAppointment={handleAddAppointment}
           onBackToHome={() => setView('portal')}
           onSwitchToAdmin={() => setView('admin')}
-          onSwitchToMovil={() => setView('movil')}
           showToast={showToast}
           existingCitas={citas}
           preselectedService={preselectedService}
@@ -425,6 +437,7 @@ export default function App() {
           onAddCita={handleAddAppointment}
           onReprogramCita={handleReprogramCita}
           onCancelCita={handleCancelCita}
+          onChangeCitaEstado={handleUpdateCitaEstado}
           onProcessPayment={handleProcessPayment}
           onAddClient={handleAddClient}
           onSaveClient={handleSaveClient}
@@ -437,7 +450,6 @@ export default function App() {
           onAperturaCaja={handleAperturaCaja}
           onSwitchToPortal={() => setView('portal')}
           onSwitchToBooking={() => setView('reservar')}
-          onSwitchToMovil={() => setView('movil')}
           onChangeRole={(newRol) => {
             // Regla estricta RBAC: Solo el Administrador puede alternar roles de prueba
             const esAdmin = currentUser?.originalRol?.toLowerCase().includes('admin') ||
@@ -477,24 +489,6 @@ export default function App() {
               showToast(`Libro de Notas de Crédito sincronizado (${data.length} registros).`);
             }
           }}
-          showToast={showToast}
-        />
-      )}
-
-      {view === 'movil' && (
-        <SpecialistMobileApp
-          citas={citas}
-          onUpdateCitaEstado={handleUpdateCitaEstado}
-          onRefreshCitas={async () => {
-            const data = await api.getCitas();
-            if (data && data.length) {
-              setCitas(data);
-              showToast(`Agenda sincronizada (${data.length} citas desde base de datos).`);
-            }
-          }}
-          onSwitchToPortal={() => setView('portal')}
-          onSwitchToAdmin={() => setView('admin')}
-          onSwitchToBooking={() => setView('reservar')}
           showToast={showToast}
         />
       )}

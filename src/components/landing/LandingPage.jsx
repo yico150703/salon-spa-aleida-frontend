@@ -33,7 +33,6 @@ const CURRENT_YEAR = new Date().getFullYear();
 
 export default function LandingPage({
   onSwitchToAdmin,
-  onSwitchToMovil,
   onNavigateToBooking,
   showToast,
   currentUser
@@ -107,18 +106,6 @@ export default function LandingPage({
               <span>Acceso Administrativo</span>
             </button>
 
-            {/* BOTÓN CANAL MÓVIL ESPECIALISTAS */}
-            <button
-              type="button"
-              className={styles.btnAdminNav}
-              onClick={onSwitchToMovil}
-              title="Abrir Canal Móvil para Especialistas (Simulador Celular)"
-              id="btn-nav-app-movil"
-              style={{ background: 'rgba(74, 124, 89, 0.2)', borderColor: 'rgba(212, 175, 55, 0.5)', color: '#D4AF37' }}
-            >
-              <span>App Móvil Staff</span>
-            </button>
-
             {/* BOTÓN DEDICADO DE RESERVAR CITA */}
             <button
               type="button"
@@ -176,17 +163,6 @@ export default function LandingPage({
                 <UserCheck size={16} /> Acceso Administrativo (Staff)
               </button>
 
-              <button
-                type="button"
-                className={styles.btnAdminNav}
-                style={{ width: '100%', justifyContent: 'center', background: 'rgba(74, 124, 89, 0.2)', borderColor: 'rgba(212, 175, 55, 0.5)', color: '#D4AF37' }}
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onSwitchToMovil();
-                }}
-              >
-                App Móvil Especialistas (Flutter)
-              </button>
             </div>
           </nav>
         )}

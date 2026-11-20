@@ -84,9 +84,11 @@ export const api = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(personalData)
       });
-      if (res.ok) return await res.json();
-    } catch (_) {}
-    return { success: true, personal: personalData };
+      const data = await res.json();
+      return data;
+    } catch (e) {
+      return { success: false, error: 'Servidor no disponible para registro de personal.' };
+    }
   },
 
   // CUS03: Registrar y Consultar Clientes
@@ -101,6 +103,16 @@ export const api = {
     return initialMockState.clientes;
   },
 
+  async getClienteByDni(dni) {
+    try {
+      const res = await fetch(`${API_BASE}/clientes/${encodeURIComponent(dni)}`);
+      const data = await res.json();
+      return data;
+    } catch (e) {
+      return { success: false, error: 'Error al consultar cliente en base de datos.' };
+    }
+  },
+
   async createCliente(clienteData) {
     try {
       const res = await fetch(`${API_BASE}/clientes`, {
@@ -108,12 +120,14 @@ export const api = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(clienteData)
       });
-      if (res.ok) return await res.json();
-    } catch (_) {}
-    return { success: true, cliente: clienteData };
+      const data = await res.json();
+      return data;
+    } catch (_) {
+      return { success: false, error: 'Servidor no disponible para guardar cliente.' };
+    }
   },
 
-  // CUS04: Agendar Cita
+  // CUS04: Gestionar Citas (Antes Agendar Cita)
   async getCitas() {
     try {
       const res = await fetch(`${API_BASE}/citas`);
@@ -132,8 +146,9 @@ export const api = {
       const data = await res.json();
       if (res.ok) return data;
       return { success: false, error: data.error || 'Error al registrar la cita.', sugerencia: data.sugerencia || '' };
-    } catch (_) {}
-    return { success: true, cita: { id: Date.now(), ...citaData } };
+    } catch (_) {
+      return { success: false, error: 'No se pudo conectar con el servidor para agendar la cita.' };
+    }
   },
 
   // CUS05: Reprogramar Cita y Control de Estados
@@ -146,9 +161,10 @@ export const api = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       });
-      if (res.ok) return await res.json();
-    } catch (_) {}
-    return { success: false };
+      return await res.json();
+    } catch (_) {
+      return { success: false, error: 'Error de conexión al actualizar estado de la cita.' };
+    }
   },
 
   async reprogramarCita(citaId, nuevaFecha, nuevaHora) {
@@ -158,9 +174,10 @@ export const api = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nueva_fecha: nuevaFecha, nueva_hora: nuevaHora })
       });
-      if (res.ok) return await res.json();
-    } catch (_) {}
-    return { success: false };
+      return await res.json();
+    } catch (_) {
+      return { success: false, error: 'Error de conexión al reprogramar la cita.' };
+    }
   },
 
   // CUS06: Consultar Catálogo de Servicios y Productos
@@ -170,6 +187,31 @@ export const api = {
       if (res.ok) return await res.json();
     } catch (_) {}
     return initialMockState.catalogo;
+  },
+
+  async getCategoriasServicio() {
+    try {
+      const res = await fetch(`${API_BASE}/servicios/categorias`);
+      if (res.ok) {
+        const data = await res.json();
+        return data.categorias || [];
+      }
+    } catch (_) {}
+    return ['Spa & Bienestar', 'Cosmiatría Facial', 'Cuidado Capilar', 'Manos & Pies', 'Masajes & Cromoterapia', 'Tratamientos Corporales'];
+  },
+
+  async createServicio(servicioData) {
+    try {
+      const res = await fetch(`${API_BASE}/servicios`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(servicioData)
+      });
+      const data = await res.json();
+      return data;
+    } catch (_) {
+      return { success: false, error: 'Servidor no disponible para guardar el servicio.' };
+    }
   },
 
   // CUS07: Aperturar Turno de Caja

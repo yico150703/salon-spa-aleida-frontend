@@ -25,7 +25,7 @@ export default function AppointmentModal({
 
   // Validación de conflicto en tiempo real (local — datos ya cargados):
   const normalizeEsp = (s = '') => s.split('(')[0].trim().toLowerCase();
-  const estadosActivos = ['confirmada', 'en sala', 'pendiente', 'en atención'];
+  const estadosActivos = ['confirmada', 'reprogramada', 'pendiente', 'en atención'];
 
   const conflictoCita = existingCitas.find(c =>
     c.fecha === fecha &&
@@ -42,10 +42,10 @@ export default function AppointmentModal({
 
     if (mode === 'cancelar') {
       if (!motivoCancelacion.trim()) {
-        alert('Debe especificar el motivo de la cancelación de la cita.');
+        alert('Debe especificar un motivo justificado para cancelar la cita (Requerido por CUS05).');
         return;
       }
-      onCancelCita(citaEditando.id, motivoCancelacion);
+      onCancelCita(citaEditando.id, motivoCancelacion.trim());
       onClose();
       return;
     }
@@ -69,7 +69,7 @@ export default function AppointmentModal({
       return;
     }
 
-    // Modo Crear
+    // Modo Crear (CUS04 Gestionar Citas)
     const precios = {
       'Masaje Relajante Aleida': 280,
       'Facial Rejuvenecedor con Oro': 450,
@@ -104,9 +104,15 @@ export default function AppointmentModal({
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div>
-            <span className="badge-tag gold">Gestión de Citas del Spa</span>
+            <span className="badge-tag gold">
+              {mode === 'crear' ? 'CUS04 · Gestionar Citas' : 'CUS05 · Reprogramar o Cancelar Cita'}
+            </span>
             <h2>
-              {mode === 'crear' ? 'Agendar Nueva Cita en Sala' : mode === 'reprogramar' ? `Reprogramar Cita: ${cliente}` : `Cancelar Cita: ${cliente}`}
+              {mode === 'crear' 
+                ? 'Gestionar Cita: Formulario de Registro' 
+                : mode === 'reprogramar' 
+                  ? `Reprogramar Cita: ${cliente}` 
+                  : `Cancelar Cita: ${cliente}`}
             </h2>
           </div>
           <button className="btn-close" onClick={onClose}>&times;</button>
@@ -119,14 +125,14 @@ export default function AppointmentModal({
               className={`btn-pill ${mode === 'reprogramar' ? 'active' : ''}`}
               onClick={() => setMode('reprogramar')}
             >
-              Reprogramar Horario
+              Opción A: Reprogramar Cita
             </button>
             <button 
               type="button" 
               className={`btn-pill ${mode === 'cancelar' ? 'active' : ''}`}
               onClick={() => setMode('cancelar')}
             >
-              Cancelar Cita
+              Opción B: Cancelar Cita
             </button>
           </div>
         )}
@@ -135,12 +141,15 @@ export default function AppointmentModal({
           <div className="modal-body">
             {mode === 'cancelar' ? (
               <div className="form-group">
-                <label>Motivo Obligatorio de Cancelación</label>
+                <div style={{ background: '#FFF3E0', border: '1px solid #FFE0B2', padding: '12px 14px', borderRadius: '8px', marginBottom: '14px', fontSize: '0.88rem', color: '#E65100' }}>
+                  <strong>Regla de Cancelación (CUS05):</strong> Al confirmar la cancelación con motivo justificado, el sistema liberará de inmediato la cabina y el bloque de horario en la agenda central del spa.
+                </div>
+                <label>Motivo Justificado de Cancelación *</label>
                 <textarea 
                   rows="3" 
                   value={motivoCancelacion}
                   onChange={(e) => setMotivoCancelacion(e.target.value)}
-                  placeholder="Ej: Inasistencia por motivos de fuerza mayor del cliente..."
+                  placeholder="Ej: Inasistencia por motivos de salud / Solicitud expresa del cliente..."
                   required
                 />
               </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import CashAuditModal from './CashAuditModal';
 import ElectronicReceiptModal from './ElectronicReceiptModal';
 import ClientFileModal from './ClientFileModal';
+import ClientRegisterModal from './ClientRegisterModal';
 import AppointmentModal from './AppointmentModal';
 import { PersonalManager, CatalogoManager, AperturasCaja } from './UseCaseModules';
 import { 
@@ -23,9 +24,9 @@ const ROLE_PERMISSIONS = {
       {
         label: '1. Citas & Clientes',
         tabs: [
-          { id: 'agenda', label: 'CUS04 · Agendar Cita', icon: CalendarIcon },
+          { id: 'agenda', label: 'CUS04 · Gestionar Citas', icon: CalendarIcon },
           { id: 'clientes', label: 'CUS03 · Registrar Cliente', icon: UsersIcon },
-          { id: 'reprogramar', label: 'CUS05 · Reprogramar Cita', icon: CalendarIcon }
+          { id: 'reprogramar', label: 'CUS05 · Reprogramar o Cancelar Cita', icon: CalendarIcon }
         ]
       },
       {
@@ -58,9 +59,9 @@ const ROLE_PERMISSIONS = {
       {
         label: 'Citas & Clientes',
         tabs: [
-          { id: 'agenda', label: 'CUS04 · Agendar Cita', icon: CalendarIcon },
+          { id: 'agenda', label: 'CUS04 · Gestionar Citas', icon: CalendarIcon },
           { id: 'clientes', label: 'CUS03 · Registrar Cliente', icon: UsersIcon },
-          { id: 'reprogramar', label: 'CUS05 · Reprogramar Cita', icon: CalendarIcon }
+          { id: 'reprogramar', label: 'CUS05 · Reprogramar o Cancelar Cita', icon: CalendarIcon }
         ]
       },
       {
@@ -568,7 +569,6 @@ export default function Dashboard({
   onAperturaCaja,
   onSwitchToPortal,
   onSwitchToBooking,
-  onSwitchToMovil,
   onChangeRole,
   onRefreshCitas,
   onRefreshClientes,
@@ -606,6 +606,7 @@ export default function Dashboard({
   const [receiptType, setReceiptType] = useState('boleta'); // 'boleta' | 'nota_credito'
   const [isClientFileOpen, setIsClientFileOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
+  const [isClientRegisterModalOpen, setIsClientRegisterModalOpen] = useState(false);
   const [isApptModalOpen, setIsApptModalOpen] = useState(false);
   const [editingAppt, setEditingAppt] = useState(null);
 
@@ -959,14 +960,6 @@ export default function Dashboard({
             >
               Página Reservar Cita
             </button>
-            <button 
-              className="btn-outline" 
-              onClick={onSwitchToMovil} 
-              style={{ borderColor: '#4A7C59', color: '#1B3D2B', fontWeight: 600, background: '#EBF5F0' }}
-              title="Abrir la App Móvil de la Especialista (Simulador Smartphone)"
-            >
-              Móvil Especialistas
-            </button>
             <span className="badge-status open">
               <span className="status-dot"></span> Caja Turno: <strong>S/ {((Number(caja.apertura) || 0) + (Number(caja.efectivo) || 0) + (Number(caja.digital) || 0) - (Number(caja.egresos) || 0)).toFixed(2)}</strong>
             </span>
@@ -1020,14 +1013,14 @@ export default function Dashboard({
             <section className="admin-tab">
               <div className="tab-header">
                 <div>
-                  <span className="badge-tag gold">Agenda &amp; Citas del Spa</span>
-                  <h3>Agenda de Citas &amp; Control de Sillones</h3>
+                  <span className="badge-tag gold">CUS04 · Gestionar Citas</span>
+                  <h3>Gestionar Citas &amp; Cabinas Climatizadas</h3>
                   <small style={{ color: 'var(--color-text-muted)' }}>
-                    Valida disponibilidad de especialistas y permite reprogramar, cancelar y registrar estados de atención.
+                    Valida disponibilidad en tiempo real, registra citas en BD, transiciona a 'Atendida' y libera cabina para cobro en Caja (CUS08).
                   </small>
                 </div>
                 <button className="btn-action primary" onClick={() => { setEditingAppt(null); setIsApptModalOpen(true); }}>
-                  + Agendar Cita en Mostrador
+                  + Gestionar Nueva Cita (CUS04)
                 </button>
               </div>
 
@@ -1141,7 +1134,20 @@ export default function Dashboard({
                           </td>
                           <td>S/ {c.monto.toFixed(2)}</td>
                           <td>
-                            <div style={{ display: 'flex', gap: '6px' }}>
+                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                              {c.estado !== 'Atendida' && c.estado !== 'Cancelada' && (
+                                <button 
+                                  className="btn-table" 
+                                  style={{ background: '#E8F5E9', color: '#1B5E20', borderColor: '#81C784', fontWeight: 600 }}
+                                  onClick={async () => {
+                                    await onChangeCitaEstado?.(c.id, 'Atendida');
+                                    showToast(`Cita #${c.id} de ${c.cliente} marcada como 'Atendida'. Cabina liberada y lista para cobro en Caja (CUS08).`);
+                                  }}
+                                  title="Registrar fin de atención en cabina y liberar cabina para cobro en POS"
+                                >
+                                  Marcar Atendida
+                                </button>
+                              )}
                               {c.cobrado ? (
                                 <button 
                                   className="btn-table" 
@@ -1169,7 +1175,7 @@ export default function Dashboard({
                                 className="btn-table" 
                                 onClick={() => { setEditingAppt(c); setIsApptModalOpen(true); }}
                               >
-                                Editar / Reprogramar
+                                Reprogramar / Cancelar
                               </button>
                             </div>
                           </td>
@@ -1206,25 +1212,12 @@ export default function Dashboard({
                     Sincronizar Padrón
                   </button>
                 )}
-                <button className="btn-action primary" onClick={() => {
-                  const dni = prompt('DNI del cliente (8 dígitos):');
-                  if (dni) { 
-                    const nombre = prompt('Nombres y apellidos completos:'); 
-                    if (nombre) {
-                      const telefono = prompt('Teléfono móvil (WhatsApp):', '987654321');
-                      const preferencias = prompt('Historial Dérmico / Preferencias:', 'Piel sensible, aromaterapia botánica');
-                      onAddClient({ 
-                        dni: dni.trim(), 
-                        nombre: nombre.trim(), 
-                        telefono: (telefono || '987654321').trim(), 
-                        preferencias: preferencias || 'Registro en mostrador', 
-                        visitas: 1 
-                      });
-                      showToast(`Cliente ${nombre} registrado y sincronizado en el Padrón.`);
-                    }
-                  }
-                }}>
-                  + Nuevo Cliente
+                <button 
+                  className="btn-action primary" 
+                  id="btn-abrir-registro-cliente"
+                  onClick={() => setIsClientRegisterModalOpen(true)}
+                >
+                  + Consultar / Registrar Cliente (CUS03)
                 </button>
               </div>
             </div>
@@ -1337,16 +1330,16 @@ export default function Dashboard({
           <section className="admin-tab">
             <div className="tab-header">
               <div>
-                <span className="badge-tag gold">Reprogramación y Cancelación de Citas</span>
-                <h3>Reprogramar o Cancelar Citas</h3>
+                <span className="badge-tag gold">CUS05 · Modificación de Agenda</span>
+                <h3>Reprogramar o Cancelar Citas del Spa</h3>
                 <small style={{ color: 'var(--color-text-muted)' }}>
-                  Permite modificar fecha/hora de citas confirmadas o cancelarlas con motivo registrado.
+                  Flujo CUS05: Selección de cita en agenda → Reprogramar validando cabina/turno disponible, o Cancelar registrando motivo justificado y liberando de inmediato cabina y horario.
                 </small>
               </div>
             </div>
             <div className="agenda-table-wrapper">
               <table className="data-table">
-                <thead><tr><th>Horario</th><th>Cliente</th><th>Servicio</th><th>Estado</th><th>Acciones</th></tr></thead>
+                <thead><tr><th>Horario</th><th>Cliente</th><th>Servicio Solicitado</th><th>Estado</th><th>Acciones de Control</th></tr></thead>
                 <tbody>
                   {citas.filter(c => c.estado !== 'Atendida' && c.estado !== 'Cancelada').map(c => (
                     <tr key={c.id}>
@@ -1355,8 +1348,21 @@ export default function Dashboard({
                       <td><span className={`tag ${c.estado === 'Confirmada' ? 'confirmed' : 'in-progress'}`}>{c.estado}</span></td>
                       <td>
                         <div style={{display:'flex',gap:'6px'}}>
-                          <button className="btn-table" onClick={() => { setEditingAppt(c); setIsApptModalOpen(true); }}>Reprogramar</button>
-                          <button className="btn-table" style={{color:'var(--color-danger)'}} onClick={() => { const m=prompt('Motivo de cancelación:'); if(m){onCancelCita(c.id,m);showToast(`Cita de ${c.cliente} cancelada.`);} }}>Cancelar</button>
+                          <button 
+                            className="btn-table" 
+                            onClick={() => { setEditingAppt(c); setIsApptModalOpen(true); }}
+                            title="Modificar fecha y bloque de horario (CUS05)"
+                          >
+                            Reprogramar
+                          </button>
+                          <button 
+                            className="btn-table" 
+                            style={{ color: 'var(--color-danger)', borderColor: '#EF5350' }} 
+                            onClick={() => { setEditingAppt(c); setIsApptModalOpen(true); }}
+                            title="Cancelar cita con registro de motivo justificado (CUS05)"
+                          >
+                            Cancelar
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -2317,6 +2323,24 @@ export default function Dashboard({
           onCancelCita(id, motivo);
           showToast(`Cita cancelada con motivo: ${motivo}`);
         }}
+      />
+
+      {/* CUS03: Modal Registrar y Consultar Cliente */}
+      <ClientRegisterModal
+        isOpen={isClientRegisterModalOpen}
+        onClose={() => setIsClientRegisterModalOpen(false)}
+        onAddClient={onAddClient}
+        onSelectForBooking={(cl) => {
+          setEditingAppt({ cliente: cl.nombre, dni: cl.dni });
+          setIsApptModalOpen(true);
+        }}
+        onSelectForPOS={(cl) => {
+          setPosClient(cl.nombre);
+          setActiveTab('caja');
+          showToast(`Cliente "${cl.nombre}" seleccionado en Terminal POS.`);
+        }}
+        showToast={showToast}
+        existingClientes={clientes}
       />
     </div>
   );

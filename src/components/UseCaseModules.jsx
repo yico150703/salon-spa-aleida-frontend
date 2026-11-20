@@ -8,10 +8,12 @@
  * =============================================================================
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { api } from '../api';
 
 // =============================================
 // CUS02: Formulario Registrar Personal
+// Flujo oficial según Diagrama de Secuencia CUS02
 // =============================================
 export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
   const [form, setForm] = useState({
@@ -19,67 +21,231 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
     dni: '', telefono: '', email: ''
   });
   const [mode, setMode] = useState('list'); // 'list' | 'form'
-  const [editId, setEditId] = useState(null);
+  const [errorAlerta, setErrorAlerta] = useState(null);
+  const [credencialesGeneradas, setCredencialesGeneradas] = useState(null);
+  const [cargando, setCargando] = useState(false);
 
   const ROLES = ['Administrador', 'Recepcionista', 'Cajero', 'Terapeuta'];
   const PERMISOS_ROL = {
-    'Administrador': 'Control total del sistema',
-    'Recepcionista': 'Agenda de citas y clientes',
-    'Cajero': 'Cobros, caja y comprobantes',
-    'Terapeuta': 'Agenda - Solo consulta'
+    'Administrador': 'Control total del sistema, seguridad y parámetros',
+    'Recepcionista': 'Agenda de citas (CUS04), clientes (CUS03) y POS mostrador',
+    'Cajero': 'Cobros, caja y comprobantes (CUS08 y CUS10)',
+    'Terapeuta': 'Consulta de agenda de cabinas y atenciones de spa'
   };
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    if (errorAlerta) setErrorAlerta(null);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.nombre || !form.usuario || !form.password || !form.dni) {
-      showToast('Complete los campos obligatorios: nombre, usuario, contraseña y DNI.');
+    setErrorAlerta(null);
+
+    // Validación preliminar en cliente
+    if (!form.nombre.trim() || !form.dni.trim() || !form.rol) {
+      setErrorAlerta('Alerta de error en pantalla: Datos incompletos. Ingrese DNI, nombre completo y rol.');
       return;
     }
-    const nuevo = {
-      ...form,
-      permisos: PERMISOS_ROL[form.rol],
-      id: Date.now()
-    };
-    onAddPersonal(nuevo);
-    showToast(`Personal "${form.nombre}" registrado como ${form.rol}.`);
-    setForm({ nombre: '', usuario: '', password: '', rol: 'Recepcionista', dni: '', telefono: '', email: '' });
-    setMode('list');
+
+    if (form.dni.trim().length < 8) {
+      setErrorAlerta('Alerta de error en pantalla: El DNI debe contener al menos 8 dígitos numéricos.');
+      return;
+    }
+
+    setCargando(true);
+    try {
+      const res = await onAddPersonal({
+        ...form,
+        permisos: PERMISOS_ROL[form.rol]
+      });
+
+      if (res && res.success) {
+        // Diagrama de secuencia CUS02:
+        // 1. Confirmación de almacenamiento exitoso
+        // 2. Confirmación de personal registrado
+        // 3. Mostrar mensaje de registro exitoso y credenciales temporales
+        setCredencialesGeneradas(res.credenciales_temporales || {
+          usuario: res.personal?.usuario || form.usuario || `user_${form.dni}`,
+          password_temporal: res.personal?.password_temporal || `SpaAleida_${form.dni.slice(-4)}!`,
+          rol: form.rol,
+          permisos: PERMISOS_ROL[form.rol]
+        });
+        showToast(res.confirmacion || 'Personal registrado con éxito.');
+        setForm({ nombre: '', usuario: '', password: '', rol: 'Recepcionista', dni: '', telefono: '', email: '' });
+      } else {
+        // Diagrama de secuencia CUS02:
+        // Notificar rechazo por DNI duplicado o datos incompletos -> Mostrar alerta de error en pantalla
+        const errorMsg = res?.error || 'Rechazo: DNI duplicado o personal ya registrado en el sistema.';
+        setErrorAlerta(errorMsg);
+        showToast(`⚠️ ${errorMsg}`);
+      }
+    } catch (err) {
+      setErrorAlerta('Error de comunicación con el servidor al registrar personal.');
+    } finally {
+      setCargando(false);
+    }
   };
 
   return (
     <div className="uc-module">
       <div className="uc-module__header">
         <div>
-          <span className="uc-badge">Personal de Salón</span>
-          <h2 className="uc-module__title">Registrar Personal</h2>
-          <p className="uc-module__subtitle">Gestión de usuarios y accesos del sistema</p>
+          <span className="uc-badge">CUS02 · Gestión de Seguridad</span>
+          <h2 className="uc-module__title">Registrar Personal (Colaboradores del Spa)</h2>
+          <p className="uc-module__subtitle">
+            Alta en Base de Datos (PostgreSQL), verificación de DNI único y entrega de credenciales temporales
+          </p>
         </div>
         <button
           id="btn-nuevo-personal"
           className="btn-gold"
-          onClick={() => setMode(mode === 'form' ? 'list' : 'form')}
+          onClick={() => {
+            setErrorAlerta(null);
+            setCredencialesGeneradas(null);
+            setMode(mode === 'form' ? 'list' : 'form');
+          }}
         >
-          {mode === 'form' ? '← Ver Lista' : '+ Nuevo Personal'}
+          {mode === 'form' ? '← Ver Lista de Colaboradores' : '+ Nuevo Colaborador'}
         </button>
       </div>
 
+      {/* Modal / Banner de Credenciales Temporales de Acceso */}
+      {credencialesGeneradas && (
+        <div style={{
+          background: '#E8F5E9',
+          border: '2px solid #2E7D32',
+          borderRadius: '12px',
+          padding: '20px 24px',
+          marginBottom: '20px',
+          boxShadow: '0 4px 14px rgba(46, 125, 50, 0.15)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+            <span style={{ fontSize: '1.5rem' }}>✓</span>
+            <div>
+              <h3 style={{ margin: 0, color: '#1B5E20', fontSize: '1.2rem' }}>
+                Confirmación de Almacenamiento Exitoso · Personal Registrado con Éxito
+              </h3>
+              <p style={{ margin: '4px 0 0', color: '#2E7D32', fontSize: '0.88rem' }}>
+                El colaborador ha sido persistido en PostgreSQL. Entregue las siguientes credenciales de acceso temporales:
+              </p>
+            </div>
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '12px',
+            background: '#FFFFFF',
+            padding: '14px 18px',
+            borderRadius: '8px',
+            border: '1px solid #C8E6C9',
+            marginTop: '12px'
+          }}>
+            <div>
+              <span style={{ fontSize: '0.75rem', color: '#666', textTransform: 'uppercase', fontWeight: 600 }}>Usuario Asignado:</span>
+              <strong style={{ display: 'block', fontSize: '1.1rem', color: '#1B3D2B' }}>
+                <code>{credencialesGeneradas.usuario}</code>
+              </strong>
+            </div>
+            <div>
+              <span style={{ fontSize: '0.75rem', color: '#666', textTransform: 'uppercase', fontWeight: 600 }}>Contraseña Temporal:</span>
+              <strong style={{ display: 'block', fontSize: '1.1rem', color: '#B78103' }}>
+                <code>{credencialesGeneradas.password_temporal}</code>
+              </strong>
+            </div>
+            <div>
+              <span style={{ fontSize: '0.75rem', color: '#666', textTransform: 'uppercase', fontWeight: 600 }}>Rol Asignado:</span>
+              <strong style={{ display: 'block', fontSize: '1rem', color: '#1B3D2B' }}>
+                {credencialesGeneradas.rol}
+              </strong>
+            </div>
+            <div>
+              <span style={{ fontSize: '0.75rem', color: '#666', textTransform: 'uppercase', fontWeight: 600 }}>Permisos:</span>
+              <span style={{ display: 'block', fontSize: '0.85rem', color: '#4A5568' }}>
+                {credencialesGeneradas.permisos}
+              </span>
+            </div>
+          </div>
+
+          <div style={{ marginTop: '14px', display: 'flex', gap: '10px' }}>
+            <button
+              type="button"
+              className="btn-gold"
+              onClick={() => {
+                navigator.clipboard?.writeText(`Usuario: ${credencialesGeneradas.usuario}\nContraseña: ${credencialesGeneradas.password_temporal}\nRol: ${credencialesGeneradas.rol}`);
+                showToast('Credenciales copiadas al portapapeles.');
+              }}
+            >
+              Copiar Credenciales
+            </button>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => {
+                setCredencialesGeneradas(null);
+                setMode('list');
+              }}
+            >
+              Finalizar y Ver Lista
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Alerta de Error en Pantalla (Rechazo por DNI duplicado o datos incompletos) */}
+      {errorAlerta && (
+        <div style={{
+          background: '#FFEBEE',
+          border: '1px solid #EF5350',
+          borderRadius: '8px',
+          padding: '12px 18px',
+          marginBottom: '18px',
+          color: '#C62828',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px'
+        }}>
+          <span style={{ fontSize: '1.3rem' }}>⚠️</span>
+          <div style={{ flex: 1, fontSize: '0.92rem', fontWeight: 600 }}>
+            {errorAlerta}
+          </div>
+          <button
+            type="button"
+            onClick={() => setErrorAlerta(null)}
+            style={{ background: 'none', border: 'none', color: '#C62828', cursor: 'pointer', fontWeight: 'bold' }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {mode === 'form' && (
         <form onSubmit={handleSubmit} className="uc-form" id="form-registrar-personal">
-          <h3 className="uc-form__title">Ficha de Personal</h3>
+          <h3 className="uc-form__title">Formulario de Registro de Nuevo Personal</h3>
           <div className="uc-form__grid">
             <div className="form-field">
               <label htmlFor="personal-nombre">Nombre Completo *</label>
-              <input id="personal-nombre" name="nombre" value={form.nombre} onChange={handleChange}
-                placeholder="Ej: Carmen Sánchez García" required />
+              <input
+                id="personal-nombre"
+                name="nombre"
+                value={form.nombre}
+                onChange={handleChange}
+                placeholder="Ej: Carmen Sánchez García"
+                required
+              />
             </div>
             <div className="form-field">
-              <label htmlFor="personal-dni">DNI *</label>
-              <input id="personal-dni" name="dni" value={form.dni} onChange={handleChange}
-                placeholder="12345678" maxLength={8} required />
+              <label htmlFor="personal-dni">DNI (8 dígitos) *</label>
+              <input
+                id="personal-dni"
+                name="dni"
+                value={form.dni}
+                onChange={handleChange}
+                placeholder="12345678"
+                maxLength={8}
+                required
+              />
             </div>
             <div className="form-field">
               <label htmlFor="personal-rol">Rol en el Sistema *</label>
@@ -88,33 +254,57 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
               </select>
             </div>
             <div className="form-field">
-              <label htmlFor="personal-usuario">Usuario del Sistema *</label>
-              <input id="personal-usuario" name="usuario" value={form.usuario} onChange={handleChange}
-                placeholder="Ej: csanchez" required />
+              <label htmlFor="personal-usuario">Usuario del Sistema (Opcional - auto)</label>
+              <input
+                id="personal-usuario"
+                name="usuario"
+                value={form.usuario}
+                onChange={handleChange}
+                placeholder="Dejar en blanco para autogenerar"
+              />
             </div>
             <div className="form-field">
-              <label htmlFor="personal-password">Contraseña *</label>
-              <input id="personal-password" name="password" type="password" value={form.password}
-                onChange={handleChange} placeholder="Mínimo 4 caracteres" required />
+              <label htmlFor="personal-password">Contraseña Inicial (Opcional - auto)</label>
+              <input
+                id="personal-password"
+                name="password"
+                type="text"
+                value={form.password}
+                onChange={handleChange}
+                placeholder="Se generará contraseña temporal si está vacía"
+              />
             </div>
             <div className="form-field">
-              <label htmlFor="personal-telefono">Teléfono</label>
-              <input id="personal-telefono" name="telefono" value={form.telefono} onChange={handleChange}
-                placeholder="987654321" />
+              <label htmlFor="personal-telefono">Teléfono / WhatsApp</label>
+              <input
+                id="personal-telefono"
+                name="telefono"
+                value={form.telefono}
+                onChange={handleChange}
+                placeholder="987654321"
+              />
             </div>
             <div className="form-field">
-              <label htmlFor="personal-email">Email</label>
-              <input id="personal-email" name="email" type="email" value={form.email} onChange={handleChange}
-                placeholder="correo@spa.com" />
+              <label htmlFor="personal-email">Correo Electrónico</label>
+              <input
+                id="personal-email"
+                name="email"
+                type="email"
+                value={form.email}
+                onChange={handleChange}
+                placeholder="personal@spaaleida.pe"
+              />
             </div>
           </div>
           <div className="uc-form__permisos-preview">
-            <span className="uc-form__permisos-label">Permisos asignados:</span>
+            <span className="uc-form__permisos-label">Permisos del Sistema Asignados:</span>
             <span className="uc-form__permisos-value">{PERMISOS_ROL[form.rol]}</span>
           </div>
           <div className="uc-form__actions">
             <button type="button" className="btn-secondary" onClick={() => setMode('list')}>Cancelar</button>
-            <button type="submit" className="btn-gold" id="btn-guardar-personal">Registrar Personal</button>
+            <button type="submit" className="btn-gold" id="btn-guardar-personal" disabled={cargando}>
+              {cargando ? 'Validando y Guardando...' : 'Registrar Personal'}
+            </button>
           </div>
         </form>
       )}
@@ -124,11 +314,12 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
           <table className="uc-table" id="tabla-personal">
             <thead>
               <tr>
-                <th>Nombre</th>
+                <th>Nombre del Colaborador</th>
                 <th>DNI</th>
                 <th>Usuario</th>
                 <th>Rol</th>
-                <th>Permisos</th>
+                <th>Permisos Oficiales</th>
+                <th>Estado BD</th>
               </tr>
             </thead>
             <tbody>
@@ -143,6 +334,7 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
                     </span>
                   </td>
                   <td className="permisos-cell">{u.permisos}</td>
+                  <td><span className="tag confirmed">✓ Sincronizado</span></td>
                 </tr>
               ))}
             </tbody>
@@ -154,28 +346,116 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
 }
 
 // =============================================
-// CUS06: Consultar Catálogo de Servicios y Productos
+// CUS06: Consultar y Registrar en Catálogo de Servicios
+// Secuencia estricta de 15 pasos según requerimiento oficial
 // =============================================
 export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
-  const [form, setForm] = useState({
-    nombre: '', categoria: 'Spa & Bienestar', duracion: 60, precio: '', comision: 25, descripcion: '', cabina: 'Cabina 01 - Facial Oro & Luz LED'
-  });
+  // Pasos 1 y 5: Estado de modo ('list' | 'form')
   const [mode, setMode] = useState('list');
+  
+  // Paso 6: Campos del formulario
+  const [form, setForm] = useState({
+    nombre: '', categoria: '', duracion: 60, precio: '', comision: 25, cabina: 'Cabina 01 - Facial Oro & Luz LED'
+  });
+  
+  // Pasos 3 y 4: Categorías activas del spa
+  const [categoriasSpa, setCategoriasSpa] = useState([
+    'Spa & Bienestar', 'Cosmiatría Facial', 'Cuidado Capilar', 'Manos & Pies', 'Masajes & Cromoterapia', 'Tratamientos Corporales'
+  ]);
+  
+  // Pasos 14 y 15: Alerta de datos inválidos en pantalla
+  const [alertaInvalida, setAlertaInvalida] = useState(null);
+  const [servicioRecienteId, setServicioRecienteId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCat, setSelectedCat] = useState('Todas');
+  const [cargando, setCargando] = useState(false);
 
-  const CATEGORIAS = ['Todas', 'Spa & Bienestar', 'Cosmiatría Facial', 'Cuidado Capilar', 'Manos & Pies', 'Masajes', 'Tratamientos Corporales'];
+  // Paso 3 y 4: Cargar categorías de tratamientos desde backend
+  useEffect(() => {
+    api.getCategoriasServicio().then(cats => {
+      if (cats && cats.length) {
+        setCategoriasSpa(cats);
+        if (!form.categoria) setForm(f => ({ ...f, categoria: cats[0] }));
+      }
+    });
+  }, []);
 
-  const handleSubmit = (e) => {
+  // Paso 2: Solicitar formulario de nuevo servicio
+  const handleSolicitarFormulario = () => {
+    setAlertaInvalida(null);
+    setForm({
+      nombre: '',
+      categoria: categoriasSpa[0] || 'Spa & Bienestar',
+      duracion: 60,
+      precio: '',
+      comision: 25,
+      cabina: 'Cabina 01 - Facial Oro & Luz LED'
+    });
+    // Paso 5: Desplegar formulario de registro
+    setMode('form');
+  };
+
+  // Paso 7: Presionar botón registrar servicio
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.nombre || !form.precio) {
-      showToast('Ingrese nombre y precio del servicio.');
+    setAlertaInvalida(null);
+
+    const precioNum = parseFloat(form.precio);
+    const duracionNum = parseInt(form.duracion);
+
+    // Paso 8: Validar datos y tarifa positiva (> 0)
+    if (!form.nombre.trim() || isNaN(precioNum) || precioNum <= 0 || isNaN(duracionNum) || duracionNum <= 0) {
+      // Pasos 14 y 15: Notificar error de validación de tarifa o duración y mostrar alerta
+      const errorMsg = 'Notificar error de validación de tarifa o duración: La tarifa (precio) y la duración deben ser valores positivos mayores a cero y el nombre es obligatorio.';
+      setAlertaInvalida(errorMsg);
+      showToast(`⚠️ ${errorMsg}`);
       return;
     }
-    onAddServicio({ ...form, id: Date.now(), precio: parseFloat(form.precio) });
-    showToast(`Servicio "${form.nombre}" registrado en catálogo.`);
-    setForm({ nombre: '', categoria: 'Spa & Bienestar', duracion: 60, precio: '', comision: 25, descripcion: '', cabina: 'Cabina 01 - Facial Oro & Luz LED' });
-    setMode('list');
+
+    // Paso 9: Verificar no duplicidad de servicio
+    const nombreNormalizado = form.nombre.trim().toLowerCase();
+    const yaExiste = (catalogo || []).some(s => s.nombre.trim().toLowerCase() === nombreNormalizado);
+    if (yaExiste) {
+      const errorMsg = `Rechazo por duplicidad: Ya existe el servicio "${form.nombre.trim()}" en el catálogo del spa.`;
+      setAlertaInvalida(errorMsg);
+      showToast(`⚠️ ${errorMsg}`);
+      return;
+    }
+
+    // → [Datos Válidos y Tarifa Positiva]:
+    setCargando(true);
+    try {
+      // Paso 10: Guardar nuevo servicio en base de datos
+      const res = await onAddServicio({
+        nombre: form.nombre.trim(),
+        categoria: form.categoria || categoriasSpa[0],
+        duracion: duracionNum,
+        precio: precioNum,
+        comision: parseInt(form.comision) || 25,
+        cabina: form.cabina || 'Cabina Especializada'
+      });
+
+      if (res && res.success === false) {
+        // Error reportado por backend
+        setAlertaInvalida(res.error || 'Error al registrar servicio en el catálogo.');
+        showToast(`⚠️ ${res.error}`);
+        return;
+      }
+
+      // Paso 11: Confirmar almacenamiento en catálogo
+      // Paso 12: Notificar servicio registrado con éxito
+      const nuevoId = res?.servicio?.id || Date.now();
+      setServicioRecienteId(nuevoId);
+      showToast(res?.confirmacion || `Servicio "${form.nombre.trim()}" registrado con éxito en catálogo.`);
+
+      // Paso 13: Mostrar servicio activo en lista de atención
+      setMode('list');
+      setForm({ nombre: '', categoria: categoriasSpa[0], duracion: 60, precio: '', comision: 25, cabina: 'Cabina 01' });
+    } catch (err) {
+      setAlertaInvalida('Error inesperado de red al persistir el servicio.');
+    } finally {
+      setCargando(false);
+    }
   };
 
   const filteredCatalogo = (catalogo || []).filter(s => {
@@ -189,60 +469,163 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
     <div className="uc-module">
       <div className="uc-module__header">
         <div>
-          <span className="uc-badge">CUS06 · Área de Recepción</span>
-          <h2 className="uc-module__title">Consultar Catálogo de Servicios y Productos</h2>
-          <p className="uc-module__subtitle">Tarifario oficial, duración, cabinas asignadas y disponibilidad para mostrador</p>
+          <span className="uc-badge">CUS06 · Gestión de Catálogo y Tarifario</span>
+          <h2 className="uc-module__title">Catálogo Oficial de Servicios & Tratamientos</h2>
+          <p className="uc-module__subtitle">
+            Administración de tarifas, comisiones y cabinas asignadas con persistencia en Base de Datos (PostgreSQL)
+          </p>
         </div>
-        <button id="btn-nuevo-servicio" className="btn-gold" onClick={() => setMode(mode === 'form' ? 'list' : 'form')}>
-          {mode === 'form' ? '← Ver Catálogo de Consulta' : '+ Agregar Servicio al Catálogo'}
+        {/* Paso 2: Botón Solicitar formulario de nuevo servicio */}
+        <button
+          id="btn-nuevo-servicio"
+          className="btn-gold"
+          onClick={() => {
+            if (mode === 'form') {
+              setMode('list');
+            } else {
+              handleSolicitarFormulario();
+            }
+          }}
+        >
+          {mode === 'form' ? '← Ver Catálogo de Consulta' : '+ Solicitar Formulario de Nuevo Servicio'}
         </button>
       </div>
 
+      {/* Pasos 14 y 15: Mostrar alerta de datos inválidos en pantalla */}
+      {alertaInvalida && (
+        <div style={{
+          background: '#FFEBEE',
+          border: '1px solid #EF5350',
+          borderRadius: '8px',
+          padding: '12px 18px',
+          marginBottom: '18px',
+          color: '#C62828',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px'
+        }}>
+          <span style={{ fontSize: '1.3rem' }}>⚠️</span>
+          <div style={{ flex: 1, fontSize: '0.92rem', fontWeight: 600 }}>
+            {alertaInvalida}
+          </div>
+          <button
+            type="button"
+            onClick={() => setAlertaInvalida(null)}
+            style={{ background: 'none', border: 'none', color: '#C62828', cursor: 'pointer', fontWeight: 'bold' }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* Paso 5: Desplegar formulario de registro */}
       {mode === 'form' && (
         <form onSubmit={handleSubmit} className="uc-form" id="form-registrar-servicio">
-          <h3 className="uc-form__title">Ficha Técnica de Servicio</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <h3 className="uc-form__title" style={{ margin: 0 }}>
+              Formulario de Registro de Nuevo Servicio en Catálogo
+            </h3>
+            <span style={{ fontSize: '0.82rem', color: '#4A5568', background: '#EDF2F7', padding: '4px 10px', borderRadius: '4px' }}>
+              Validación de tarifa positiva y no duplicidad activa
+            </span>
+          </div>
+
           <div className="uc-form__grid">
-            <div className="form-field" style={{gridColumn:'1/-1'}}>
-              <label htmlFor="servicio-nombre">Nombre del Servicio *</label>
-              <input id="servicio-nombre" name="nombre" value={form.nombre}
-                onChange={e => setForm({...form, nombre: e.target.value})}
-                placeholder="Ej: Masaje Descontracturante Premium" required />
+            {/* Paso 6: Ingresar nombre, categoría, precio, comisión y duración */}
+            <div className="form-field" style={{ gridColumn: '1/-1' }}>
+              <label htmlFor="servicio-nombre">Nombre del Servicio / Tratamiento *</label>
+              <input
+                id="servicio-nombre"
+                name="nombre"
+                value={form.nombre}
+                onChange={e => {
+                  setForm({ ...form, nombre: e.target.value });
+                  if (alertaInvalida) setAlertaInvalida(null);
+                }}
+                placeholder="Ej: Drenaje Linfático Facial & Masaje Craneal"
+                required
+              />
             </div>
             <div className="form-field">
-              <label htmlFor="servicio-categoria">Categoría *</label>
-              <select id="servicio-categoria" value={form.categoria}
-                onChange={e => setForm({...form, categoria: e.target.value})}>
-                {CATEGORIAS.filter(c => c !== 'Todas').map(c => <option key={c} value={c}>{c}</option>)}
+              <label htmlFor="servicio-categoria">Categoría del Spa *</label>
+              <select
+                id="servicio-categoria"
+                value={form.categoria}
+                onChange={e => setForm({ ...form, categoria: e.target.value })}
+              >
+                {categoriasSpa.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div className="form-field">
-              <label htmlFor="servicio-duracion">Duración (min)</label>
-              <input id="servicio-duracion" type="number" min="15" step="15" value={form.duracion}
-                onChange={e => setForm({...form, duracion: parseInt(e.target.value)})} />
+              <label htmlFor="servicio-duracion">Duración en Cabina (minutos &gt; 0) *</label>
+              <input
+                id="servicio-duracion"
+                type="number"
+                min="15"
+                step="15"
+                value={form.duracion}
+                onChange={e => setForm({ ...form, duracion: e.target.value })}
+                required
+              />
             </div>
             <div className="form-field">
-              <label htmlFor="servicio-precio">Precio al Público (S/) *</label>
-              <input id="servicio-precio" type="number" step="0.01" min="0" value={form.precio}
-                onChange={e => setForm({...form, precio: e.target.value})}
-                placeholder="0.00" required />
+              <label htmlFor="servicio-precio">Tarifa / Precio al Público (S/ &gt; 0) *</label>
+              <input
+                id="servicio-precio"
+                type="number"
+                step="0.01"
+                min="0.01"
+                value={form.precio}
+                onChange={e => {
+                  setForm({ ...form, precio: e.target.value });
+                  if (alertaInvalida) setAlertaInvalida(null);
+                }}
+                placeholder="Ej: 180.00"
+                required
+              />
             </div>
             <div className="form-field">
-              <label htmlFor="servicio-cabina">Cabina Sugerida</label>
-              <input id="servicio-cabina" value={form.cabina}
-                onChange={e => setForm({...form, cabina: e.target.value})}
-                placeholder="Cabina 01, 02, etc." />
+              <label htmlFor="servicio-comision">Comisión de Especialista (%)</label>
+              <input
+                id="servicio-comision"
+                type="number"
+                min="0"
+                max="100"
+                value={form.comision}
+                onChange={e => setForm({ ...form, comision: e.target.value })}
+              />
+            </div>
+            <div className="form-field" style={{ gridColumn: '1/-1' }}>
+              <label htmlFor="servicio-cabina">Cabina Climatizada Sugerida</label>
+              <input
+                id="servicio-cabina"
+                value={form.cabina}
+                onChange={e => setForm({ ...form, cabina: e.target.value })}
+                placeholder="Cabina 01 - Facial Oro & Luz LED, Cabina 02 - Masajes, etc."
+              />
             </div>
           </div>
+
           <div className="uc-form__actions">
-            <button type="button" className="btn-secondary" onClick={() => setMode('list')}>Cancelar</button>
-            <button type="submit" className="btn-gold" id="btn-guardar-servicio">Guardar en Catálogo</button>
+            <button type="button" className="btn-secondary" onClick={() => setMode('list')}>
+              Cancelar
+            </button>
+            {/* Paso 7: Presionar botón registrar servicio */}
+            <button
+              type="submit"
+              className="btn-gold btn-gold--large"
+              id="btn-guardar-servicio"
+              disabled={cargando}
+            >
+              {cargando ? 'Validando en Catálogo...' : 'Registrar Servicio'}
+            </button>
           </div>
         </form>
       )}
 
+      {/* Pasos 1 y 13: Mostrar servicio activo en lista de atención */}
       {mode === 'list' && (
         <>
-          {/* Barra de Filtro y Búsqueda Rápida para Recepción */}
           <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
             <input
               type="text"
@@ -255,7 +638,7 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
               }}
             />
             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-              {CATEGORIAS.map(cat => (
+              {['Todas', ...categoriasSpa].map(cat => (
                 <button
                   key={cat}
                   type="button"
@@ -275,21 +658,43 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
           </div>
 
           <div className="catalogo-grid" id="grid-catalogo">
-            {filteredCatalogo.map((s, i) => (
-              <div key={i} className="catalogo-card" style={{ borderTop: '3px solid #D4AF37' }}>
-                <div className="catalogo-card__cat">{s.categoria || 'Tratamiento Spa'}</div>
-                <h4 className="catalogo-card__name">{s.nombre}</h4>
-                <div style={{ fontSize: '0.78rem', color: '#6B7280', margin: '4px 0 8px 0' }}>
-                  {s.cabina || 'Cabina Especializada'}
+            {filteredCatalogo.map((s, i) => {
+              const esReciente = s.id === servicioRecienteId;
+              return (
+                <div
+                  key={i}
+                  className="catalogo-card"
+                  style={{
+                    borderTop: esReciente ? '4px solid #2E7D32' : '3px solid #D4AF37',
+                    background: esReciente ? '#F1F8F4' : '#FFFFFF',
+                    boxShadow: esReciente ? '0 4px 16px rgba(46, 125, 50, 0.2)' : undefined,
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className="catalogo-card__cat">{s.categoria || 'Tratamiento Spa'}</div>
+                    {esReciente ? (
+                      <span className="tag confirmed" style={{ fontSize: '0.72rem' }}>★ Nuevo Activo</span>
+                    ) : (
+                      <span style={{ fontSize: '0.72rem', color: '#2E7D32', fontWeight: 600 }}>● Activo</span>
+                    )}
+                  </div>
+                  <h4 className="catalogo-card__name">{s.nombre}</h4>
+                  <div style={{ fontSize: '0.78rem', color: '#6B7280', margin: '4px 0 8px 0' }}>
+                    {s.cabina || 'Cabina Especializada'}
+                  </div>
+                  <div className="catalogo-card__details">
+                    <span>⏱ {s.duracion} min</span>
+                    <span style={{ fontWeight: 700, color: '#1B3D2B', fontSize: '1.05rem' }}>
+                      S/ {parseFloat(s.precio).toFixed(2)}
+                    </span>
+                  </div>
+                  <div style={{ marginTop: '6px', fontSize: '0.75rem', color: '#718096' }}>
+                    Comisión: {s.comision || 25}%
+                  </div>
                 </div>
-                <div className="catalogo-card__details">
-                  <span>⏱ {s.duracion} min</span>
-                  <span style={{ fontWeight: 700, color: '#1B3D2B', fontSize: '1.05rem' }}>
-                    S/ {parseFloat(s.precio).toFixed(2)}
-                  </span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
             {filteredCatalogo.length === 0 && (
               <p style={{ gridColumn: '1/-1', textAlign: 'center', color: '#6B7280', padding: '30px' }}>
                 No se encontraron servicios que coincidan con la búsqueda.

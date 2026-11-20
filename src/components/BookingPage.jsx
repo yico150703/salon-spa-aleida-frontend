@@ -72,7 +72,6 @@ export default function BookingPage({
   onAddAppointment,
   onBackToHome,
   onSwitchToAdmin,
-  onSwitchToMovil,
   showToast,
   existingCitas = [],
   preselectedService = null
@@ -352,14 +351,6 @@ export default function BookingPage({
               onClick={onSwitchToAdmin}
             >
               Acceso Administrativo (Staff)
-            </button>
-            <button 
-              className="btn-admin-access-pill"
-              onClick={onSwitchToMovil}
-              style={{ background: '#EBF5F0', color: '#1B3D2B', borderColor: '#A3D9B5' }}
-              title="Ver App Móvil para Especialistas"
-            >
-              Móvil Especialistas
             </button>
           </div>
         </div>
