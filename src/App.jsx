@@ -58,7 +58,7 @@ export default function App() {
     setCurrentUser(userWithOriginal);
     showToast(`Bienvenido, ${user.nombre} · ${user.rol}`);
     // Redirigir según rol
-    if (user.permisos?.includes('agenda') || user.permisos?.includes('caja') || user.rol === 'Administrador' || user.rol === 'Recepcionista') {
+    if (user.permisos?.includes('agenda') || user.permisos?.includes('caja') || user.permisos?.includes('personal') || user.permisos?.includes('apertura') || user.rol === 'Administrador' || user.rol === 'Recepcionista' || user.rol === 'Cajero') {
       setView('admin');
     }
   };

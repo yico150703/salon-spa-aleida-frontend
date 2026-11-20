@@ -14,21 +14,21 @@ const USUARIOS_SISTEMA = [
     password: '1234', 
     nombre: 'Aleida Mendoza', 
     rol: 'Administrador', 
-    permisos: ['agenda', 'clientes', 'caja', 'catalogo', 'personal', 'reportes'] 
+    permisos: ['personal', 'catalogo', 'anulaciones', 'operaciones-caja'] 
   },
   { 
     usuario: 'recepcion', 
     password: '1234', 
     nombre: 'Camila Ramos', 
     rol: 'Recepcionista', 
-    permisos: ['agenda', 'clientes'] 
+    permisos: ['agenda', 'clientes', 'reprogramar'] 
   },
   { 
     usuario: 'cajero', 
     password: '1234', 
     nombre: 'Javier Torres', 
     rol: 'Cajero', 
-    permisos: ['caja'] 
+    permisos: ['apertura', 'caja', 'anulaciones', 'operaciones-caja'] 
   },
 ];
 

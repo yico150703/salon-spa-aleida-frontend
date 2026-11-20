@@ -12,37 +12,28 @@ import {
 } from './Icons';
 
 // Matriz de Control de Acceso Basada en Roles (RBAC) para Salon Spa Aleida
+// Estrictamente alineada a los Casos de Uso del Sistema (CUS) y Actores del Modelo Rational Rose
 const ROLE_PERMISSIONS = {
   Administrador: {
     nombre: 'Administrador',
     badgeText: 'Administrador',
-    badgeFull: 'Administrador · Control General',
+    badgeFull: 'Administrador · Parámetros y Supervisión',
     badgeClass: 'rol-admin',
-    descripcion: 'Supervisión integral de los 10 Casos de Uso del Área de Recepción y Atención al Cliente.',
-    defaultTab: 'agenda',
+    descripcion: 'Gestión de personal, mantenimiento de catálogo y tarifario, autorización de notas de crédito y supervisión de cierre de caja.',
+    defaultTab: 'personal',
     sections: [
       {
-        label: '1. Citas & Clientes',
+        label: '1. Gestión & Catálogo',
         tabs: [
-          { id: 'agenda', label: 'CUS04 · Gestionar Citas', icon: CalendarIcon },
-          { id: 'clientes', label: 'CUS03 · Registrar Cliente', icon: UsersIcon },
-          { id: 'reprogramar', label: 'CUS05 · Reprogramar o Cancelar Cita', icon: CalendarIcon }
+          { id: 'personal', label: 'CUS02 · Registrar Personal', icon: UserIcon },
+          { id: 'catalogo', label: 'CUS06 · Registrar Servicio en Catálogo', icon: TagIcon }
         ]
       },
       {
-        label: '2. Caja & Mostrador',
+        label: '2. Supervisión de Caja',
         tabs: [
-          { id: 'apertura', label: 'CUS07 · Aperturar Caja', icon: LockIcon },
-          { id: 'caja', label: 'CUS08 · Procesar Venta / Cobro', icon: CreditCardIcon },
-          { id: 'anulaciones', label: 'CUS09 · Anular Venta (NC)', icon: SlashIcon },
-          { id: 'operaciones-caja', label: 'CUS10 · Arqueo & Cierre', icon: ChartIcon }
-        ]
-      },
-      {
-        label: '3. Catálogo & Personal',
-        tabs: [
-          { id: 'catalogo', label: 'CUS06 · Consultar Catálogo', icon: TagIcon },
-          { id: 'personal', label: 'CUS02 · Registrar Personal', icon: UserIcon }
+          { id: 'anulaciones', label: 'CUS09 · Anular Venta (Autorización NC)', icon: SlashIcon },
+          { id: 'operaciones-caja', label: 'CUS10 · Supervisión de Arqueo y Cierre', icon: ChartIcon }
         ]
       }
     ]
@@ -51,9 +42,9 @@ const ROLE_PERMISSIONS = {
   Recepcionista: {
     nombre: 'Recepcionista',
     badgeText: 'Recepcionista',
-    badgeFull: 'Área de Recepción y Atención al Cliente',
+    badgeFull: 'Área de Recepción · Citas y Clientes',
     badgeClass: 'rol-recepcion',
-    descripcion: 'Atención directa en mostrador, agendamiento de citas, consulta de catálogo y cobranza de tratamientos.',
+    descripcion: 'Atención directa en mostrador, agendamiento de citas en cabinas, registro de nuevos clientes y reprogramación o cancelación de citas.',
     defaultTab: 'agenda',
     sections: [
       {
@@ -63,22 +54,6 @@ const ROLE_PERMISSIONS = {
           { id: 'clientes', label: 'CUS03 · Registrar Cliente', icon: UsersIcon },
           { id: 'reprogramar', label: 'CUS05 · Reprogramar o Cancelar Cita', icon: CalendarIcon }
         ]
-      },
-      {
-        label: 'Caja & Mostrador',
-        tabs: [
-          { id: 'caja', label: 'CUS08 · Procesar Venta / Cobro', icon: CreditCardIcon },
-          { id: 'apertura', label: 'CUS07 · Aperturar Turno', icon: LockIcon },
-          { id: 'anulaciones', label: 'CUS09 · Anular Venta (NC)', icon: SlashIcon },
-          { id: 'operaciones-caja', label: 'CUS10 · Arqueo de Caja', icon: ChartIcon }
-        ]
-      },
-      {
-        label: 'Catálogo & Personal',
-        tabs: [
-          { id: 'catalogo', label: 'CUS06 · Consultar Catálogo', icon: TagIcon },
-          { id: 'personal', label: 'CUS02 · Personal / Terapeutas', icon: UserIcon }
-        ]
       }
     ]
   },
@@ -86,26 +61,18 @@ const ROLE_PERMISSIONS = {
   Cajero: {
     nombre: 'Cajero',
     badgeText: 'Cajero',
-    badgeFull: 'Caja & Mostrador de Recepción',
+    badgeFull: 'Área de Caja · Facturación y Cobro',
     badgeClass: 'rol-cajero',
-    descripcion: 'Cobranzas en mostrador, emisión de boletas, notas de crédito autorizadas y arqueo de caja.',
-    defaultTab: 'caja',
+    descripcion: 'Apertura obligatoria de turno de caja, procesamiento de cobros multicanal, emisión de notas de crédito y arqueo de caja diario.',
+    defaultTab: 'apertura',
     sections: [
       {
-        label: 'Operaciones de Caja',
+        label: 'Operaciones de Caja & Facturación',
         tabs: [
-          { id: 'apertura', label: 'CUS07 · Aperturar Turno', icon: LockIcon },
-          { id: 'caja', label: 'CUS08 · Procesar Venta', icon: CreditCardIcon },
-          { id: 'anulaciones', label: 'CUS09 · Anular Venta (NC)', icon: SlashIcon },
-          { id: 'operaciones-caja', label: 'CUS10 · Arqueo & Cierre', icon: ChartIcon }
-        ]
-      },
-      {
-        label: 'Consultas de Mostrador',
-        tabs: [
-          { id: 'agenda', label: 'CUS04 · Citas por Cobrar', icon: CalendarIcon },
-          { id: 'clientes', label: 'CUS03 · Buscar Cliente', icon: UsersIcon },
-          { id: 'catalogo', label: 'CUS06 · Consultar Tarifario', icon: TagIcon }
+          { id: 'apertura', label: 'CUS07 · Aperturar Turno de Caja', icon: LockIcon },
+          { id: 'caja', label: 'CUS08 · Procesar Venta / Cobro', icon: CreditCardIcon },
+          { id: 'anulaciones', label: 'CUS09 · Anular Venta con Nota de Crédito', icon: SlashIcon },
+          { id: 'operaciones-caja', label: 'CUS10 · Arqueo y Cierre de Caja', icon: ChartIcon }
         ]
       }
     ]
@@ -877,27 +844,27 @@ export default function Dashboard({
                 id="role-switch-admin"
                 className={`btn-role-chip ${userRoleKey === 'Administrador' ? 'active' : ''}`}
                 onClick={() => onChangeRole('Administrador')}
-                title="Administrador: 11 módulos"
+                title="Administrador: CUS02, CUS06, CUS09, CUS10"
               >
-                Admin
+                Admin (4)
               </button>
               <button 
                 type="button"
                 id="role-switch-recepcion"
                 className={`btn-role-chip ${userRoleKey === 'Recepcionista' ? 'active' : ''}`}
                 onClick={() => onChangeRole('Recepcionista')}
-                title="Recepcionista: 4 módulos de atención y citas"
+                title="Recepcionista: CUS03, CUS04, CUS05"
               >
-                Recepción
+                Recepción (3)
               </button>
               <button 
                 type="button"
                 id="role-switch-cajero"
                 className={`btn-role-chip ${userRoleKey === 'Cajero' ? 'active' : ''}`}
                 onClick={() => onChangeRole('Cajero')}
-                title="Cajero: 6 módulos de caja y cobranzas"
+                title="Cajero: CUS07, CUS08, CUS09, CUS10"
               >
-                Cajero
+                Cajero (4)
               </button>
             </div>
           </div>
@@ -927,7 +894,7 @@ export default function Dashboard({
                 const val = e.target.value;
                 setHeaderSearchQuery(val);
                 setClientSearchQuery(val);
-                if (val.trim() && activeTab !== 'clientes' && activeTab !== 'agenda') {
+                if (val.trim() && activeTab !== 'clientes' && activeTab !== 'agenda' && allowedTabs.includes('clientes')) {
                   setActiveTab('clientes');
                 }
               }}
