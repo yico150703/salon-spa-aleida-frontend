@@ -5,6 +5,7 @@ export default function AppointmentModal({
   onClose, 
   citaEditando = null, 
   existingCitas = [],
+  catalogo = [],
   onSaveCita, 
   onReprogramCita, 
   onCancelCita 
@@ -42,7 +43,7 @@ export default function AppointmentModal({
 
     if (mode === 'cancelar') {
       if (!motivoCancelacion.trim()) {
-        alert('Debe especificar un motivo justificado para cancelar la cita (Requerido por CUS05).');
+        alert('Debe especificar un motivo justificado para cancelar la cita.');
         return;
       }
       onCancelCita(citaEditando.id, motivoCancelacion.trim());
@@ -69,13 +70,15 @@ export default function AppointmentModal({
       return;
     }
 
-    // Modo Crear (CUS04 Gestionar Citas)
-    const precios = {
+    // Modo Crear: Resolver precio del catálogo dinámico
+    const srvEnCatalogo = catalogo.find(c => c.nombre.toLowerCase() === servicio.toLowerCase());
+    const preciosFallback = {
       'Masaje Relajante Aleida': 280,
       'Facial Rejuvenecedor con Oro': 450,
       'Tratamiento Capilar Keratina': 350,
       'Manicura Spa Premium': 150
     };
+    const montoFinal = srvEnCatalogo ? Number(srvEnCatalogo.precio) : (preciosFallback[servicio] || 250);
 
     const result = await onSaveCita({
       cliente,
@@ -84,7 +87,7 @@ export default function AppointmentModal({
       especialista,
       fecha,
       hora,
-      monto: precios[servicio] || 200,
+      monto: montoFinal,
       estado: 'Confirmada',
       cobrado: false
     });
@@ -105,11 +108,11 @@ export default function AppointmentModal({
         <div className="modal-header">
           <div>
             <span className="badge-tag gold">
-              {mode === 'crear' ? 'CUS04 · Gestionar Citas' : 'CUS05 · Reprogramar o Cancelar Cita'}
+              {mode === 'crear' ? 'Gestión de Citas' : 'Reprogramar o Cancelar Cita'}
             </span>
             <h2>
               {mode === 'crear' 
-                ? 'Gestionar Cita: Formulario de Registro' 
+                ? 'Formulario de Registro de Cita' 
                 : mode === 'reprogramar' 
                   ? `Reprogramar Cita: ${cliente}` 
                   : `Cancelar Cita: ${cliente}`}
@@ -142,7 +145,7 @@ export default function AppointmentModal({
             {mode === 'cancelar' ? (
               <div className="form-group">
                 <div style={{ background: '#FFF3E0', border: '1px solid #FFE0B2', padding: '12px 14px', borderRadius: '8px', marginBottom: '14px', fontSize: '0.88rem', color: '#E65100' }}>
-                  <strong>Regla de Cancelación (CUS05):</strong> Al confirmar la cancelación con motivo justificado, el sistema liberará de inmediato la cabina y el bloque de horario en la agenda central del spa.
+                  <strong>Regla de Cancelación:</strong> Al confirmar la cancelación con motivo justificado, el sistema liberará de inmediato la cabina y el bloque de horario en la agenda central del spa.
                 </div>
                 <label>Motivo Justificado de Cancelación *</label>
                 <textarea 
@@ -170,10 +173,16 @@ export default function AppointmentModal({
                 <div className="form-group">
                   <label>Servicio Requerido</label>
                   <select value={servicio} onChange={(e) => setServicio(e.target.value)} disabled={isEditing}>
-                    <option value="Masaje Relajante Aleida">Masaje Relajante Aleida (S/ 280)</option>
-                    <option value="Facial Rejuvenecedor con Oro">Facial Rejuvenecedor con Oro (S/ 450)</option>
-                    <option value="Tratamiento Capilar Keratina">Tratamiento Capilar Keratina (S/ 350)</option>
-                    <option value="Manicura Spa Premium">Manicura Spa Premium (S/ 150)</option>
+                    {(catalogo && catalogo.length > 0 ? catalogo : [
+                      { id: 1, nombre: 'Masaje Relajante Aleida', precio: 280 },
+                      { id: 2, nombre: 'Facial Rejuvenecedor con Oro', precio: 450 },
+                      { id: 3, nombre: 'Tratamiento Capilar Keratina', precio: 350 },
+                      { id: 4, nombre: 'Manicura Spa Premium', precio: 150 }
+                    ]).map(s => (
+                      <option key={s.id || s.nombre} value={s.nombre}>
+                        {s.nombre} (S/ {Number(s.precio).toFixed(2)})
+                      </option>
+                    ))}
                   </select>
                 </div>
 

@@ -146,7 +146,7 @@ export default function ClientRegisterModal({
       >
         <div className="modal-header">
           <div>
-            <span className="badge-tag gold">CUS03 · Padrón de Clientes</span>
+            <span className="badge-tag gold">Padrón de Clientes</span>
             <h2>Registrar y Consultar Cliente</h2>
             <small style={{ color: 'var(--color-text-muted)', display: 'block', marginTop: '2px' }}>
               Validación de DNI en Base de Datos y control de expedientes estéticos
@@ -278,7 +278,7 @@ export default function ClientRegisterModal({
                       onClose();
                     }}
                   >
-                    Agendar Cita (CUS04)
+                    Agendar Cita
                   </button>
                 )}
                 {onSelectForPOS && (
@@ -290,7 +290,7 @@ export default function ClientRegisterModal({
                       onClose();
                     }}
                   >
-                    Cargar en POS (CUS08)
+                    Cargar en POS
                   </button>
                 )}
                 <button
@@ -431,7 +431,7 @@ export default function ClientRegisterModal({
                       onClose();
                     }}
                   >
-                    Agendar Cita Inmediata (CUS04)
+                    Agendar Cita Inmediata
                   </button>
                 )}
                 <button

@@ -418,6 +418,7 @@ export default function App() {
           onSwitchToAdmin={() => setView('admin')}
           showToast={showToast}
           existingCitas={citas}
+          catalogo={catalogo}
           preselectedService={preselectedService}
         />
       )}

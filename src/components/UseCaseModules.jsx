@@ -91,7 +91,7 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
     <div className="uc-module">
       <div className="uc-module__header">
         <div>
-          <span className="uc-badge">CUS02 · Gestión de Seguridad</span>
+          <span className="uc-badge">Gestión de Personal y Seguridad</span>
           <h2 className="uc-module__title">Registrar Personal (Colaboradores del Spa)</h2>
           <p className="uc-module__subtitle">
             Alta en Base de Datos (PostgreSQL), verificación de DNI único y entrega de credenciales temporales
@@ -469,7 +469,7 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
     <div className="uc-module">
       <div className="uc-module__header">
         <div>
-          <span className="uc-badge">CUS06 · Gestión de Catálogo y Tarifario</span>
+          <span className="uc-badge">Gestión de Catálogo y Tarifario</span>
           <h2 className="uc-module__title">Catálogo Oficial de Servicios & Tratamientos</h2>
           <p className="uc-module__subtitle">
             Administración de tarifas, comisiones y cabinas asignadas con persistencia en Base de Datos (PostgreSQL)

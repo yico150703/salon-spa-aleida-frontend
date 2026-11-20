@@ -74,6 +74,7 @@ export default function BookingPage({
   onSwitchToAdmin,
   showToast,
   existingCitas = [],
+  catalogo = [],
   preselectedService = null
 }) {
   const [currentStep, setCurrentStep] = useState(1);
@@ -127,7 +128,7 @@ export default function BookingPage({
     }
   }, [preselectedService]);
 
-  const services = [
+  const defaultServices = [
     {
       id: 1,
       nombre: 'Masaje Relajante Aleida',
@@ -169,6 +170,17 @@ export default function BookingPage({
       desc: 'Asesoría de visagismo personalizada, lavado con shampoo dermocosmético, corte de autor y estilizado profesional.'
     }
   ];
+
+  const services = (catalogo && catalogo.length > 0)
+    ? catalogo.map(c => ({
+        id: c.id,
+        nombre: c.nombre,
+        categoria: c.categoria || 'Spa & Bienestar',
+        duracion: Number(c.duracion) || 60,
+        precio: Number(c.precio) || 0,
+        desc: c.desc || `Tratamiento exclusivo de ${c.categoria || 'Spa'} con duración de ${c.duracion} min en cabina climatizada.`
+      }))
+    : defaultServices;
 
   const therapists = [
     { 

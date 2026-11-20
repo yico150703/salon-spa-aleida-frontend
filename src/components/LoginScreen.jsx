@@ -7,6 +7,7 @@
 
 import React, { useState } from 'react';
 import { CalendarIcon, DollarIcon, UsersIcon, ChartIcon, UserIcon, LockIcon } from './Icons';
+import { api } from '../api';
 
 const USUARIOS_SISTEMA = [
   { 
@@ -49,53 +50,44 @@ export default function LoginScreen({ onLogin, onBackToHome }) {
 
     try {
       // 1. Intentar autenticar contra el backend conectado a la Base de Datos
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ usuario: uInput, password: pInput })
-      });
+      const data = await api.login({ usuario: uInput, password: pInput });
 
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success && data.usuario) {
-          const userDB = data.usuario;
-          let rolNormalizado = userDB.rol || 'Recepcionista';
-          if (rolNormalizado.toLowerCase().includes('admin') || rolNormalizado.toLowerCase().includes('gerente')) {
-            rolNormalizado = 'Administrador';
-          } else if (rolNormalizado.toLowerCase().includes('caj')) {
-            rolNormalizado = 'Cajero';
-          } else {
-            rolNormalizado = 'Recepcionista';
-          }
-
-          let permisosArray = [];
-          if (userDB.permisos) {
-            permisosArray = Array.isArray(userDB.permisos)
-              ? userDB.permisos
-              : userDB.permisos.split(',').map(p => p.trim());
-          }
-
-          onLogin({
-            usuario: userDB.usuario,
-            nombre: userDB.nombre,
-            rol: rolNormalizado,
-            dni: userDB.dni,
-            permisos: permisosArray
-          });
-          return;
+      if (data && data.success && data.usuario) {
+        const userDB = data.usuario;
+        let rolNormalizado = userDB.rol || 'Recepcionista';
+        if (rolNormalizado.toLowerCase().includes('admin') || rolNormalizado.toLowerCase().includes('gerente')) {
+          rolNormalizado = 'Administrador';
+        } else if (rolNormalizado.toLowerCase().includes('caj')) {
+          rolNormalizado = 'Cajero';
+        } else {
+          rolNormalizado = 'Recepcionista';
         }
-      } else {
-        const errData = await res.json().catch(() => null);
-        if (errData?.error) {
-          setError(errData.error);
-          setLoading(false);
-          return;
+
+        let permisosArray = [];
+        if (userDB.permisos) {
+          permisosArray = Array.isArray(userDB.permisos)
+            ? userDB.permisos
+            : userDB.permisos.split(',').map(p => p.trim());
         }
+
+        onLogin({
+          usuario: userDB.usuario,
+          nombre: userDB.nombre,
+          rol: rolNormalizado,
+          dni: userDB.dni,
+          permisos: permisosArray
+        });
+        return;
+      } else if (data && data.error) {
+        setError(data.error);
+        setLoading(false);
+        return;
       }
 
       // 2. Fallback de contingencia a usuarios locales autorizados
       const userLocal = USUARIOS_SISTEMA.find(
-        u => u.usuario.toLowerCase() === uInput.toLowerCase() && (u.password === pInput || pInput === '123' || pInput === '1234')
+        u => (u.usuario.toLowerCase() === uInput.toLowerCase() || u.nombre.toLowerCase() === uInput.toLowerCase()) && 
+             (u.password === pInput || pInput === '123' || pInput === '1234')
       );
       if (userLocal) {
         onLogin(userLocal);
@@ -106,7 +98,8 @@ export default function LoginScreen({ onLogin, onBackToHome }) {
     } catch (err) {
       console.warn('Fallo de conexión de red con el backend en login:', err);
       const userLocal = USUARIOS_SISTEMA.find(
-        u => u.usuario.toLowerCase() === uInput.toLowerCase() && (u.password === pInput || pInput === '123' || pInput === '1234')
+        u => (u.usuario.toLowerCase() === uInput.toLowerCase() || u.nombre.toLowerCase() === uInput.toLowerCase()) && 
+             (u.password === pInput || pInput === '123' || pInput === '1234')
       );
       if (userLocal) {
         onLogin(userLocal);

@@ -25,15 +25,15 @@ const ROLE_PERMISSIONS = {
       {
         label: '1. Gestión & Catálogo',
         tabs: [
-          { id: 'personal', label: 'CUS02 · Registrar Personal', icon: UserIcon },
-          { id: 'catalogo', label: 'CUS06 · Registrar Servicio en Catálogo', icon: TagIcon }
+          { id: 'personal', label: 'Gestión de Personal', icon: UserIcon },
+          { id: 'catalogo', label: 'Catálogo de Servicios', icon: TagIcon }
         ]
       },
       {
         label: '2. Supervisión de Caja',
         tabs: [
-          { id: 'anulaciones', label: 'CUS09 · Anular Venta (Autorización NC)', icon: SlashIcon },
-          { id: 'operaciones-caja', label: 'CUS10 · Supervisión de Arqueo y Cierre', icon: ChartIcon }
+          { id: 'anulaciones', label: 'Autorizar Anulaciones y NC', icon: SlashIcon },
+          { id: 'operaciones-caja', label: 'Supervisión de Cierre', icon: ChartIcon }
         ]
       }
     ]
@@ -50,9 +50,9 @@ const ROLE_PERMISSIONS = {
       {
         label: 'Citas & Clientes',
         tabs: [
-          { id: 'agenda', label: 'CUS04 · Gestionar Citas', icon: CalendarIcon },
-          { id: 'clientes', label: 'CUS03 · Registrar Cliente', icon: UsersIcon },
-          { id: 'reprogramar', label: 'CUS05 · Reprogramar o Cancelar Cita', icon: CalendarIcon }
+          { id: 'agenda', label: 'Gestión de Citas', icon: CalendarIcon },
+          { id: 'clientes', label: 'Padrón de Clientes', icon: UsersIcon },
+          { id: 'reprogramar', label: 'Reprogramar o Cancelar Cita', icon: CalendarIcon }
         ]
       }
     ]
@@ -69,10 +69,10 @@ const ROLE_PERMISSIONS = {
       {
         label: 'Operaciones de Caja & Facturación',
         tabs: [
-          { id: 'apertura', label: 'CUS07 · Aperturar Turno de Caja', icon: LockIcon },
-          { id: 'caja', label: 'CUS08 · Procesar Venta / Cobro', icon: CreditCardIcon },
-          { id: 'anulaciones', label: 'CUS09 · Anular Venta con Nota de Crédito', icon: SlashIcon },
-          { id: 'operaciones-caja', label: 'CUS10 · Arqueo y Cierre de Caja', icon: ChartIcon }
+          { id: 'apertura', label: 'Aperturar Turno de Caja', icon: LockIcon },
+          { id: 'caja', label: 'Procesar Venta y Cobro', icon: CreditCardIcon },
+          { id: 'anulaciones', label: 'Emitir Nota de Crédito', icon: SlashIcon },
+          { id: 'operaciones-caja', label: 'Arqueo y Cierre de Caja', icon: ChartIcon }
         ]
       }
     ]
@@ -844,27 +844,27 @@ export default function Dashboard({
                 id="role-switch-admin"
                 className={`btn-role-chip ${userRoleKey === 'Administrador' ? 'active' : ''}`}
                 onClick={() => onChangeRole('Administrador')}
-                title="Administrador: CUS02, CUS06, CUS09, CUS10"
+                title="Perfil Administrador"
               >
-                Admin (4)
+                Admin
               </button>
               <button 
                 type="button"
                 id="role-switch-recepcion"
                 className={`btn-role-chip ${userRoleKey === 'Recepcionista' ? 'active' : ''}`}
                 onClick={() => onChangeRole('Recepcionista')}
-                title="Recepcionista: CUS03, CUS04, CUS05"
+                title="Perfil Recepción"
               >
-                Recepción (3)
+                Recepción
               </button>
               <button 
                 type="button"
                 id="role-switch-cajero"
                 className={`btn-role-chip ${userRoleKey === 'Cajero' ? 'active' : ''}`}
                 onClick={() => onChangeRole('Cajero')}
-                title="Cajero: CUS07, CUS08, CUS09, CUS10"
+                title="Perfil Cajero"
               >
-                Cajero (4)
+                Cajero
               </button>
             </div>
           </div>
@@ -980,14 +980,14 @@ export default function Dashboard({
             <section className="admin-tab">
               <div className="tab-header">
                 <div>
-                  <span className="badge-tag gold">CUS04 · Gestionar Citas</span>
+                  <span className="badge-tag gold">Gestión de Citas</span>
                   <h3>Gestionar Citas &amp; Cabinas Climatizadas</h3>
                   <small style={{ color: 'var(--color-text-muted)' }}>
-                    Valida disponibilidad en tiempo real, registra citas en BD, transiciona a 'Atendida' y libera cabina para cobro en Caja (CUS08).
+                    Valida disponibilidad en tiempo real, registra citas en base de datos, transiciona a 'Atendida' y libera cabina para cobro en Caja.
                   </small>
                 </div>
                 <button className="btn-action primary" onClick={() => { setEditingAppt(null); setIsApptModalOpen(true); }}>
-                  + Gestionar Nueva Cita (CUS04)
+                  + Gestionar Nueva Cita
                 </button>
               </div>
 
@@ -1108,7 +1108,7 @@ export default function Dashboard({
                                   style={{ background: '#E8F5E9', color: '#1B5E20', borderColor: '#81C784', fontWeight: 600 }}
                                   onClick={async () => {
                                     await onChangeCitaEstado?.(c.id, 'Atendida');
-                                    showToast(`Cita #${c.id} de ${c.cliente} marcada como 'Atendida'. Cabina liberada y lista para cobro en Caja (CUS08).`);
+                                    showToast(`Cita #${c.id} de ${c.cliente} marcada como 'Atendida'. Cabina liberada y lista para cobro en Caja.`);
                                   }}
                                   title="Registrar fin de atención en cabina y liberar cabina para cobro en POS"
                                 >
@@ -1184,7 +1184,7 @@ export default function Dashboard({
                   id="btn-abrir-registro-cliente"
                   onClick={() => setIsClientRegisterModalOpen(true)}
                 >
-                  + Consultar / Registrar Cliente (CUS03)
+                  + Consultar / Registrar Cliente
                 </button>
               </div>
             </div>
@@ -1297,10 +1297,10 @@ export default function Dashboard({
           <section className="admin-tab">
             <div className="tab-header">
               <div>
-                <span className="badge-tag gold">CUS05 · Modificación de Agenda</span>
+                <span className="badge-tag gold">Modificación de Agenda</span>
                 <h3>Reprogramar o Cancelar Citas del Spa</h3>
                 <small style={{ color: 'var(--color-text-muted)' }}>
-                  Flujo CUS05: Selección de cita en agenda → Reprogramar validando cabina/turno disponible, o Cancelar registrando motivo justificado y liberando de inmediato cabina y horario.
+                  Selección de cita en agenda → Reprogramar validando cabina y turno disponible, o Cancelar registrando motivo justificado y liberando cabina.
                 </small>
               </div>
             </div>
@@ -1318,7 +1318,7 @@ export default function Dashboard({
                           <button 
                             className="btn-table" 
                             onClick={() => { setEditingAppt(c); setIsApptModalOpen(true); }}
-                            title="Modificar fecha y bloque de horario (CUS05)"
+                            title="Modificar fecha y bloque de horario"
                           >
                             Reprogramar
                           </button>
@@ -1326,7 +1326,7 @@ export default function Dashboard({
                             className="btn-table" 
                             style={{ color: 'var(--color-danger)', borderColor: '#EF5350' }} 
                             onClick={() => { setEditingAppt(c); setIsApptModalOpen(true); }}
-                            title="Cancelar cita con registro de motivo justificado (CUS05)"
+                            title="Cancelar cita con registro de motivo justificado"
                           >
                             Cancelar
                           </button>
@@ -2105,49 +2105,7 @@ export default function Dashboard({
           </section>
         )}
 
-        {/* TAB 7: CATALOGO DE SERVICIOS */}
-        {activeTab === 'catalogo' && (
-          <section className="admin-tab">
-            <div className="tab-header">
-              <div>
-                <span className="badge-tag gold">Catálogo &amp; Tarifario</span>
-                <h3>Catálogo de Tratamientos, Tarifario & Comisiones</h3>
-                <small style={{ color: 'var(--color-text-muted)' }}>
-                  Administración de precios al público, duración en cabina y comisiones de las estilistas (25%-35%).
-                </small>
-              </div>
-              <button className="btn-action primary" onClick={() => showToast('Formulario de alta de nuevo servicio abierto')}>
-                + Añadir Servicio
-              </button>
-            </div>
-            <div className="agenda-table-wrapper">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Tratamiento</th>
-                    <th>Categoría</th>
-                    <th>Duración</th>
-                    <th>Precio al Público</th>
-                    <th>Comisión Estilista</th>
-                    <th>Estado en Portal Web</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {catalogo.map(cat => (
-                    <tr key={cat.id}>
-                      <td><strong>{cat.nombre}</strong></td>
-                      <td>{cat.categoria}</td>
-                      <td>{cat.duracion} min</td>
-                      <td>S/ {cat.precio.toFixed(2)}</td>
-                      <td>{cat.comision}% (S/ {(cat.precio * cat.comision / 100).toFixed(2)})</td>
-                      <td><span className="tag attended">Visible en Portal Web</span></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        )}
+
 
         {/* TAB 8: USUARIOS Y ACCESOS */}
         {activeTab === 'usuarios' && (
@@ -2278,6 +2236,7 @@ export default function Dashboard({
         onClose={() => setIsApptModalOpen(false)}
         citaEditando={editingAppt}
         existingCitas={citas}
+        catalogo={catalogo}
         onSaveCita={(newCita) => {
           onAddCita(newCita);
           showToast(`Cita agendada para ${newCita.cliente} con ${newCita.especialista}.`);
