@@ -16,7 +16,7 @@
  * =============================================================================
  */
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000/api';
 
 // Estado Mock inicial para contingencia / modo offline de mostrador
 export const initialMockState = {
@@ -134,6 +134,18 @@ export const api = {
       if (res.ok) return await res.json();
     } catch (_) {}
     return initialMockState.citas;
+  },
+
+  // CUS05 Paso 2: Solicitar datos de cita seleccionada
+  async getCitaById(citaId) {
+    try {
+      const res = await fetch(`${API_BASE}/citas/${citaId}`);
+      if (res.ok) {
+        const data = await res.json();
+        return data.cita || data;
+      }
+    } catch (_) {}
+    return null;
   },
 
   async createCita(citaData) {

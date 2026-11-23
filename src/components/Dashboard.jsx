@@ -1321,18 +1321,18 @@ export default function Dashboard({
                         <div style={{display:'flex',gap:'6px'}}>
                           <button 
                             className="btn-table" 
-                            onClick={() => { setEditingAppt(c); setIsApptModalOpen(true); }}
-                            title="Modificar fecha y bloque de horario"
+                            onClick={() => { setEditingAppt({ ...c, _preferredMode: 'reprogramar' }); setIsApptModalOpen(true); }}
+                            title="Modificar fecha y bloque de horario (Flujo CUS05)"
                           >
-                            Reprogramar
+                            🔄 Reprogramar
                           </button>
                           <button 
                             className="btn-table" 
                             style={{ color: 'var(--color-danger)', borderColor: '#EF5350' }} 
-                            onClick={() => { setEditingAppt(c); setIsApptModalOpen(true); }}
+                            onClick={() => { setEditingAppt({ ...c, _preferredMode: 'cancelar' }); setIsApptModalOpen(true); }}
                             title="Cancelar cita con registro de motivo justificado"
                           >
-                            Cancelar
+                            ❌ Cancelar
                           </button>
                         </div>
                       </td>
@@ -2249,12 +2249,14 @@ export default function Dashboard({
         }}
         onReprogramCita={async (id, nFecha, nHora) => {
           const res = await onReprogramCita(id, nFecha, nHora);
-          showToast(`Cita reprogramada para ${nFecha} a las ${nHora}.`);
+          if (res && res.success !== false) {
+            showToast(`Paso 13: Cita #${id} actualizada en la agenda (${nFecha} a las ${nHora}) - Estado: Reprogramada`);
+          }
           return res;
         }}
         onCancelCita={async (id, motivo) => {
           const res = await onCancelCita(id, motivo);
-          showToast(`Cita cancelada con motivo: ${motivo}`);
+          showToast(`Cita #${id} cancelada exitosamente. Horario y cabina liberados en base de datos.`);
           return res;
         }}
       />
