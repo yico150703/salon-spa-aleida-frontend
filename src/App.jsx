@@ -31,10 +31,10 @@ export default function App() {
   // DS_CU07: Estado apertura de caja
   const [cajaAbierta, setCajaAbierta] = useState(false);
 
-  // Sincronización continua en tiempo real con PostgreSQL (Render API REST)
+  // Carga inicial completa al arrancar la aplicación
   useEffect(() => {
     let isMounted = true;
-    const sincronizarTodo = async () => {
+    const cargarDatosIniciales = async () => {
       try {
         const [citasData, clientesData, personalData, catalogoData, cajaData, ventasData, anulacionesData] = await Promise.all([
           api.getCitas(),
@@ -52,7 +52,7 @@ export default function App() {
         if (clientesData && Array.isArray(clientesData)) setClientes(clientesData);
         if (personalData && Array.isArray(personalData)) setUsuarios(personalData);
         if (catalogoData && Array.isArray(catalogoData)) setCatalogo(catalogoData);
-        if (cajaData && typeof cajaData === 'object' && cajaData.saldo_teorico !== undefined) {
+        if (cajaData && typeof cajaData === 'object' && (cajaData.saldo_teorico !== undefined || cajaData.apertura !== undefined)) {
           setCaja(cajaData);
           if (cajaData.estado === 'Abierta') setCajaAbierta(true);
           else if (cajaData.estado === 'Cerrada') setCajaAbierta(false);
@@ -60,16 +60,26 @@ export default function App() {
         if (ventasData && Array.isArray(ventasData)) setVentas(ventasData);
         if (anulacionesData && Array.isArray(anulacionesData)) setAnulaciones(anulacionesData);
       } catch (err) {
-        // En caso de latencia de red, mantener estado sin interrumpir
+        console.warn('Error en carga inicial:', err);
       }
     };
 
-    sincronizarTodo();
-    const intervalId = setInterval(sincronizarTodo, 2500); // Polling cada 2.5 segundos
+    cargarDatosIniciales();
+
+    // Sincronización continua ÚNICAMENTE de la agenda de citas (para no interferir con la caja activa)
+    const syncInterval = setInterval(async () => {
+      if (!isMounted) return;
+      try {
+        const citasActualizadas = await api.getCitas();
+        if (isMounted && citasActualizadas && Array.isArray(citasActualizadas)) {
+          setCitas(citasActualizadas);
+        }
+      } catch (_) {}
+    }, 5000);
 
     return () => {
       isMounted = false;
-      clearInterval(intervalId);
+      clearInterval(syncInterval);
     };
   }, []);
 
