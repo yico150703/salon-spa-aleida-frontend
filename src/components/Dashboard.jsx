@@ -1019,26 +1019,7 @@ export default function Dashboard({
       <main className="admin-main">
         {/* Top Header Bar */}
         <header className="admin-header">
-          <div className="header-search">
-            <input 
-              type="text" 
-              placeholder="Buscar cliente por DNI, nombre o cita..." 
-              value={headerSearchQuery}
-              onChange={(e) => {
-                const val = e.target.value;
-                setHeaderSearchQuery(val);
-                setClientSearchQuery(val);
-                if (val.trim() && activeTab !== 'clientes' && activeTab !== 'agenda' && allowedTabs.includes('clientes')) {
-                  setActiveTab('clientes');
-                }
-              }}
-            />
-          </div>
-          <div className="header-status">
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#E8F5E9', border: '1px solid #A5D6A7', padding: '5px 11px', borderRadius: '12px', fontSize: '0.78rem', color: '#1B5E20' }}>
-              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#2E7D32', display: 'inline-block', boxShadow: '0 0 6px #2E7D32' }}></span>
-              <strong>PostgreSQL Render (En Vivo)</strong>
-            </div>
+          <div className="header-status" style={{ marginLeft: 'auto' }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#F4F7F5', border: '1px solid #D1E7DD', padding: '5px 12px', borderRadius: '8px', fontSize: '0.82rem' }}>
               <span style={{ color: '#555' }}>Fecha:</span> <strong style={{ color: '#1B3D2B' }}>{caja.fecha || todayStr}</strong>
               <span style={{ color: '#CCC' }}>|</span>
@@ -1458,7 +1439,7 @@ export default function Dashboard({
                             onClick={() => { setEditingAppt({ ...c, _preferredMode: 'reprogramar' }); setIsApptModalOpen(true); }}
                             title="Modificar fecha y bloque de horario (Flujo CUS05)"
                           >
-                            🔄 Reprogramar
+                            Reprogramar
                           </button>
                           <button 
                             className="btn-table" 
@@ -1466,7 +1447,7 @@ export default function Dashboard({
                             onClick={() => { setEditingAppt({ ...c, _preferredMode: 'cancelar' }); setIsApptModalOpen(true); }}
                             title="Cancelar cita con registro de motivo justificado"
                           >
-                            ❌ Cancelar
+                            Cancelar
                           </button>
                         </div>
                       </td>
@@ -1511,11 +1492,7 @@ export default function Dashboard({
           <section className="admin-tab">
             <div className="tab-header">
               <div>
-                <span className="badge-tag gold">:FormPOS · CUS Procesar Venta y Cobro (Diagrama BCE)</span>
                 <h3>Punto de Venta (POS) &amp; Emisión de Boleta Electrónica</h3>
-                <small style={{ color: 'var(--color-text-muted)' }}>
-                  Actor: :Cajero | Límite: :FormPOS | Control: :VentaService | Entidad: :Venta (PostgreSQL: "VentaComprobante", "Cita", "CajaSesion")
-                </small>
               </div>
               {onRefreshCaja && (
                 <button 
@@ -1527,14 +1504,6 @@ export default function Dashboard({
                   Sincronizar Caja
                 </button>
               )}
-            </div>
-
-            {/* Traza Didáctica del Diagrama de Secuencia Oficial BCE */}
-            <div style={{ background: '#F8F9FA', border: '1px solid #E9ECEF', borderRadius: '8px', padding: '10px 14px', marginBottom: '16px', fontSize: '0.82rem', color: '#495057' }}>
-              <strong>Flujo del Diagrama de Secuencia BCE:</strong>{' '}
-              1: Seleccionar cita finalizada (Atendida) → 2: Solicitar liquidación → 3: Calcular subtotal e IGV → 4: Retornar desglose → 5: Mostrar pantalla cobro → 6: Seleccionar medio e ingresar monto → 7: Presionar cobrar y emitir boleta → 8: Validar pago conforme y caja abierta →{' '}
-              <strong style={{ color: '#2E7D32' }}>[Pago Conforme]</strong> 9: Registrar venta y boleta → 10: Confirmar en BD y actualizar cita → 11: Notificar éxito → 12: Mostrar boleta para imprimir |{' '}
-              <strong style={{ color: '#C62828' }}>[Monto Insuficiente]</strong> 13: Notificar importe menor → 14: Mostrar alerta en pantalla.
             </div>
 
             {/* Alerta de Saldo Insuficiente */}
@@ -1919,8 +1888,8 @@ export default function Dashboard({
             <div className="pos-layout">
               <div className="pos-checkout">
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                  <h3 style={{ margin: 0 }}>:FormAnulacion — Emisión de Nota de Crédito</h3>
-                  <span className="badge-tag" style={{ background: '#FBE9E7', color: '#D32F2F', fontWeight: 600 }}>CUS-09 BCE Oficial</span>
+                  <h3 style={{ margin: 0 }}>Emisión de Nota de Crédito</h3>
+                  <span className="badge-tag" style={{ background: '#FBE9E7', color: '#D32F2F', fontWeight: 600 }}>Nota de Crédito Oficial</span>
                 </div>
 
                 <div style={{ background: '#F8F9FA', border: '1px solid #E0E0E0', borderRadius: '8px', padding: '12px', marginBottom: '16px' }}>

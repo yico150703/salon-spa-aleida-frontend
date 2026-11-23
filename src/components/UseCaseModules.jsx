@@ -25,12 +25,11 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
   const [credencialesGeneradas, setCredencialesGeneradas] = useState(null);
   const [cargando, setCargando] = useState(false);
 
-  const ROLES = ['Recepcionista', 'Cajero', 'Administrador', 'Terapeuta'];
+  const ROLES = ['Recepcionista', 'Cajero', 'Administrador'];
   const PERMISOS_ROL = {
     'Recepcionista': 'Agenda de citas (CUS04), clientes (CUS03) y POS mostrador',
     'Cajero': 'Cobranzas (CUS08), arqueo de caja (CUS10) y comprobantes',
-    'Administrador': 'Control total del sistema, gestión de personal, seguridad y parámetros',
-    'Terapeuta': 'Consulta de agenda de cabinas y atenciones de spa'
+    'Administrador': 'Control total del sistema, gestión de personal, seguridad y parámetros'
   };
 
   const handleChange = (e) => {
@@ -823,15 +822,6 @@ export function AperturasCaja({ onApertura, caja, cajaAbierta, currentUser, show
               </p>
             </div>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              {onNavigateTab && (
-                <button 
-                  className="btn-gold" 
-                  onClick={() => onNavigateTab('caja')}
-                  style={{ fontSize: '0.84rem' }}
-                >
-                  Continuar con Cobros (Ir a POS) →
-                </button>
-              )}
               <button 
                 className="btn-outline" 
                 onClick={() => setModoEdicion(true)}

@@ -373,10 +373,10 @@ export default function AppointmentModal({
           <div>
             <span className="badge-tag gold">
               {mode === 'crear'
-                ? 'CUS04: Agendar Cita - Atención en Mostrador'
+                ? 'Agendar Cita - Atención en Mostrador'
                 : mode === 'reprogramar'
-                  ? ':FormAgenda · CUS Reprogramar Cita (Diagrama de Secuencia BCE)'
-                  : ':FormAgenda · Cancelar Cita (Liberación de Cabina)'}
+                  ? 'Reprogramación de Cita'
+                  : 'Cancelar Cita (Liberación de Cabina)'}
             </span>
             <h2 style={{ fontSize: '1.24rem', marginTop: '4px' }}>
               {confirmedVoucher
@@ -399,19 +399,19 @@ export default function AppointmentModal({
               className={`btn-pill ${mode === 'reprogramar' ? 'active' : ''}`}
               onClick={() => { setMode('reprogramar'); setBackendError(''); }}
             >
-              🔄 Opción A: Reprogramar Cita (Flujo CUS05)
+              Reprogramar Cita
             </button>
             <button
               type="button"
               className={`btn-pill ${mode === 'cancelar' ? 'active' : ''}`}
               onClick={() => { setMode('cancelar'); setBackendError(''); }}
             >
-              ❌ Opción B: Cancelar Cita (Liberar Turno)
+              Cancelar Cita (Liberar Turno)
             </button>
           </div>
         )}
 
-        {/* VISTA 1: TICKET / VOUCHER DE CONFIRMACIÓN (Paso 11 del Diagrama de Secuencia) */}
+        {/* VISTA 1: TICKET / VOUCHER DE CONFIRMACIÓN */}
         {confirmedVoucher ? (
           <div className="modal-body" style={{ padding: '20px 24px' }}>
             <div style={{
