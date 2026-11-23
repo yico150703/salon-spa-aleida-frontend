@@ -384,7 +384,7 @@ export default function AppointmentModal({
                 : mode === 'crear'
                   ? 'Formulario de Registro de Cita'
                   : mode === 'reprogramar'
-                    ? `Paso 5: Desplegar modal de reprogramación (:CitaService → :FormAgenda)`
+                    ? 'Reprogramación de Cita'
                     : `Cancelar Cita #${citaEditando?.id || ''}: ${cliente}`}
             </h2>
           </div>
@@ -740,7 +740,7 @@ export default function AppointmentModal({
                     }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                         <span style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', color: '#0D47A1', letterSpacing: '0.04em' }}>
-                          Paso 2, 3 y 4: Expediente de Cita Consultado (:Cita → :CitaService → :FormAgenda)
+                          Expediente de Cita Consultado
                         </span>
                         <span style={{ fontSize: '0.75rem', background: '#BBDEFB', color: '#0D47A1', padding: '2px 8px', borderRadius: '10px', fontWeight: 700 }}>
                           Cita #{citaEditando?.id}
@@ -756,7 +756,7 @@ export default function AppointmentModal({
                     </div>
                   )}
 
-                  {/* SECCIÓN 3: FECHA, HORARIO Y VALIDACIÓN DE CONFLICTO (Pasos 6 a 15) */}
+                  {/* SECCIÓN 3: FECHA, HORARIO Y VALIDACIÓN DE CONFLICTO */}
                   <div style={{
                     background: '#FFFFFF',
                     border: '1px solid #E2E8F0',
@@ -766,7 +766,7 @@ export default function AppointmentModal({
                   }}>
                     <span style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', color: '#1B3D2B', letterSpacing: '0.04em', display: 'block', marginBottom: '10px' }}>
                       {mode === 'reprogramar'
-                        ? 'Paso 6: Ingresar nueva fecha y nuevo horario (:Recepcionista → :FormAgenda)'
+                        ? 'Ingresar nueva fecha y nuevo horario'
                         : '3. Programación de Agenda y Horario'}
                     </span>
 
@@ -801,7 +801,7 @@ export default function AppointmentModal({
                       </div>
                     </div>
 
-                    {/* Alerta de Conflicto en Tiempo Real (Secuencia CUS05 Pasos 14 y 15: Nuevo Horario Ocupado) */}
+                    {/* Alerta de Conflicto en Tiempo Real */}
                     {(hasConflict || backendError) ? (
                       <div className="alert-box warning" style={{
                         background: '#FFF3F3',
@@ -816,7 +816,7 @@ export default function AppointmentModal({
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
                           <span style={{ fontSize: '1.1rem' }}>⚠️</span>
                           <strong style={{ fontSize: '0.88rem' }}>
-                            Paso 14 y 15: Notificar conflicto de horario y mostrar alerta en pantalla
+                            Conflicto de horario de especialista
                           </strong>
                         </div>
                         <div style={{ color: '#721C24' }}>
@@ -831,7 +831,7 @@ export default function AppointmentModal({
                         </div>
                       </div>
                     ) : (
-                      /* Alerta de Disponibilidad Exitosa (Secuencia CUS05 Pasos 8 y 9: Nuevo Horario Disponible) */
+                      /* Alerta de Disponibilidad Exitosa */
                       <div style={{
                         background: '#F0F9F4',
                         border: '1px solid #A3D3B4',
@@ -846,7 +846,7 @@ export default function AppointmentModal({
                       }}>
                         <span>✓</span>
                         <span>
-                          <strong>Paso 8 y 9: Confirmación de horario libre:</strong> {especialista.split('(')[0].trim()} disponible para atención a las {hora} del {fecha}.
+                          <strong>Confirmación de horario libre:</strong> {especialista.split('(')[0].trim()} disponible para atención a las {hora} del {fecha}.
                         </span>
                       </div>
                     )}
@@ -929,7 +929,7 @@ export default function AppointmentModal({
                   : mode === 'crear'
                     ? `Confirmar Cita (S/ ${Number(currentServiceObj?.precio || 250).toFixed(2)})`
                     : mode === 'reprogramar'
-                      ? 'Paso 7: Solicitar validación y reprogramar cita'
+                      ? 'Solicitar validación y reprogramar cita'
                       : 'Confirmar Cancelación y Liberar Cabina'}
               </button>
             </div>

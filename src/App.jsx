@@ -346,17 +346,17 @@ export default function App() {
         responsable: resp
       });
 
-      // Rama [Discrepancia != 0.00] (Pasos 13 y 14)
+      // Rama [Discrepancia != 0.00]
       if (res && res.success === false) {
-        showToast(res.error || res.mensaje || 'Paso 13: Discrepancia detectada en arqueo.');
+        showToast(res.error || res.mensaje || 'Discrepancia detectada en arqueo.');
         return res;
       }
 
-      // Rama [Discrepancia = 0.00] (Pasos 9, 10, 11, 12)
+      // Rama [Discrepancia = 0.00]
       setCajaAbierta(false);
       const cajaActual = await api.getCaja();
       if (cajaActual) setCaja(cajaActual);
-      showToast(res?.message || `Paso 10: Arqueo conciliado al 100% y sesión cerrada en base de datos.`);
+      showToast(res?.message || `Arqueo conciliado al 100% y sesión cerrada en base de datos.`);
       return res;
     } catch (err) {
       console.error('Error cerrando caja en backend:', err);

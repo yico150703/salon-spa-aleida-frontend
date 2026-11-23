@@ -57,7 +57,7 @@ export default function CashAuditModal({
           setSaldoTeoricoActual(teorico);
           setDatosSesion(prev => ({ ...prev, ...res }));
           autocalcularDenominaciones(teorico);
-          setMensajePaso(`Paso 4: Saldo teórico acumulado S/ ${teorico.toFixed(2)} consultado desde PostgreSQL.`);
+          setMensajePaso(`Saldo teórico acumulado S/ ${teorico.toFixed(2)} consultado desde la base de datos.`);
         }
       } catch (_) {
         if (montado) {
@@ -110,15 +110,15 @@ export default function CashAuditModal({
     try {
       const res = await onConfirmCierre(totalFisico, diferencia, responsable);
 
-      // Rama [Discrepancia != 0.00] (Pasos 13 y 14)
+      // Rama [Discrepancia != 0.00]
       if (res && res.success === false) {
         setAlertaDiscrepancia(
-          res.error || `Paso 13: Notificar discrepancia existente en caja. Hay una diferencia de S/ ${diferencia.toFixed(2)}. ${res.alerta || 'Paso 14: Reintentar digitar cantidades contadas en gaveta.'}`
+          res.error || `Discrepancia existente en caja. Hay una diferencia de S/ ${diferencia.toFixed(2)}. ${res.alerta || 'Reintentar digitar cantidades contadas en gaveta.'}`
         );
         return;
       }
 
-      // Rama [Discrepancia = 0.00] (Pasos 9, 10, 11, 12)
+      // Rama [Discrepancia = 0.00]
       if (res && res.reporte_z) {
         setReporteZ(res.reporte_z);
       } else {
@@ -154,21 +154,21 @@ export default function CashAuditModal({
           <>
             <div className="modal-header">
               <div>
-                <span className="badge-tag gold">CUS-10 BCE Oficial</span>
-                <h2 style={{ margin: '4px 0 0' }}>:FormArqueo — Arqueo y Cierre de Caja</h2>
+                <span className="badge-tag gold">Control de Caja</span>
+                <h2 style={{ margin: '4px 0 0' }}>Arqueo y Cierre de Caja</h2>
                 <small style={{ color: 'var(--color-text-muted)' }}>
-                  Alineado estrictamente a los 14 pasos del Diagrama de Secuencia Oficial.
+                  Arqueo físico, consulta de saldo teórico y emisión de Reporte Z.
                 </small>
               </div>
               <button className="btn-close" onClick={onClose}>&times;</button>
             </div>
 
             <div className="modal-body">
-              {/* Paso 4: Saldo teórico acumulado */}
+              {/* Saldo teórico acumulado */}
               <div style={{ background: '#E8F5E9', border: '1px solid #A5D6A7', borderRadius: '8px', padding: '12px 14px', marginBottom: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <strong style={{ color: '#2E7D32', fontSize: '0.88rem' }}>
-                    Paso 4: Saldo Teórico Acumulado en Sesión ({datosSesion.turno || 'Turno Mañana'}):
+                    Saldo Teórico Acumulado en Sesión ({datosSesion.turno || 'Turno Mañana'}):
                   </strong>
                   <div style={{ fontSize: '0.8rem', color: '#555', marginTop: '2px' }}>
                     Apertura: S/ {Number(datosSesion.apertura || caja.apertura || 0).toFixed(2)} + Efectivo: S/ {Number(datosSesion.efectivo || caja.efectivo || 0).toFixed(2)} + Digital: S/ {Number(datosSesion.digital || caja.digital || 0).toFixed(2)} - Egresos: S/ {Number(datosSesion.egresos || caja.egresos || 0).toFixed(2)}
@@ -179,10 +179,10 @@ export default function CashAuditModal({
                 </strong>
               </div>
 
-              {/* Paso 5 y 6: Mostrar formulario de arqueo y desglosador */}
+              {/* Formulario de arqueo y desglosador */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
                 <p style={{ color: '#1B3D2B', fontSize: '0.86rem', margin: 0, fontWeight: 600 }}>
-                  6: Digitar cantidades contadas en gaveta física:
+                  Digitar cantidades contadas en gaveta física:
                 </p>
                 <div style={{ display: 'flex', gap: '6px' }}>
                   <button 
@@ -312,7 +312,7 @@ export default function CashAuditModal({
 
             <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '16px' }}>
               <button className="btn-outline" onClick={onClose} disabled={cargando}>Cancelar</button>
-              {/* Paso 8: Calcular saldo teórico vs total físico contado (:FormArqueo -> :CajaService) */}
+              {/* Calcular saldo teórico vs total físico contado */}
               <button 
                 id="btn-confirmar-arqueo"
                 className="btn-action success" 
@@ -320,18 +320,18 @@ export default function CashAuditModal({
                 disabled={cargando}
                 style={{ padding: '12px 20px', fontWeight: 700 }}
               >
-                {cargando ? 'Conciliando con Servidor...' : 'Paso 8: Calcular Saldo Teórico vs Total Físico & Conciliar'}
+                {cargando ? 'Conciliando con Servidor...' : 'Calcular Saldo Teórico vs Total Físico & Conciliar'}
               </button>
             </div>
           </>
         )}
 
-        {/* VISTA 2: REPORTE Z OFICIAL DE AUDITORÍA FINAL (Pasos 11 y 12) */}
+        {/* VISTA 2: REPORTE Z OFICIAL DE AUDITORÍA FINAL */}
         {reporteZ && (
           <div className="reporte-z-container" style={{ padding: '10px' }}>
             <div style={{ textAlign: 'center', borderBottom: '2px solid #1B3D2B', paddingBottom: '12px', marginBottom: '14px' }}>
               <span className="badge-tag gold" style={{ marginBottom: '6px' }}>
-                Paso 12: Emitir Reporte Z de Auditoría Final y Fin de Turno
+                Reporte Z de Auditoría Final y Fin de Turno
               </span>
               <h2 style={{ margin: '6px 0 2px', color: '#1B3D2B', fontSize: '1.4rem' }}>SALON SPA ALEIDA S.A.C.</h2>
               <p style={{ margin: 0, fontSize: '0.82rem', color: '#666' }}>RUC: 20608192831 · Av. Conquistadores 450, San Isidro, Lima</p>

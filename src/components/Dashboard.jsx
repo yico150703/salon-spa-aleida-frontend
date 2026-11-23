@@ -708,25 +708,22 @@ export default function Dashboard({
     setCashGiven(cita.monto.toString());
     setActiveTab('caja');
 
-    // Paso 2: Solicitar liquidación de cita con estado Atendida (:FormPOS -> :VentaService)
     try {
       const liq = await api.liquidarCita(cita.id);
       if (liq && liq.success) {
-        showToast(`Paso 4: Desglose liquidado — Subtotal: S/ ${liq.subtotal.toFixed(2)}, IGV: S/ ${liq.igv.toFixed(2)}, Total: S/ ${liq.total.toFixed(2)}.`);
+        showToast(`Desglose liquidado — Subtotal: S/ ${liq.subtotal.toFixed(2)}, IGV: S/ ${liq.igv.toFixed(2)}, Total: S/ ${liq.total.toFixed(2)}.`);
       }
     } catch (_) {}
-    showToast(`Paso 1: Cita de ${cita.cliente} (Atendida) cargada en terminal POS.`);
+    showToast(`Cita de ${cita.cliente} (Atendida) cargada en terminal POS.`);
   };
 
-  // Paso 7: Presionar botón cobrar y emitir boleta (:Cajero -> :FormPOS)
   const handleExecutePayment = async (e) => {
     e.preventDefault();
     setAlertaInsuficiente(null);
 
-    // Paso 8: Validar caja abierta
     const cajaEstaAbierta = (caja?.estado === 'Abierta') || (caja?.estadosesion === 'Abierta') || cajaAbierta;
     if (!cajaEstaAbierta) {
-      const errorMsg = 'Paso 8: Validación fallida — La caja de turno no se encuentra abierta. Debe ingresar al módulo de Caja y aperturar el turno antes de procesar cobros.';
+      const errorMsg = 'Validación fallida — La caja de turno no se encuentra abierta. Debe ingresar al módulo de Caja y aperturar el turno antes de procesar cobros.';
       setAlertaInsuficiente(errorMsg);
       showToast(`⚠️ ${errorMsg}`);
       return;
@@ -737,14 +734,12 @@ export default function Dashboard({
       return;
     }
 
-    // Paso 8: Validar pago conforme (monto ingresado vs total a pagar)
     let montoIngresado = totalFacturado;
     if (posPaymentMethod === 'Efectivo') {
       montoIngresado = parseFloat(cashGiven) || 0;
       if (montoIngresado < totalFacturado) {
-        // Paso 13 & 14: Notificar importe menor al total a pagar y mostrar alerta de saldo insuficiente
         const faltante = (totalFacturado - montoIngresado).toFixed(2);
-        const errorMsg = `Paso 13 & 14: Saldo insuficiente — El monto entregado en efectivo (S/ ${montoIngresado.toFixed(2)}) es menor al total a pagar de S/ ${totalFacturado.toFixed(2)} (Faltan S/ ${faltante}).`;
+        const errorMsg = `Saldo insuficiente — El monto entregado en efectivo (S/ ${montoIngresado.toFixed(2)}) es menor al total a pagar de S/ ${totalFacturado.toFixed(2)} (Faltan S/ ${faltante}).`;
         setAlertaInsuficiente(errorMsg);
         showToast(`⚠️ ${errorMsg}`);
         return;
@@ -798,12 +793,11 @@ export default function Dashboard({
 
       setSalesHistory(prev => [boletaCompleta, ...prev]);
 
-      // Paso 12: Mostrar boleta de venta para imprimir (:FormPOS -> :Cajero)
       setReceiptData(boletaCompleta);
       setReceiptType('boleta');
       setIsReceiptOpen(true);
 
-      showToast(res?.message || `Paso 11: Notificar venta procesada con éxito. Boleta ${numBoleta} emitida.`);
+      showToast(res?.message || `Venta procesada con éxito. Boleta ${numBoleta} emitida.`);
       setSelectedCitaId(null);
     } catch (err) {
       setAlertaInsuficiente('Error de red al registrar la venta y emisión de boleta en la base de datos.');
@@ -813,8 +807,7 @@ export default function Dashboard({
   };
 
   // =========================================================================
-  // CUS-09: ANULAR VENTA CON NOTA DE CRÉDITO (Diagrama de Secuencia BCE Oficial)
-  // Pasos 1, 2, 3, 4, 5: Búsqueda de Comprobante por número correlativo
+  // ANULAR VENTA CON NOTA DE CRÉDITO
   // =========================================================================
   const handleBuscarComprobante = async (ticketNum) => {
     const num = (ticketNum || annulTicket || '').trim();
@@ -827,9 +820,6 @@ export default function Dashboard({
     setMensajePaso13('');
     setAnnulLoading(true);
     try {
-      // Paso 2: Solicitar detalle de comprobante emitido (:FormAnulacion -> :VentaService)
-      // Pasos 3 y 4 en backend: Obtener ítems y montos cobrados (:VentaService -> :VentaComprobante)
-      // Paso 5: Enviar datos del comprobante a formulario (:VentaService -> :FormAnulacion)
       const res = await api.getDetalleComprobante(num);
       if (res && res.success && res.comprobante) {
         const c = res.comprobante;
@@ -841,7 +831,7 @@ export default function Dashboard({
         setAnnulItems(c.items && c.items.length > 0 ? c.items : [
           { item: 1, codigo: 'SRV-01', descripcion: c.items?.[0]?.descripcion || 'Servicio Spa', cantidad: 1, precio: c.total, subtotal: c.total }
         ]);
-        showToast(`Paso 5: Comprobante ${num} obtenido. Total a devolver: S/ ${(c.total || 0).toFixed(2)}.`);
+        showToast(`Comprobante ${num} obtenido. Total a devolver: S/ ${(c.total || 0).toFixed(2)}.`);
       } else {
         const encontrada = boletasDisponibles.find(b => b.numero_boleta?.toLowerCase() === num.toLowerCase());
         if (encontrada) {
@@ -853,7 +843,7 @@ export default function Dashboard({
           setAnnulItems([
             { item: 1, codigo: 'SRV-01', descripcion: encontrada.servicio || 'Servicio Spa', cantidad: 1, precio: parseFloat(encontrada.monto || 0), subtotal: parseFloat(encontrada.monto || 0) }
           ]);
-          showToast(`Paso 5: Comprobante ${num} cargado desde el registro de caja.`);
+          showToast(`Comprobante ${num} cargado desde el registro de caja.`);
         } else {
           setBusquedaError(`Comprobante "${num}" no encontrado en el sistema.`);
           showToast(`No se encontró el comprobante ${num}.`);
@@ -866,7 +856,6 @@ export default function Dashboard({
     }
   };
 
-  // Pasos 7, 8, 9, 10, 11, 12, 13 (o 14, 15 si PIN incorrecto)
   const handleExecuteAnnulment = async (e) => {
     e.preventDefault();
     setAlertaPinInvalido('');
@@ -878,7 +867,6 @@ export default function Dashboard({
       return;
     }
 
-    // Paso 7: Ingresar motivo de anulación y PIN de autorización (:Administrador -> :FormAnulacion)
     const payload = {
       boleta: annulTicket,
       pin: annulPin,
@@ -892,20 +880,17 @@ export default function Dashboard({
 
     setAnnulLoading(true);
     try {
-      // Paso 8: Validar PIN de gerencia y registrar motivo (:FormAnulacion -> :VentaService)
       const res = await onProcessAnnulment(payload);
 
-      // Si PIN de gerencia incorrecto: Pasos 14 y 15
       if (res && res.success === false) {
         if (res.paso === 14 || res.alerta || res.error?.includes('PIN') || res.error?.includes('14')) {
-          setAlertaPinInvalido(res.error || 'Paso 15: Mostrar alerta de PIN no autorizado y reintentar. PIN de gerencia incorrecto (requiere PIN 1234).');
+          setAlertaPinInvalido(res.error || 'PIN de gerencia incorrecto (requiere PIN 1234).');
         } else {
           showToast(`⚠️ ${res.error || 'Error al procesar la anulación'}`);
         }
         return;
       }
 
-      // Si PIN correcto: Pasos 9, 10, 11, 12, 13
       const ncNumero = res?.anulacion?.nota_credito || `NC-0${(anulaciones?.length || 0) + annulHistory.length + 13}`;
 
       const now = new Date();
@@ -931,9 +916,8 @@ export default function Dashboard({
       setReceiptType('nota_credito');
       setIsReceiptOpen(true);
 
-      // Paso 13: Devolver dinero al cliente y registrar constancia
-      setMensajePaso13(`Paso 13: Devolver dinero en ${annulMedio} (S/ ${montoNum.toFixed(2)}) al cliente ${annulCliente} y registrar constancia física.`);
-      showToast(res?.message || `Paso 12: Notificar anulación exitosa. Se emitió ${ncNumero} y se reversó S/ ${montoNum.toFixed(2)} en PostgreSQL.`);
+      setMensajePaso13(`Devolver dinero en ${annulMedio} (S/ ${montoNum.toFixed(2)}) al cliente ${annulCliente} y registrar constancia física.`);
+      showToast(res?.message || `Anulación exitosa. Se emitió ${ncNumero} y se reversó S/ ${montoNum.toFixed(2)} en PostgreSQL.`);
     } catch (err) {
       showToast('Error inesperado al conectar con el servidor.');
     } finally {
@@ -1553,12 +1537,12 @@ export default function Dashboard({
               <strong style={{ color: '#C62828' }}>[Monto Insuficiente]</strong> 13: Notificar importe menor → 14: Mostrar alerta en pantalla.
             </div>
 
-            {/* Alerta de Saldo Insuficiente (Paso 14 del Diagrama de Secuencia) */}
+            {/* Alerta de Saldo Insuficiente */}
             {alertaInsuficiente && (
               <div style={{ background: '#FEE2E2', border: '1px solid #FCA5A5', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', color: '#B91C1C', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span style={{ fontSize: '1.25rem' }}>⚠️</span>
                 <div>
-                  <strong>Paso 14: Alerta de Saldo Insuficiente en Pantalla</strong>
+                  <strong>Alerta de Saldo Insuficiente en Pantalla</strong>
                   <div style={{ fontSize: '0.85rem', marginTop: '2px' }}>{alertaInsuficiente}</div>
                 </div>
               </div>
@@ -1601,7 +1585,7 @@ export default function Dashboard({
               </div>
             </div>
 
-            {/* Paso 1: Selector de Citas Finalizadas en Cabina (estado Atendida) */}
+            {/* Selector de Citas Finalizadas en Cabina (estado Atendida) */}
             {(() => {
               const citasAtendidas = citas.filter(c => c.estado === 'Atendida' && !c.cobrado);
               const pendingOther = citas.filter(c => !c.cobrado && c.estado !== 'Cancelada' && c.estado !== 'Atendida');
@@ -1616,7 +1600,7 @@ export default function Dashboard({
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
                     <strong style={{ fontSize: '0.88rem', color: '#795548' }}>
-                      Paso 1: Seleccionar Cita con Servicio Finalizado en Cabina (estado: Atendida) [{citasAtendidas.length} listas]:
+                      Seleccionar Cita con Servicio Finalizado en Cabina (estado: Atendida) [{citasAtendidas.length} listas]:
                     </strong>
                     <span style={{ fontSize: '0.78rem', color: '#8D6E63' }}>Fecha operativa: {caja.fecha || todayStr}</span>
                   </div>
@@ -1641,7 +1625,7 @@ export default function Dashboard({
                           fontWeight: selectedCitaId === c.id ? 700 : 500
                         }}
                         onClick={() => handleChargeFromAgenda(c)}
-                        title={`Paso 1: Clic para liquidar y cobrar la atención culminada de ${c.cliente}`}
+                        title={`Clic para liquidar y cobrar la atención culminada de ${c.cliente}`}
                       >
                         <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: selectedCitaId === c.id ? '#4CAF50' : '#2E7D32', display: 'inline-block' }}></span>
                         <strong>{c.hora}</strong> · {c.cliente} ({c.servicio} - <strong>S/ {c.monto}</strong>) [Atendida]
@@ -1819,16 +1803,16 @@ export default function Dashboard({
                     id="btn-cobrar-boleta"
                     disabled={cargandoCobro}
                   >
-                    {cargandoCobro ? 'Procesando Venta y Boleta...' : 'Paso 7: Presionar Botón Cobrar y Emitir Boleta'}
+                    {cargandoCobro ? 'Procesando Venta y Boleta...' : 'Cobrar y Emitir Boleta'}
                   </button>
                 </form>
               </div>
 
               <div className="pos-register">
-                <h3>Pasos 3 &amp; 4: Desglose de Liquidación Fiscal</h3>
+                <h3>Desglose de Liquidación Fiscal</h3>
                 <div className="register-summary">
                   <div className="reg-row">
-                    <span>Base Servicios (Paso 3):</span>
+                    <span>Base Servicios:</span>
                     <strong>S/ {basePrice.toFixed(2)}</strong>
                   </div>
                   {extraPrice > 0 && (
@@ -1845,16 +1829,16 @@ export default function Dashboard({
                   )}
                   <hr />
                   <div className="reg-row">
-                    <span>Paso 3: Subtotal Grabado (Sin IGV):</span>
+                    <span>Subtotal Grabado (Sin IGV):</span>
                     <strong>S/ {subtotalSinIGV.toFixed(2)}</strong>
                   </div>
                   <div className="reg-row">
-                    <span>Paso 3: I.G.V. (18% SUNAT):</span>
+                    <span>I.G.V. (18% SUNAT):</span>
                     <strong>S/ {igvAmount.toFixed(2)}</strong>
                   </div>
                   <hr />
                   <div className="reg-row total">
-                    <span>Paso 4: Importe Total a Pagar:</span>
+                    <span>Importe Total a Pagar:</span>
                     <strong className="pos">S/ {totalFacturado.toFixed(2)}</strong>
                   </div>
                 </div>
@@ -1939,10 +1923,9 @@ export default function Dashboard({
                   <span className="badge-tag" style={{ background: '#FBE9E7', color: '#D32F2F', fontWeight: 600 }}>CUS-09 BCE Oficial</span>
                 </div>
 
-                {/* Paso 1: Buscar comprobante por número correlativo (:Administrador -> :FormAnulacion) */}
                 <div style={{ background: '#F8F9FA', border: '1px solid #E0E0E0', borderRadius: '8px', padding: '12px', marginBottom: '16px' }}>
                   <label style={{ fontWeight: 600, display: 'block', marginBottom: '6px', color: '#1B3D2B' }}>
-                    1: Buscar comprobante por número correlativo:
+                    Buscar comprobante por número correlativo:
                   </label>
                   <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
                     <input 
@@ -1993,11 +1976,11 @@ export default function Dashboard({
                   )}
                 </div>
 
-                {/* Paso 6: Mostrar detalle de ítems y monto a devolver (:FormAnulacion -> :Administrador) */}
+                {/* Mostrar detalle de ítems y monto a devolver */}
                 <div style={{ background: '#FFFDE7', border: '1px solid #FFE082', borderRadius: '8px', padding: '12px', marginBottom: '16px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                     <strong style={{ color: '#795548', fontSize: '0.88rem' }}>
-                      Paso 6: Detalle de ítems y monto a devolver ({annulTicket || 'Sin comprobante'})
+                      Detalle de ítems y monto a devolver ({annulTicket || 'Sin comprobante'})
                     </strong>
                     <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1B3D2B' }}>
                       Cliente: {annulCliente}
@@ -2093,7 +2076,7 @@ export default function Dashboard({
                     <strong>Reversión Contable Automática:</strong> Se cambiará el estado de la boleta a <code>Anulada</code>, se registrará la Nota de Crédito en SUNAT y se deducirá <strong>S/ {parseFloat(annulMonto || 0).toFixed(2)}</strong> del balance de <strong>{annulMedio}</strong> en PostgreSQL.
                   </div>
 
-                  {/* Paso 8: Validar PIN de gerencia y registrar motivo (:FormAnulacion -> :VentaService) */}
+                  {/* Validar PIN de gerencia y registrar motivo */}
                   <button 
                     type="submit" 
                     id="btn-autorizar-anulacion"
@@ -2101,7 +2084,7 @@ export default function Dashboard({
                     disabled={annulLoading}
                     style={{ width: '100%', padding: '14px', fontWeight: 700, fontSize: '0.95rem' }}
                   >
-                    {annulLoading ? 'Validando con Servidor...' : 'Paso 8: Validar PIN de Gerencia y Autorizar Anulación'}
+                    {annulLoading ? 'Validando con Servidor...' : 'Validar PIN de Gerencia y Autorizar Anulación'}
                   </button>
                 </form>
               </div>
@@ -2238,14 +2221,14 @@ export default function Dashboard({
                 </div>
 
                 <div className="reg-actions" style={{ flexDirection: 'column', gap: '8px', marginTop: '14px' }}>
-                  {/* Paso 1: Solicitar fin de turno y conteo físico (:Cajero -> :FormArqueo) */}
+                  {/* Solicitar fin de turno y conteo físico */}
                   <button 
                     id="btn-iniciar-arqueo"
                     className="btn-action primary" 
                     onClick={() => setIsCashAuditOpen(true)}
                     style={{ width: '100%', padding: '12px', fontWeight: 700, fontSize: '0.92rem' }}
                   >
-                    Paso 1: Solicitar Fin de Turno y Conteo Físico (:FormArqueo)
+                    Solicitar Fin de Turno y Conteo Físico
                   </button>
 
                   <button 
@@ -2511,7 +2494,7 @@ export default function Dashboard({
         onReprogramCita={async (id, nFecha, nHora) => {
           const res = await onReprogramCita(id, nFecha, nHora);
           if (res && res.success !== false) {
-            showToast(`Paso 13: Cita #${id} actualizada en la agenda (${nFecha} a las ${nHora}) - Estado: Reprogramada`);
+            showToast(`Cita #${id} actualizada en la agenda (${nFecha} a las ${nHora}) - Estado: Reprogramada`);
           }
           return res;
         }}

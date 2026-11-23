@@ -42,31 +42,25 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
     e.preventDefault();
     setErrorAlerta(null);
 
-    // Paso 5: Validar formato y solicitar registro
+    // Validar formato y solicitar registro
     if (!form.nombre.trim() || !form.dni.trim() || !form.rol) {
-      setErrorAlerta('Paso 12: Mostrar alerta de error en pantalla · Datos incompletos. Ingrese DNI, nombre completo y rol.');
+      setErrorAlerta('Datos incompletos. Ingrese DNI, nombre completo y rol.');
       return;
     }
 
     if (form.dni.trim().length < 8) {
-      setErrorAlerta('Paso 12: Mostrar alerta de error en pantalla · El DNI debe contener al menos 8 dígitos numéricos válidos.');
+      setErrorAlerta('El DNI debe contener al menos 8 dígitos numéricos válidos.');
       return;
     }
 
     setCargando(true);
     try {
-      // Paso 5 -> :UsuarioController -> Paso 6: Verificar unicidad de DNI -> :Usuario
       const res = await onAddPersonal({
         ...form,
         permisos: PERMISOS_ROL[form.rol]
       });
 
       if (res && res.success) {
-        // [DNI NO REGISTRADO Y DATOS VALIDOS]
-        // Paso 7: Guardar nuevo registro de personal en :Usuario
-        // Paso 8: Confirmar almacenamiento exitoso
-        // Paso 9: Enviar confirmación de personal registrado
-        // Paso 10: Mostrar mensaje de registro exitoso
         setCredencialesGeneradas(res.credenciales_temporales || {
           usuario: res.personal?.usuario || form.usuario || `user_${form.dni}`,
           password_temporal: res.personal?.password_temporal || `SpaAleida_${form.dni.slice(-4)}!`,
@@ -76,15 +70,12 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
         showToast(res.confirmacion || 'Personal registrado con éxito.');
         setForm({ nombre: '', usuario: '', password: '', rol: 'Recepcionista', dni: '', telefono: '', email: '' });
       } else {
-        // [DNI DUPLICADO O DATOS NO VALIDOS]
-        // Paso 11: Notificar rechazo por DNI duplicado o datos incompletos
-        // Paso 12: Mostrar alerta de error en pantalla
-        const errorMsg = res?.error || 'Paso 11: Notificar rechazo por DNI duplicado o datos incompletos.';
-        setErrorAlerta(`Paso 12: Mostrar alerta de error en pantalla · ${errorMsg}`);
+        const errorMsg = res?.error || 'Rechazo por DNI duplicado o datos incompletos.';
+        setErrorAlerta(errorMsg);
         showToast(`⚠️ ${errorMsg}`);
       }
     } catch (err) {
-      setErrorAlerta('Paso 12: Mostrar alerta de error en pantalla · Error de comunicación con el servidor al registrar personal.');
+      setErrorAlerta('Error de comunicación con el servidor al registrar personal.');
     } finally {
       setCargando(false);
     }
@@ -95,7 +86,7 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
       <div className="uc-module__header">
         <div>
           <span className="uc-badge" style={{ background: '#E8F5E9', color: '#1B5E20', border: '1px solid #C8E6C9' }}>
-            CUS-02: Registrar Personal · Patrón BCE (:Administrador → :FormPersonal → :UsuarioController → :Usuario)
+            CUS-02: Registrar Personal
           </span>
           <h2 className="uc-module__title">Gestión de Personal (Colaboradores del Spa)</h2>
           <p className="uc-module__subtitle">
@@ -111,11 +102,11 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
             setMode(mode === 'form' ? 'list' : 'form');
           }}
         >
-          {mode === 'form' ? '← Ver Lista de Colaboradores' : '+ 1: Solicitar nuevo registro de personal'}
+          {mode === 'form' ? '← Ver Lista de Colaboradores' : '+ Solicitar Nuevo Registro de Personal'}
         </button>
       </div>
 
-      {/* Modal / Banner de Éxito (Paso 10: Mostrar mensaje de registro exitoso) */}
+      {/* Modal / Banner de Éxito */}
       {credencialesGeneradas && (
         <div style={{
           background: '#E8F5E9',
@@ -129,7 +120,7 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
             <span style={{ fontSize: '1.6rem', color: '#2E7D32' }}>✓</span>
             <div>
               <div style={{ display: 'inline-block', background: '#2E7D32', color: '#FFF', fontSize: '0.72rem', padding: '2px 8px', borderRadius: '4px', fontWeight: 'bold', marginBottom: '4px' }}>
-                Paso 10: Mostrar mensaje de registro exitoso
+                Registro Exitoso
               </div>
               <h3 style={{ margin: 0, color: '#1B5E20', fontSize: '1.2rem' }}>
                 Confirmación de Almacenamiento Exitoso · Personal Registrado con Éxito
@@ -228,13 +219,13 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
         </div>
       )}
 
-      {/* Formulario :FormPersonal (Paso 2: Presentar campos de datos y roles) */}
+      {/* Formulario */}
       {mode === 'form' && (
         <form onSubmit={handleSubmit} className="uc-form" id="form-registrar-personal">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
             <div>
               <div style={{ display: 'inline-block', background: '#D4AF37', color: '#1B3D2B', fontSize: '0.72rem', padding: '2px 8px', borderRadius: '4px', fontWeight: 'bold', marginBottom: '4px' }}>
-                :FormPersonal · Paso 2: Presentar campos de datos y roles
+                Formulario de Registro
               </div>
               <h3 className="uc-form__title" style={{ margin: 0 }}>Formulario de Registro de Nuevo Personal</h3>
             </div>
@@ -507,11 +498,11 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
             }
           }}
         >
-          {mode === 'form' ? '← Ver Catálogo de Consulta' : '+ Paso 2: Solicitar Formulario de Nuevo Servicio'}
+          {mode === 'form' ? '← Ver Catálogo de Consulta' : '+ Solicitar Formulario de Nuevo Servicio'}
         </button>
       </div>
 
-      {/* Pasos 14 y 15: Mostrar alerta de datos inválidos en pantalla */}
+      {/* Alerta de datos inválidos en pantalla */}
       {alertaInvalida && (
         <div style={{
           background: '#FFEBEE',
@@ -526,7 +517,7 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
         }}>
           <span style={{ fontSize: '1.3rem' }}>⚠️</span>
           <div style={{ flex: 1, fontSize: '0.92rem', fontWeight: 600 }}>
-            <div><strong>Paso 14 y 15: Alerta de Validación en Pantalla</strong></div>
+            <div><strong>Alerta de Validación en Pantalla</strong></div>
             <div>{alertaInvalida}</div>
           </div>
           <button
@@ -539,22 +530,22 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
         </div>
       )}
 
-      {/* Paso 5: Desplegar formulario de registro */}
+      {/* Formulario de registro */}
       {mode === 'form' && (
         <form onSubmit={handleSubmit} className="uc-form" id="form-registrar-servicio">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
             <h3 className="uc-form__title" style={{ margin: 0 }}>
-              Paso 5: Desplegar Formulario de Registro (:CatalogoService → :FormServicio)
+              Formulario de Registro de Nuevo Servicio
             </h3>
             <span style={{ fontSize: '0.82rem', color: '#1B3D2B', background: '#D1E7DD', padding: '4px 10px', borderRadius: '4px', fontWeight: 600 }}>
-              Paso 8 y 9: Validación de tarifa positiva y no duplicidad
+              Validación de tarifa positiva y no duplicidad
             </span>
           </div>
 
           <div className="uc-form__grid">
-            {/* Paso 6: Ingresar nombre, categoría, precio, comisión y duración */}
+            {/* Ingresar nombre, categoría, precio, comisión y duración */}
             <div className="form-field" style={{ gridColumn: '1/-1' }}>
-              <label htmlFor="servicio-nombre">Paso 6: Nombre del Servicio / Tratamiento *</label>
+              <label htmlFor="servicio-nombre">Nombre del Servicio / Tratamiento *</label>
               <input
                 id="servicio-nombre"
                 name="nombre"
@@ -568,7 +559,7 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
               />
             </div>
             <div className="form-field">
-              <label htmlFor="servicio-categoria">Paso 6: Categoría del Spa *</label>
+              <label htmlFor="servicio-categoria">Categoría del Spa *</label>
               <select
                 id="servicio-categoria"
                 value={form.categoria}
@@ -578,7 +569,7 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
               </select>
             </div>
             <div className="form-field">
-              <label htmlFor="servicio-duracion">Paso 6: Duración en Cabina (minutos &gt; 0) *</label>
+              <label htmlFor="servicio-duracion">Duración en Cabina (minutos &gt; 0) *</label>
               <input
                 id="servicio-duracion"
                 type="number"
@@ -590,7 +581,7 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
               />
             </div>
             <div className="form-field">
-              <label htmlFor="servicio-precio">Paso 6: Tarifa / Precio al Público (S/ &gt; 0) *</label>
+              <label htmlFor="servicio-precio">Tarifa / Precio al Público (S/ &gt; 0) *</label>
               <input
                 id="servicio-precio"
                 type="number"
@@ -606,7 +597,7 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
               />
             </div>
             <div className="form-field">
-              <label htmlFor="servicio-comision">Paso 6: Comisión Especialista (%)</label>
+              <label htmlFor="servicio-comision">Comisión Especialista (%)</label>
               <input
                 id="servicio-comision"
                 type="number"
@@ -617,7 +608,7 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
               />
             </div>
             <div className="form-field" style={{ gridColumn: '1/-1' }}>
-              <label htmlFor="servicio-cabina">Paso 6: Cabina Climatizada Sugerida</label>
+              <label htmlFor="servicio-cabina">Cabina Climatizada Sugerida</label>
               <input
                 id="servicio-cabina"
                 value={form.cabina}
@@ -631,14 +622,14 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
             <button type="button" className="btn-secondary" onClick={() => setMode('list')}>
               Cancelar
             </button>
-            {/* Paso 7: Presionar botón registrar servicio */}
+            {/* Presionar botón registrar servicio */}
             <button
               type="submit"
               className="btn-gold btn-gold--large"
               id="btn-guardar-servicio"
               disabled={cargando}
             >
-              {cargando ? 'Validando en Catálogo...' : 'Paso 7: Presionar Botón Registrar Servicio'}
+              {cargando ? 'Validando en Catálogo...' : 'Registrar Servicio'}
             </button>
           </div>
         </form>
@@ -753,9 +744,8 @@ export function AperturasCaja({ onApertura, caja, cajaAbierta, currentUser, show
 
     const saldo = parseFloat(form.saldo_inicial);
 
-    // Paso 8: Validar monto de fondo no negativo (:FormCaja -> :CajaService)
     if (isNaN(saldo) || saldo < 0) {
-      const errorMsg = 'Paso 8: Validar monto de fondo no negativo — El monto de fondo inicial no puede ser un número negativo (debe ser ≥ 0).';
+      const errorMsg = 'El monto de fondo inicial no puede ser un número negativo (debe ser ≥ 0).';
       setAlertaInvalida(errorMsg);
       showToast(`⚠️ ${errorMsg}`);
       return;
@@ -770,8 +760,6 @@ export function AperturasCaja({ onApertura, caja, cajaAbierta, currentUser, show
 
     setCargando(true);
     try {
-      // Paso 9: Registrar apertura de caja con estado abierta (:CajaService -> :Caja)
-      // Paso 10: Confirmar apertura en base de datos (:Caja -> :CajaService)
       const apertura = {
         responsable: form.responsable.trim(),
         turno: form.turno,
@@ -789,10 +777,7 @@ export function AperturasCaja({ onApertura, caja, cajaAbierta, currentUser, show
         return;
       }
 
-      // Paso 11: Notificar apertura de turno exitosa (:CajaService -> :FormCaja)
-      showToast(res?.message || `Paso 11: Notificar apertura de turno exitosa. Turno '${form.turno}' aperturado con fondo de S/ ${saldo.toFixed(2)}.`);
-
-      // Paso 12: Mostrar panel de caja habilitado para cobros (:FormCaja -> :Cajero)
+      showToast(res?.message || `Turno '${form.turno}' aperturado exitosamente con fondo de S/ ${saldo.toFixed(2)}.`);
       setModoEdicion(false);
     } catch (err) {
       setAlertaInvalida('Error inesperado de red al persistir la apertura de turno en base de datos.');
@@ -805,55 +790,36 @@ export function AperturasCaja({ onApertura, caja, cajaAbierta, currentUser, show
     <div className="uc-module">
       <div className="uc-module__header">
         <div>
-          <span className="uc-badge">:FormCaja · CUS Apertura Turno de Caja (Diagrama BCE)</span>
+          <span className="uc-badge">CUS: Apertura Turno de Caja</span>
           <h2 className="uc-module__title">Aperturar Turno de Caja</h2>
           <p className="uc-module__subtitle">
-            Actor: :Cajero | Límite: :FormCaja | Control: :CajaService | Entidad: :Caja (PostgreSQL: "CajaSesion")
+            Gestión de inicio de turno, asignación de cajero responsable y control de fondo de sencillo.
           </p>
         </div>
         {cajaEstaAbierta && !modoEdicion ? (
           <span className="status-badge status-badge--success" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#4CAF50', display: 'inline-block' }}></span>
-            Paso 14: Sesión de Caja Activa (Abierta)
+            Sesión de Caja Activa (Abierta)
           </span>
         ) : (
           <span className="status-badge status-badge--warning">
-            Paso 5: Formulario de Apertura Habilitado
-          </span>
-        )}
-      </div>
-
-      {/* Traza de Secuencia Activa */}
-      <div style={{ background: '#F8F9FA', border: '1px solid #E9ECEF', borderRadius: '8px', padding: '10px 14px', marginBottom: '18px', fontSize: '0.82rem', color: '#495057' }}>
-        <strong>Flujo del Diagrama de Secuencia:</strong>
-        {cajaEstaAbierta && !modoEdicion ? (
-          <span>
-            {' '}1: Ingresar al módulo → 2: Solicitar estado actual → 3: Consultar sesión en BD →{' '}
-            <strong style={{ color: '#2E7D32' }}>[Caja Ya Aperturada en el Turno]</strong> → 13: Retornar turno activo con estado abierta → 14: Notificar sesión ya iniciada → 15: Mostrar caja activa y continuar con cobros.
-          </span>
-        ) : (
-          <span>
-            {' '}1: Ingresar al módulo → 2: Solicitar estado actual → 3: Consultar sesión en BD →{' '}
-            <strong style={{ color: '#D97706' }}>[Caja NO Aperturada en el Turno]</strong> → 4: Retornar caja no aperturada → 5: Habilitar formulario → 6: Ingresar monto y turno → 7: Presionar aperturar caja → 8: Validar no negativo → 9-10: Guardar en BD → 11: Notificar éxito → 12: Mostrar panel habilitado.
+            Formulario de Apertura Habilitado
           </span>
         )}
       </div>
 
       {cajaEstaAbierta && !modoEdicion ? (
-        /* ========================================================
-           RAMA [Caja Ya Aperturada en el Turno]: Pasos 13, 14 y 15
-           ======================================================== */
         <div className="apertura-confirmacion" style={{ border: '1px solid #C2E0C6', borderRadius: '12px', padding: '24px', background: '#F8FBF9' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                 <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#2E7D32', display: 'inline-block' }}></span>
                 <h3 style={{ margin: 0, color: '#1B3D2B', fontSize: '1.25rem' }}>
-                  Paso 14: Sesión de Caja Ya Iniciada en el Turno
+                  Sesión de Caja Activa en el Turno
                 </h3>
               </div>
               <p style={{ margin: 0, color: '#4A5568', fontSize: '0.88rem' }}>
-                Paso 13 & 14 (:CajaService → :FormCaja): El turno actual se encuentra con estado <strong>Abierta</strong> en la base de datos central.
+                El turno actual se encuentra con estado <strong>Abierta</strong> en la base de datos central.
               </p>
             </div>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -863,7 +829,7 @@ export function AperturasCaja({ onApertura, caja, cajaAbierta, currentUser, show
                   onClick={() => onNavigateTab('caja')}
                   style={{ fontSize: '0.84rem' }}
                 >
-                  Paso 15: Continuar con Cobros (Ir a POS) →
+                  Continuar con Cobros (Ir a POS) →
                 </button>
               )}
               <button 
@@ -876,9 +842,8 @@ export function AperturasCaja({ onApertura, caja, cajaAbierta, currentUser, show
             </div>
           </div>
 
-          {/* Paso 15: Mostrar caja activa y continuar con cobros */}
           <div style={{ marginTop: '16px', padding: '12px 14px', background: '#E8F5E9', borderRadius: '8px', border: '1px solid #C8E6C9', color: '#1B5E20', fontSize: '0.86rem' }}>
-            <strong>Paso 15 (:FormCaja → :Cajero):</strong> Panel de caja activo y habilitado para procesar cobros de tratamientos y ventas mostrador con sincronización en tiempo real.
+            Panel de caja activo y habilitado para procesar cobros de tratamientos y ventas mostrador con sincronización en tiempo real.
           </div>
 
           <div className="apertura-info-grid" style={{ marginTop: '20px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '14px' }}>
@@ -934,15 +899,15 @@ export function AperturasCaja({ onApertura, caja, cajaAbierta, currentUser, show
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
             <div>
               <h3 className="uc-form__title" style={{ margin: 0 }}>
-                Paso 5: Formulario de Apertura de Caja Habilitado
+                Formulario de Apertura de Caja Habilitado
               </h3>
               <p style={{ margin: '4px 0 0 0', fontSize: '0.84rem', color: '#6B7280' }}>
-                Paso 6: Ingresar monto de fondo inicial y turno (:Cajero → :FormCaja)
+                Ingresar monto de fondo inicial y turno operativo:
               </p>
             </div>
             {cajaEstaAbierta && (
               <button type="button" className="btn-secondary" onClick={() => setModoEdicion(false)}>
-                ← Volver a Caja Activa (Paso 15)
+                ← Volver a Caja Activa
               </button>
             )}
           </div>
@@ -957,9 +922,9 @@ export function AperturasCaja({ onApertura, caja, cajaAbierta, currentUser, show
           )}
 
           <div className="uc-form__grid">
-            {/* Paso 6: Selección de Turno */}
+            {/* Selección de Turno */}
             <div className="form-field">
-              <label htmlFor="apertura-turno">Paso 6: Turno Operativo *</label>
+              <label htmlFor="apertura-turno">Turno Operativo *</label>
               <select 
                 id="apertura-turno" 
                 value={form.turno}
@@ -971,9 +936,9 @@ export function AperturasCaja({ onApertura, caja, cajaAbierta, currentUser, show
               </select>
             </div>
 
-            {/* Paso 6: Cajero Responsable */}
+            {/* Cajero Responsable */}
             <div className="form-field">
-              <label htmlFor="apertura-responsable">Paso 6: Cajero Responsable (:Cajero) *</label>
+              <label htmlFor="apertura-responsable">Cajero Responsable *</label>
               <input 
                 id="apertura-responsable" 
                 value={form.responsable}
@@ -983,9 +948,9 @@ export function AperturasCaja({ onApertura, caja, cajaAbierta, currentUser, show
               />
             </div>
 
-            {/* Paso 6: Monto de Fondo Inicial (con validación paso 8 no negativo) */}
+            {/* Monto de Fondo Inicial */}
             <div className="form-field">
-              <label htmlFor="apertura-saldo">Paso 6: Monto de Fondo Inicial (S/) [monto ≥ 0] *</label>
+              <label htmlFor="apertura-saldo">Monto de Fondo Inicial (S/) [monto ≥ 0] *</label>
               <input 
                 id="apertura-saldo" 
                 type="number" 
@@ -1010,9 +975,9 @@ export function AperturasCaja({ onApertura, caja, cajaAbierta, currentUser, show
               </div>
             </div>
 
-            {/* Paso 6: Observaciones */}
+            {/* Observaciones */}
             <div className="form-field" style={{ gridColumn: '1/-1' }}>
-              <label htmlFor="apertura-obs">Paso 6: Observaciones de Entrega de Mostrador</label>
+              <label htmlFor="apertura-obs">Observaciones de Entrega de Mostrador</label>
               <input 
                 id="apertura-obs" 
                 value={form.observaciones}
@@ -1023,7 +988,7 @@ export function AperturasCaja({ onApertura, caja, cajaAbierta, currentUser, show
           </div>
 
           <div style={{ background: '#FFFDE7', border: '1px solid #FFE082', borderRadius: '8px', padding: '12px 16px', margin: '14px 0', fontSize: '0.84rem', color: '#795548' }}>
-            <strong>Validación Paso 8:</strong> Se verifica que el fondo inicial sea un valor no negativo (≥ 0). Al presionar el botón se registran los Pasos 9 y 10 en la tabla <code>"CajaSesion"</code> y <code>"MovimientoCaja"</code> con estado <code>Abierta</code>.
+            <strong>Validación de Fondo:</strong> Se verifica que el fondo inicial sea un valor no negativo (≥ 0). Al confirmar, la sesión iniciará con estado <code>Abierta</code> en el sistema.
           </div>
 
           <div className="uc-form__actions">
@@ -1032,14 +997,14 @@ export function AperturasCaja({ onApertura, caja, cajaAbierta, currentUser, show
                 Cancelar
               </button>
             )}
-            {/* Paso 7: Presionar botón aperturar caja */}
+            {/* Presionar botón aperturar caja */}
             <button 
               type="submit" 
               className="btn-gold btn-gold--large" 
               id="btn-aperturar-caja"
               disabled={cargando}
             >
-              {cargando ? 'Procesando Apertura...' : 'Paso 7: Presionar Botón Aperturar Caja'}
+              {cargando ? 'Procesando Apertura...' : 'Aperturar Caja'}
             </button>
           </div>
         </form>
