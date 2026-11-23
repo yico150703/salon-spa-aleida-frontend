@@ -261,9 +261,19 @@ export const api = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(aperturaData)
       });
-      if (res.ok) return await res.json();
-    } catch (_) {}
-    return { success: true, message: 'Apertura registrada localmente' };
+      const data = await res.json().catch(() => null);
+      if (res.ok) {
+        return data || { success: true, message: 'Turno aperturado exitosamente' };
+      } else {
+        return {
+          success: false,
+          error: data?.error || data?.mensaje || `Error HTTP ${res.status} al aperturar caja`,
+          paso: data?.paso || 8
+        };
+      }
+    } catch (err) {
+      return { success: false, error: 'Servidor no disponible para aperturar caja.' };
+    }
   },
 
   // CUS08: Procesar Venta y Cobro

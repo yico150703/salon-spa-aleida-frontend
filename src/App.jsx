@@ -211,24 +211,9 @@ export default function App() {
 
   // DS_CU07: Aperturar turno de caja (Persistencia total en PostgreSQL)
   const handleAperturaCaja = async (aperturaData) => {
-    const saldo = parseFloat(aperturaData.saldo_inicial) || 0;
+    const saldo = parseFloat(aperturaData.saldo_inicial);
     const turno = aperturaData.turno || aperturaData.numero_turno || 'Turno Mañana';
     const responsable = aperturaData.responsable || currentUser?.nombre || 'Personal de Caja';
-
-    // 1. Actualización optimista
-    setCajaAbierta(true);
-    setCaja(prev => ({
-      ...prev,
-      apertura: saldo,
-      efectivo: 0,
-      digital: 0,
-      egresos: 0,
-      saldo_teorico: saldo,
-      total_teorico: saldo,
-      estado: 'Abierta',
-      turno,
-      responsable
-    }));
 
     try {
       const res = await api.aperturarCaja({
@@ -239,13 +224,21 @@ export default function App() {
         turno,
         observaciones: aperturaData.observaciones || 'Apertura de turno'
       });
+
+      if (res && res.success === false) {
+        showToast(`⚠️ ${res.error || 'Error al aperturar caja'}`);
+        return res;
+      }
+
+      setCajaAbierta(true);
       const cajaActual = await api.getCaja();
       if (cajaActual) setCaja(cajaActual);
-      showToast(`[APERTURA] Turno ${turno} aperturado en Base de Datos. Fondo: S/ ${saldo.toFixed(2)}`);
+      showToast(res?.message || `[APERTURA] Turno ${turno} aperturado en Base de Datos. Fondo: S/ ${saldo.toFixed(2)}`);
       return res;
     } catch (err) {
       console.error('Error al registrar apertura en backend:', err);
       showToast('[ERROR] No se pudo persistir la apertura en base de datos.');
+      return { success: false, error: 'No se pudo persistir la apertura en base de datos.' };
     }
   };
 

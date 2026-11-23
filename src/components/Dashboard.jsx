@@ -1367,6 +1367,7 @@ export default function Dashboard({
               cajaAbierta={cajaAbierta} 
               currentUser={currentUser}
               showToast={showToast} 
+              onNavigateTab={setActiveTab}
             />
           </section>
         )}
