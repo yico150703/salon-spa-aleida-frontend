@@ -66,16 +66,26 @@ export default function App() {
 
     cargarDatosIniciales();
 
-    // Sincronización continua ÚNICAMENTE de la agenda de citas (para no interferir con la caja activa)
+    // Sincronización continua en tiempo real de Agenda y Caja desde PostgreSQL Render
     const syncInterval = setInterval(async () => {
       if (!isMounted) return;
       try {
-        const citasActualizadas = await api.getCitas();
-        if (isMounted && citasActualizadas && Array.isArray(citasActualizadas)) {
-          setCitas(citasActualizadas);
+        const [citasActualizadas, cajaActualizada] = await Promise.all([
+          api.getCitas(),
+          api.getCaja()
+        ]);
+        if (isMounted) {
+          if (citasActualizadas && Array.isArray(citasActualizadas)) {
+            setCitas(citasActualizadas);
+          }
+          if (cajaActualizada && typeof cajaActualizada === 'object' && cajaActualizada.saldo_teorico !== undefined) {
+            setCaja(cajaActualizada);
+            if (cajaActualizada.estado === 'Abierta') setCajaAbierta(true);
+            else if (cajaActualizada.estado === 'Cerrada') setCajaAbierta(false);
+          }
         }
       } catch (_) {}
-    }, 5000);
+    }, 2500);
 
     return () => {
       isMounted = false;
