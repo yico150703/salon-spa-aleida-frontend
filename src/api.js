@@ -219,8 +219,11 @@ export const api = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(servicioData)
       });
-      const data = await res.json();
-      return data;
+      const data = await res.json().catch(() => null);
+      if (res.ok && data) {
+        return data;
+      }
+      return data || { success: false, error: `Error del servidor (HTTP ${res.status})` };
     } catch (_) {
       return { success: false, error: 'Servidor no disponible para guardar el servicio.' };
     }

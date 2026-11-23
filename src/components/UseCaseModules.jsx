@@ -489,10 +489,10 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
     <div className="uc-module">
       <div className="uc-module__header">
         <div>
-          <span className="uc-badge">Gestión de Catálogo y Tarifario</span>
+          <span className="uc-badge">:FormServicio · CUS Registrar Servicio en Catálogo (Diagrama BCE)</span>
           <h2 className="uc-module__title">Catálogo Oficial de Servicios & Tratamientos</h2>
           <p className="uc-module__subtitle">
-            Administración de tarifas, comisiones y cabinas asignadas con persistencia en Base de Datos (PostgreSQL)
+            Actor: :Administrador | Límite: :FormServicio | Control: :CatalogoService | Entidad: :Servicio (PostgreSQL)
           </p>
         </div>
         {/* Paso 2: Botón Solicitar formulario de nuevo servicio */}
@@ -507,7 +507,7 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
             }
           }}
         >
-          {mode === 'form' ? '← Ver Catálogo de Consulta' : '+ Solicitar Formulario de Nuevo Servicio'}
+          {mode === 'form' ? '← Ver Catálogo de Consulta' : '+ Paso 2: Solicitar Formulario de Nuevo Servicio'}
         </button>
       </div>
 
@@ -515,7 +515,7 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
       {alertaInvalida && (
         <div style={{
           background: '#FFEBEE',
-          border: '1px solid #EF5350',
+          border: '1.5px solid #EF5350',
           borderRadius: '8px',
           padding: '12px 18px',
           marginBottom: '18px',
@@ -526,7 +526,8 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
         }}>
           <span style={{ fontSize: '1.3rem' }}>⚠️</span>
           <div style={{ flex: 1, fontSize: '0.92rem', fontWeight: 600 }}>
-            {alertaInvalida}
+            <div><strong>Paso 14 y 15: Alerta de Validación en Pantalla</strong></div>
+            <div>{alertaInvalida}</div>
           </div>
           <button
             type="button"
@@ -543,17 +544,17 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
         <form onSubmit={handleSubmit} className="uc-form" id="form-registrar-servicio">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
             <h3 className="uc-form__title" style={{ margin: 0 }}>
-              Formulario de Registro de Nuevo Servicio en Catálogo
+              Paso 5: Desplegar Formulario de Registro (:CatalogoService → :FormServicio)
             </h3>
-            <span style={{ fontSize: '0.82rem', color: '#4A5568', background: '#EDF2F7', padding: '4px 10px', borderRadius: '4px' }}>
-              Validación de tarifa positiva y no duplicidad activa
+            <span style={{ fontSize: '0.82rem', color: '#1B3D2B', background: '#D1E7DD', padding: '4px 10px', borderRadius: '4px', fontWeight: 600 }}>
+              Paso 8 y 9: Validación de tarifa positiva y no duplicidad
             </span>
           </div>
 
           <div className="uc-form__grid">
             {/* Paso 6: Ingresar nombre, categoría, precio, comisión y duración */}
             <div className="form-field" style={{ gridColumn: '1/-1' }}>
-              <label htmlFor="servicio-nombre">Nombre del Servicio / Tratamiento *</label>
+              <label htmlFor="servicio-nombre">Paso 6: Nombre del Servicio / Tratamiento *</label>
               <input
                 id="servicio-nombre"
                 name="nombre"
@@ -567,7 +568,7 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
               />
             </div>
             <div className="form-field">
-              <label htmlFor="servicio-categoria">Categoría del Spa *</label>
+              <label htmlFor="servicio-categoria">Paso 6: Categoría del Spa *</label>
               <select
                 id="servicio-categoria"
                 value={form.categoria}
@@ -577,7 +578,7 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
               </select>
             </div>
             <div className="form-field">
-              <label htmlFor="servicio-duracion">Duración en Cabina (minutos &gt; 0) *</label>
+              <label htmlFor="servicio-duracion">Paso 6: Duración en Cabina (minutos &gt; 0) *</label>
               <input
                 id="servicio-duracion"
                 type="number"
@@ -589,7 +590,7 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
               />
             </div>
             <div className="form-field">
-              <label htmlFor="servicio-precio">Tarifa / Precio al Público (S/ &gt; 0) *</label>
+              <label htmlFor="servicio-precio">Paso 6: Tarifa / Precio al Público (S/ &gt; 0) *</label>
               <input
                 id="servicio-precio"
                 type="number"
@@ -605,7 +606,7 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
               />
             </div>
             <div className="form-field">
-              <label htmlFor="servicio-comision">Comisión de Especialista (%)</label>
+              <label htmlFor="servicio-comision">Paso 6: Comisión Especialista (%)</label>
               <input
                 id="servicio-comision"
                 type="number"
@@ -616,7 +617,7 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
               />
             </div>
             <div className="form-field" style={{ gridColumn: '1/-1' }}>
-              <label htmlFor="servicio-cabina">Cabina Climatizada Sugerida</label>
+              <label htmlFor="servicio-cabina">Paso 6: Cabina Climatizada Sugerida</label>
               <input
                 id="servicio-cabina"
                 value={form.cabina}
@@ -637,7 +638,7 @@ export function CatalogoManager({ catalogo, onAddServicio, showToast }) {
               id="btn-guardar-servicio"
               disabled={cargando}
             >
-              {cargando ? 'Validando en Catálogo...' : 'Registrar Servicio'}
+              {cargando ? 'Validando en Catálogo...' : 'Paso 7: Presionar Botón Registrar Servicio'}
             </button>
           </div>
         </form>
