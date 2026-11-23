@@ -242,35 +242,16 @@ export default function App() {
     }
   };
 
-  // DS_CU08: Procesar venta y cobro (Sincronización total de Caja y Ventas)
+  // DS_CU08: Procesar venta y cobro (Sincronización total de Caja y Ventas con PostgreSQL)
   const handleProcessPayment = async (ventaData) => {
-    const { cliente, monto, medio_pago } = ventaData;
-    const numMonto = parseFloat(monto) || 0;
-
-    // 1. Actualización optimista de caja para reflejo visual inmediato
-    setCaja(prev => {
-      const nuevoEfectivo = medio_pago === 'Efectivo' ? prev.efectivo + numMonto : prev.efectivo;
-      const nuevoDigital = medio_pago !== 'Efectivo' ? prev.digital + numMonto : prev.digital;
-      const nuevoTotal = (prev.apertura || 0) + nuevoEfectivo + nuevoDigital - (prev.egresos || 0);
-      return {
-        ...prev,
-        efectivo: nuevoEfectivo,
-        digital: nuevoDigital,
-        total_teorico: nuevoTotal,
-        saldo_teorico: nuevoTotal
-      };
-    });
-
-    // 2. Marcar cita como atendida y cobrada
-    setCitas(prevCitas => prevCitas.map(c =>
-      c.cliente.toLowerCase() === cliente.toLowerCase()
-        ? { ...c, cobrado: true, estado: 'Atendida' } : c
-    ));
-
-    // 3. Enviar a PostgreSQL en backend
     try {
-      await api.processVenta(ventaData);
-      // 4. Traer balance consolidado de caja, ventas, citas y clientes
+      const res = await api.processVenta(ventaData);
+      if (res && res.success === false) {
+        showToast(`⚠️ ${res.error || res.mensaje || 'Error al procesar cobro'}`);
+        return res;
+      }
+
+      // Traer balance consolidado de caja, ventas, citas y clientes desde PostgreSQL
       const [cajaActualizada, citasActualizadas, clientesActualizados, ventasActualizadas] = await Promise.all([
         api.getCaja(),
         api.getCitas(),
@@ -281,8 +262,13 @@ export default function App() {
       if (citasActualizadas && citasActualizadas.length) setCitas(citasActualizadas);
       if (clientesActualizados && clientesActualizados.length) setClientes(clientesActualizados);
       if (ventasActualizadas && ventasActualizadas.length) setVentas(ventasActualizadas);
+
+      showToast(res?.message || `Boleta emitida con éxito en base de datos.`);
+      return res;
     } catch (err) {
       console.error('Error sincronizando venta con backend:', err);
+      showToast('[ERROR] No se pudo persistir el cobro en base de datos.');
+      return { success: false, error: 'Error de red al procesar venta.' };
     }
   };
 

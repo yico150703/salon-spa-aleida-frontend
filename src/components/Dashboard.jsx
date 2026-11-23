@@ -590,6 +590,9 @@ export default function Dashboard({
   const [posDiscount, setPosDiscount] = useState('0'); // 0, 10%
   const [posPaymentMethod, setPosPaymentMethod] = useState('Yape/Plin');
   const [cashGiven, setCashGiven] = useState('500.00'); // para cálculo de vuelto
+  const [selectedCitaId, setSelectedCitaId] = useState(null);
+  const [alertaInsuficiente, setAlertaInsuficiente] = useState(null);
+  const [cargandoCobro, setCargandoCobro] = useState(false);
 
   // Billetera Digital (QR Yape / Plin) State
   const [digitalWalletType, setDigitalWalletType] = useState('yape'); // 'yape' | 'plin'
@@ -687,17 +690,58 @@ export default function Dashboard({
   const igvAmount = totalFacturado - subtotalSinIGV;
   const vueltoCalculado = Math.max(0, (parseFloat(cashGiven) || 0) - totalFacturado);
 
-  const handleChargeFromAgenda = (cita) => {
+  // Paso 1: Seleccionar cita con servicio finalizado en cabina (estado Atendida)
+  const handleChargeFromAgenda = async (cita) => {
+    setAlertaInsuficiente(null);
+    setSelectedCitaId(cita.id);
     setPosClient(cita.cliente);
     setPosService(cita.servicio);
     setPosAmount(cita.monto.toString());
+    setCashGiven(cita.monto.toString());
     setActiveTab('caja');
-    showToast(`Cita transferida a Terminal POS: ${cita.cliente} (S/ ${cita.monto})`);
+
+    // Paso 2: Solicitar liquidación de cita con estado Atendida (:FormPOS -> :VentaService)
+    try {
+      const liq = await api.liquidarCita(cita.id);
+      if (liq && liq.success) {
+        showToast(`Paso 4: Desglose liquidado — Subtotal: S/ ${liq.subtotal.toFixed(2)}, IGV: S/ ${liq.igv.toFixed(2)}, Total: S/ ${liq.total.toFixed(2)}.`);
+      }
+    } catch (_) {}
+    showToast(`Paso 1: Cita de ${cita.cliente} (Atendida) cargada en terminal POS.`);
   };
 
-  const handleExecutePayment = (e) => {
+  // Paso 7: Presionar botón cobrar y emitir boleta (:Cajero -> :FormPOS)
+  const handleExecutePayment = async (e) => {
     e.preventDefault();
-    if (totalFacturado <= 0) return;
+    setAlertaInsuficiente(null);
+
+    // Paso 8: Validar caja abierta
+    const cajaEstaAbierta = (caja?.estado === 'Abierta') || (caja?.estadosesion === 'Abierta') || cajaAbierta;
+    if (!cajaEstaAbierta) {
+      const errorMsg = 'Paso 8: Validación fallida — La caja de turno no se encuentra abierta. Debe ingresar al módulo de Caja y aperturar el turno antes de procesar cobros.';
+      setAlertaInsuficiente(errorMsg);
+      showToast(`⚠️ ${errorMsg}`);
+      return;
+    }
+
+    if (totalFacturado <= 0) {
+      setAlertaInsuficiente('El importe total a cobrar debe ser mayor a S/ 0.00.');
+      return;
+    }
+
+    // Paso 8: Validar pago conforme (monto ingresado vs total a pagar)
+    let montoIngresado = totalFacturado;
+    if (posPaymentMethod === 'Efectivo') {
+      montoIngresado = parseFloat(cashGiven) || 0;
+      if (montoIngresado < totalFacturado) {
+        // Paso 13 & 14: Notificar importe menor al total a pagar y mostrar alerta de saldo insuficiente
+        const faltante = (totalFacturado - montoIngresado).toFixed(2);
+        const errorMsg = `Paso 13 & 14: Saldo insuficiente — El monto entregado en efectivo (S/ ${montoIngresado.toFixed(2)}) es menor al total a pagar de S/ ${totalFacturado.toFixed(2)} (Faltan S/ ${faltante}).`;
+        setAlertaInsuficiente(errorMsg);
+        showToast(`⚠️ ${errorMsg}`);
+        return;
+      }
+    }
 
     let formaPagoTexto = posPaymentMethod;
     if (posPaymentMethod === 'Yape/Plin') {
@@ -707,35 +751,57 @@ export default function Dashboard({
       formaPagoTexto = `Tarjeta ${cardType} ${cardBrand} ****${last4} (${cardInstallments} cuota${cardInstallments !== '1' ? 's' : ''})`;
     }
 
-    const now = new Date();
-    const todayDateStr = now.toISOString().slice(0, 10);
-    const nowTimeStr = now.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
-    const fullFechaStr = `${todayDateStr} ${nowTimeStr}`;
+    setCargandoCobro(true);
+    try {
+      // Paso 8, 9, 10: Enviar a :VentaService para registrar venta y actualizar cita en BD
+      const res = await onProcessPayment({
+        cita_id: selectedCitaId,
+        cliente: posClient,
+        servicio: extraPrice > 0 ? `${posService} + Insumo de Reventa` : posService,
+        monto: totalFacturado,
+        monto_ingresado: montoIngresado,
+        medio_pago: formaPagoTexto,
+        descuento: discountAmount
+      });
 
-    const nuevaBoleta = {
-      numero_boleta: `B001-000${citas.length + 4822}`,
-      fecha: fullFechaStr,
-      cliente: posClient,
-      servicio: extraPrice > 0 ? `${posService} + Insumo de Reventa` : posService,
-      subtotal: subtotalSinIGV,
-      igv: igvAmount,
-      total: totalFacturado,
-      medio_pago: formaPagoTexto
-    };
+      if (res && res.success === false) {
+        // Paso 13 & 14: Mostrar alerta de saldo insuficiente en pantalla
+        const errorMsg = res.alerta || res.error || res.mensaje || 'Error al procesar el cobro.';
+        setAlertaInsuficiente(errorMsg);
+        showToast(`⚠️ ${errorMsg}`);
+        return;
+      }
 
-    onProcessPayment({
-      cliente: posClient,
-      servicio: nuevaBoleta.servicio,
-      monto: totalFacturado,
-      medio_pago: posPaymentMethod
-    });
+      // Paso 11: Notificar venta procesada con éxito
+      const numBoleta = res?.boleta?.numero_boleta || res?.venta?.numero_boleta || `B001-${salesHistory.length + 4822}`;
+      const boletaCompleta = {
+        numero_boleta: numBoleta,
+        serie: 'B001',
+        fecha: new Date().toLocaleString('es-PE'),
+        cliente: posClient,
+        servicio: extraPrice > 0 ? `${posService} + Insumo de Reventa` : posService,
+        subtotal: subtotalSinIGV,
+        igv: igvAmount,
+        total: totalFacturado,
+        medio_pago: formaPagoTexto,
+        monto_ingresado: montoIngresado,
+        vuelto: Math.max(0, montoIngresado - totalFacturado)
+      };
 
-    setSalesHistory(prev => [nuevaBoleta, ...prev]);
-    setReceiptData(nuevaBoleta);
-    setReceiptType('boleta');
-    setIsReceiptOpen(true);
+      setSalesHistory(prev => [boletaCompleta, ...prev]);
 
-    showToast(`Boleta electrónica emitida con éxito a ${posClient} por S/ ${totalFacturado.toFixed(2)} (${formaPagoTexto}).`);
+      // Paso 12: Mostrar boleta de venta para imprimir (:FormPOS -> :Cajero)
+      setReceiptData(boletaCompleta);
+      setReceiptType('boleta');
+      setIsReceiptOpen(true);
+
+      showToast(res?.message || `Paso 11: Notificar venta procesada con éxito. Boleta ${numBoleta} emitida.`);
+      setSelectedCitaId(null);
+    } catch (err) {
+      setAlertaInsuficiente('Error de red al registrar la venta y emisión de boleta en la base de datos.');
+    } finally {
+      setCargandoCobro(false);
+    }
   };
 
   const handleExecuteAnnulment = async (e) => {
@@ -1372,15 +1438,15 @@ export default function Dashboard({
           </section>
         )}
 
-        {/* TAB 3: PUNTO DE VENTA */}
+        {/* TAB 3: PUNTO DE VENTA (CUS Procesar Venta y Cobro - Diagrama BCE) */}
         {activeTab === 'caja' && (
           <section className="admin-tab">
             <div className="tab-header">
               <div>
-                <span className="badge-tag gold">Punto de Venta &amp; Facturación</span>
+                <span className="badge-tag gold">:FormPOS · CUS Procesar Venta y Cobro (Diagrama BCE)</span>
                 <h3>Punto de Venta (POS) &amp; Emisión de Boleta Electrónica</h3>
                 <small style={{ color: 'var(--color-text-muted)' }}>
-                  Soporta servicios combinados con productos de reventa, descuentos promocionales, cálculo automático del IGV (18%), cobro multicanal y sincronización automática con Caja y Base de Datos.
+                  Actor: :Cajero | Límite: :FormPOS | Control: :VentaService | Entidad: :Venta (PostgreSQL: "VentaComprobante", "Cita", "CajaSesion")
                 </small>
               </div>
               {onRefreshCaja && (
@@ -1394,6 +1460,25 @@ export default function Dashboard({
                 </button>
               )}
             </div>
+
+            {/* Traza Didáctica del Diagrama de Secuencia Oficial BCE */}
+            <div style={{ background: '#F8F9FA', border: '1px solid #E9ECEF', borderRadius: '8px', padding: '10px 14px', marginBottom: '16px', fontSize: '0.82rem', color: '#495057' }}>
+              <strong>Flujo del Diagrama de Secuencia BCE:</strong>{' '}
+              1: Seleccionar cita finalizada (Atendida) → 2: Solicitar liquidación → 3: Calcular subtotal e IGV → 4: Retornar desglose → 5: Mostrar pantalla cobro → 6: Seleccionar medio e ingresar monto → 7: Presionar cobrar y emitir boleta → 8: Validar pago conforme y caja abierta →{' '}
+              <strong style={{ color: '#2E7D32' }}>[Pago Conforme]</strong> 9: Registrar venta y boleta → 10: Confirmar en BD y actualizar cita → 11: Notificar éxito → 12: Mostrar boleta para imprimir |{' '}
+              <strong style={{ color: '#C62828' }}>[Monto Insuficiente]</strong> 13: Notificar importe menor → 14: Mostrar alerta en pantalla.
+            </div>
+
+            {/* Alerta de Saldo Insuficiente (Paso 14 del Diagrama de Secuencia) */}
+            {alertaInsuficiente && (
+              <div style={{ background: '#FEE2E2', border: '1px solid #FCA5A5', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', color: '#B91C1C', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '1.25rem' }}>⚠️</span>
+                <div>
+                  <strong>Paso 14: Alerta de Saldo Insuficiente en Pantalla</strong>
+                  <div style={{ fontSize: '0.85rem', marginTop: '2px' }}>{alertaInsuficiente}</div>
+                </div>
+              </div>
+            )}
 
             {/* Banner de Saldo de Caja de Turno en Vivo */}
             <div style={{ 
@@ -1432,10 +1517,10 @@ export default function Dashboard({
               </div>
             </div>
 
-            {/* Selector Rápido de Citas Pendientes de Cobro Organizadas por Día */}
+            {/* Paso 1: Selector de Citas Finalizadas en Cabina (estado Atendida) */}
             {(() => {
-              const pendingToday = citas.filter(c => !c.cobrado && c.estado !== 'Cancelada' && (String(c.fecha || '').slice(0, 10) === todayStr || c.fecha === 'Hoy' || !c.fecha));
-              const pendingOther = citas.filter(c => !c.cobrado && c.estado !== 'Cancelada' && String(c.fecha || '').slice(0, 10) !== todayStr && c.fecha !== 'Hoy' && c.fecha);
+              const citasAtendidas = citas.filter(c => c.estado === 'Atendida' && !c.cobrado);
+              const pendingOther = citas.filter(c => !c.cobrado && c.estado !== 'Cancelada' && c.estado !== 'Atendida');
 
               return (
                 <div style={{ 
@@ -1447,63 +1532,56 @@ export default function Dashboard({
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
                     <strong style={{ fontSize: '0.88rem', color: '#795548' }}>
-                      Cobro Rápido: Citas Pendientes de Hoy ({pendingToday.length}):
+                      Paso 1: Seleccionar Cita con Servicio Finalizado en Cabina (estado: Atendida) [{citasAtendidas.length} listas]:
                     </strong>
                     <span style={{ fontSize: '0.78rem', color: '#8D6E63' }}>Fecha operativa: {caja.fecha || todayStr}</span>
                   </div>
+
                   <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: pendingOther.length > 0 ? '8px' : '0' }}>
-                    {pendingToday.map(c => (
+                    {citasAtendidas.map(c => (
                       <button
                         key={c.id}
                         type="button"
                         style={{ 
-                          background: '#FFF', 
-                          border: '1px solid #D4AF37', 
-                          color: '#1B3D2B', 
-                          padding: '5px 12px', 
+                          background: selectedCitaId === c.id ? '#1B3D2B' : '#FFF', 
+                          border: '2px solid #2E7D32', 
+                          color: selectedCitaId === c.id ? '#FFF' : '#1B3D2B', 
+                          padding: '6px 14px', 
                           fontSize: '0.82rem', 
                           cursor: 'pointer', 
                           borderRadius: '6px',
                           display: 'flex',
                           alignItems: 'center',
                           gap: '6px',
-                          boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                          fontWeight: selectedCitaId === c.id ? 700 : 500
                         }}
-                        onClick={() => {
-                          setPosClient(c.cliente);
-                          setPosService(c.servicio);
-                          setPosAmount(c.monto.toString());
-                          showToast(`Cita de ${c.cliente} cargada al POS (S/ ${c.monto})`);
-                        }}
-                        title={`Haga clic para facturar la cita de ${c.cliente}`}
+                        onClick={() => handleChargeFromAgenda(c)}
+                        title={`Paso 1: Clic para liquidar y cobrar la atención culminada de ${c.cliente}`}
                       >
-                        <strong>{c.hora}</strong> · {c.cliente} ({c.servicio} - <strong>S/ {c.monto}</strong>)
+                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: selectedCitaId === c.id ? '#4CAF50' : '#2E7D32', display: 'inline-block' }}></span>
+                        <strong>{c.hora}</strong> · {c.cliente} ({c.servicio} - <strong>S/ {c.monto}</strong>) [Atendida]
                       </button>
                     ))}
-                    {pendingToday.length === 0 && (
+                    {citasAtendidas.length === 0 && (
                       <span style={{ fontSize: '0.82rem', color: '#666', fontStyle: 'italic' }}>
-                        No hay citas pendientes de cobro para el día de hoy. Puede facturar un servicio directo seleccionando un cliente.
+                        No hay citas en estado 'Atendida' pendientes de cobro en este momento. Puede seleccionar una cita de la agenda o registrar un servicio directo.
                       </span>
                     )}
                   </div>
 
                   {pendingOther.length > 0 && (
-                    <div style={{ borderTop: '1px dashed #FFE082', paddingTop: '8px', marginTop: '6px' }}>
-                      <span style={{ fontSize: '0.78rem', color: '#8D6E63', fontWeight: 600 }}>Pendientes de otras fechas ({pendingOther.length}): </span>
+                    <div style={{ borderTop: '1px dashed #FFE082', paddingTop: '8px', marginTop: '8px' }}>
+                      <span style={{ fontSize: '0.78rem', color: '#8D6E63', fontWeight: 600 }}>Otras Citas Agendadas ({pendingOther.length}): </span>
                       <div style={{ display: 'inline-flex', gap: '6px', flexWrap: 'wrap', marginTop: '4px' }}>
                         {pendingOther.map(c => (
                           <button
                             key={c.id}
                             type="button"
                             style={{ background: '#FFF9C4', border: '1px solid #FBC02D', color: '#5D4037', padding: '3px 8px', fontSize: '0.76rem', cursor: 'pointer', borderRadius: '4px' }}
-                            onClick={() => {
-                              setPosClient(c.cliente);
-                              setPosService(c.servicio);
-                              setPosAmount(c.monto.toString());
-                              showToast(`Cita de ${c.cliente} (${c.fecha}) cargada al POS`);
-                            }}
+                            onClick={() => handleChargeFromAgenda(c)}
                           >
-                            {c.fecha} {c.hora}: {c.cliente} (S/ {c.monto})
+                            {c.fecha} {c.hora}: {c.cliente} (S/ {c.monto} - {c.estado})
                           </button>
                         ))}
                       </div>
@@ -1651,17 +1729,22 @@ export default function Dashboard({
                     </div>
                   )}
 
-                  <button type="submit" className="btn-pos-pay">
-                    Procesar Cobro y Emitir Boleta Electrónica
+                  <button 
+                    type="submit" 
+                    className="btn-pos-pay" 
+                    id="btn-cobrar-boleta"
+                    disabled={cargandoCobro}
+                  >
+                    {cargandoCobro ? 'Procesando Venta y Boleta...' : 'Paso 7: Presionar Botón Cobrar y Emitir Boleta'}
                   </button>
                 </form>
               </div>
 
               <div className="pos-register">
-                <h3>Liquidación Fiscal en Tiempo Real</h3>
+                <h3>Pasos 3 &amp; 4: Desglose de Liquidación Fiscal</h3>
                 <div className="register-summary">
                   <div className="reg-row">
-                    <span>Base Servicios:</span>
+                    <span>Base Servicios (Paso 3):</span>
                     <strong>S/ {basePrice.toFixed(2)}</strong>
                   </div>
                   {extraPrice > 0 && (
@@ -1678,16 +1761,16 @@ export default function Dashboard({
                   )}
                   <hr />
                   <div className="reg-row">
-                    <span>Subtotal Grabado (Sin IGV):</span>
+                    <span>Paso 3: Subtotal Grabado (Sin IGV):</span>
                     <strong>S/ {subtotalSinIGV.toFixed(2)}</strong>
                   </div>
                   <div className="reg-row">
-                    <span>I.G.V. (18% SUNAT):</span>
+                    <span>Paso 3: I.G.V. (18% SUNAT):</span>
                     <strong>S/ {igvAmount.toFixed(2)}</strong>
                   </div>
                   <hr />
                   <div className="reg-row total">
-                    <span>Total a Pagar:</span>
+                    <span>Paso 4: Importe Total a Pagar:</span>
                     <strong className="pos">S/ {totalFacturado.toFixed(2)}</strong>
                   </div>
                 </div>

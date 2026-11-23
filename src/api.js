@@ -276,13 +276,21 @@ export const api = {
     }
   },
 
-  // CUS08: Procesar Venta y Cobro
+  // CUS08: Procesar Venta y Cobro (Diagrama BCE Oficial)
   async getVentas() {
     try {
       const res = await fetch(`${API_BASE}/ventas`);
       if (res.ok) return await res.json();
     } catch (_) {}
     return [];
+  },
+
+  async liquidarCita(citaId) {
+    try {
+      const res = await fetch(`${API_BASE}/ventas/liquidar/${citaId}`);
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return null;
   },
 
   async processVenta(ventaData) {
@@ -292,9 +300,22 @@ export const api = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(ventaData)
       });
-      if (res.ok) return await res.json();
-    } catch (_) {}
-    return { success: true, message: 'Venta procesada localmente' };
+      const data = await res.json().catch(() => null);
+      if (res.ok) {
+        return data || { success: true, message: 'Venta procesada con éxito' };
+      } else {
+        return {
+          success: false,
+          error: data?.error || data?.mensaje || `Error HTTP ${res.status} al procesar venta`,
+          mensaje: data?.mensaje,
+          alerta: data?.alerta,
+          paso: data?.paso || 13,
+          faltante: data?.faltante
+        };
+      }
+    } catch (err) {
+      return { success: false, error: 'Servidor no disponible para procesar cobro.' };
+    }
   },
 
   // CUS09: Anular Venta con Nota de Crédito
