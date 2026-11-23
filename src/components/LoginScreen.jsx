@@ -12,22 +12,22 @@ import { api } from '../api';
 const USUARIOS_SISTEMA = [
   { 
     usuario: 'admin', 
-    password: '1234', 
-    nombre: 'Aleida Mendoza', 
+    password: '123', 
+    nombre: 'Aleida Flores', 
     rol: 'Administrador', 
     permisos: ['personal', 'catalogo', 'anulaciones', 'operaciones-caja'] 
   },
   { 
     usuario: 'recepcion', 
-    password: '1234', 
+    password: '123', 
     nombre: 'Camila Ramos', 
     rol: 'Recepcionista', 
     permisos: ['agenda', 'clientes', 'reprogramar'] 
   },
   { 
     usuario: 'cajero', 
-    password: '1234', 
-    nombre: 'Javier Torres', 
+    password: '123', 
+    nombre: 'Roberto Mendoza', 
     rol: 'Cajero', 
     permisos: ['apertura', 'caja', 'anulaciones', 'operaciones-caja'] 
   },

@@ -286,7 +286,7 @@ export default function App() {
         monto: numMonto,
         cliente: data.cliente || 'Cliente General',
         medio_pago: medio,
-        autorizado_por: currentUser?.nombre ? `${currentUser.nombre} (${currentUser.rol})` : 'Aleida Mendoza (Gerente General)'
+        autorizado_por: currentUser?.nombre ? `${currentUser.nombre} (${currentUser.rol})` : 'Aleida Flores (Gerente General)'
       });
 
       if (res && res.success === false) {

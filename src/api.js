@@ -21,15 +21,14 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000/api';
 // Estado Mock inicial para contingencia / modo offline de mostrador
 export const initialMockState = {
   citas: [
-    { id: 1, hora: '09:00 AM', fecha: '2026-10-06', cliente: 'Mariana Torres', dni: '72819382', servicio: 'Masaje Relajante Aleida', especialista: 'Carmen Sánchez', estado: 'Atendida', monto: 280, cobrado: true },
-    { id: 2, hora: '10:30 AM', fecha: '2026-10-06', cliente: 'Patricia Valdivia', dni: '45910284', servicio: 'Facial Rejuvenecedor con Oro', especialista: 'Carmen Sánchez', estado: 'Confirmada', monto: 450, cobrado: false },
-    { id: 3, hora: '11:45 AM', fecha: '2026-10-06', cliente: 'Claudia Morales', dni: '48192039', servicio: 'Tratamiento Capilar Keratina', especialista: 'Luisa Paredes', estado: 'En Atención', monto: 350, cobrado: false },
-    { id: 4, hora: '02:30 PM', fecha: '2026-10-06', cliente: 'Jessica Rivas', dni: '70829104', servicio: 'Manicura Spa Premium', especialista: 'Ana Vargas', estado: 'Pendiente', monto: 150, cobrado: false }
+    { id: 1, hora: '09:00 AM', fecha: '2026-11-23', cliente: 'Mariana Torres', dni: '72819382', servicio: 'Masaje Relajante Aleida', especialista: 'Carmen Sánchez', estado: 'Atendida', monto: 280, cobrado: false },
+    { id: 2, hora: '10:30 AM', fecha: '2026-11-23', cliente: 'Patricia Valdivia', dni: '45910284', servicio: 'Facial Rejuvenecedor con Oro', especialista: 'Carmen Sánchez', estado: 'Confirmada', monto: 450, cobrado: false },
+    { id: 3, hora: '11:45 AM', fecha: '2026-11-23', cliente: 'Claudia Morales', dni: '48192039', servicio: 'Tratamiento Capilar Keratina', especialista: 'Luisa Paredes', estado: 'En Atención', monto: 350, cobrado: false }
   ],
   clientes: [
-    { dni: '72819382', nombre: 'Mariana Torres', telefono: '987654321', preferencias: 'Piel mixta, prefiere aromaterapia de lavanda.', visitas: 12, ultima_visita: '2026-10-06' },
-    { dni: '45910284', nombre: 'Patricia Valdivia', telefono: '945112233', preferencias: 'Sensibilidad a tintes con amoníaco.', visitas: 8, ultima_visita: '2026-10-06' },
-    { dni: '48192039', nombre: 'Claudia Morales', telefono: '912345678', preferencias: 'Tratamiento keratina semestral.', visitas: 5, ultima_visita: '2026-10-06' }
+    { dni: '72819382', nombre: 'Mariana Torres', telefono: '987654321', preferencias: 'Piel mixta, prefiere aromaterapia de lavanda.', visitas: 12, ultima_visita: '2026-11-23' },
+    { dni: '45910284', nombre: 'Patricia Valdivia', telefono: '945112233', preferencias: 'Sensibilidad a tintes con amoníaco.', visitas: 8, ultima_visita: '2026-11-23' },
+    { dni: '48192039', nombre: 'Claudia Morales', telefono: '912345678', preferencias: 'Tratamiento keratina semestral.', visitas: 5, ultima_visita: '2026-11-23' }
   ],
   caja: {
     apertura: 150.0,
@@ -47,9 +46,9 @@ export const initialMockState = {
     { id: 6, nombre: 'Drenaje Linfático Manual', categoria: 'Spa & Bienestar', duracion: 60, precio: 260.0, comision: 25, cabina: 'Cabina 02 - Masajes & Cromoterapia' }
   ],
   usuarios: [
+    { usuario: 'admin', nombre: 'Aleida Flores', rol: 'Administrador', permisos: 'Acceso Total al Área de Recepción y Parámetros' },
     { usuario: 'cramos', nombre: 'Camila Ramos', rol: 'Recepcionista', permisos: 'Agenda de Citas, Padrón Clientes, Terminal POS, Caja' },
-    { usuario: 'csanchez', nombre: 'Carmen Sánchez', rol: 'Cajero', permisos: 'Cobranzas, Arqueo de Caja, Notas de Crédito' },
-    { usuario: 'admin', nombre: 'Aleida Mendoza', rol: 'Administrador', permisos: 'Acceso Total al Área de Recepción y Parámetros' }
+    { usuario: 'cajero', nombre: 'Roberto Mendoza', rol: 'Cajero', permisos: 'Cobranzas, Arqueo de Caja, Notas de Crédito' }
   ]
 };
 

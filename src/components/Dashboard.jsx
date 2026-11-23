@@ -633,7 +633,7 @@ export default function Dashboard({
   const [mensajePaso13, setMensajePaso13] = useState('');
   const [busquedaError, setBusquedaError] = useState('');
   const [annulHistory, setAnnulHistory] = useState([
-    { fecha: '2026-10-06 10:15', boleta: 'B001-0004810', nota_credito: 'NC-012', nc: 'NC-012', monto: 120.0, cliente: 'Rosa Quispe', servicio: 'Manicure Spa', motivo: 'Devolución por insatisfacción', autorizado_por: 'Aleida Mendoza (Gerente General)' }
+    { fecha: '2026-10-06 10:15', boleta: 'B001-0004810', nota_credito: 'NC-012', nc: 'NC-012', monto: 120.0, cliente: 'Rosa Quispe', servicio: 'Manicure Spa', motivo: 'Devolución por insatisfacción', autorizado_por: 'Aleida Flores (Gerente General)' }
   ]);
 
   // Lista unificada de boletas emitidas disponibles para anular
@@ -875,7 +875,7 @@ export default function Dashboard({
       cliente: annulCliente,
       medio_pago: annulMedio,
       servicio: annulServicio,
-      autorizado_por: currentUser?.nombre ? `${currentUser.nombre} (${currentUser.rol})` : 'Aleida Mendoza (Gerente General)'
+      autorizado_por: currentUser?.nombre ? `${currentUser.nombre} (${currentUser.rol})` : 'Aleida Flores (Gerente General)'
     };
 
     setAnnulLoading(true);
