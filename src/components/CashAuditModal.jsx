@@ -15,7 +15,8 @@ export default function CashAuditModal({
   saldoTeorico = 0, 
   caja = {}, 
   currentUser = null, 
-  onConfirmCierre 
+  onConfirmCierre,
+  onFinalizarTurno
 }) {
   if (!isOpen) return null;
 
@@ -402,9 +403,16 @@ export default function CashAuditModal({
               </button>
               <button 
                 type="button" 
+                id="btn-finalizar-turno-salir"
                 className="btn-gold" 
-                onClick={onClose}
-                style={{ padding: '8px 20px' }}
+                onClick={() => {
+                  if (onFinalizarTurno) {
+                    onFinalizarTurno();
+                  } else {
+                    onClose();
+                  }
+                }}
+                style={{ padding: '8px 20px', fontWeight: 600 }}
               >
                 Finalizar Turno y Salir
               </button>

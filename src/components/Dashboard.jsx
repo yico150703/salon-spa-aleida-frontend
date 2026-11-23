@@ -2457,12 +2457,24 @@ export default function Dashboard({
       {/* MODALES DIDÁCTICOS */}
       <CashAuditModal 
         isOpen={isCashAuditOpen}
-        onClose={() => setIsCashAuditOpen(false)}
+        onClose={() => {
+          setIsCashAuditOpen(false);
+          if (onRefreshCaja) onRefreshCaja();
+        }}
+        onFinalizarTurno={() => {
+          setIsCashAuditOpen(false);
+          if (onRefreshCaja) onRefreshCaja();
+          setActiveTab('apertura');
+          showToast('Turno finalizado exitosamente. Caja cerrada y lista para nueva apertura.');
+        }}
         saldoTeorico={((Number(caja.apertura) || 0) + (Number(caja.efectivo) || 0) + (Number(caja.digital) || 0) - (Number(caja.egresos) || 0))}
         caja={caja}
         currentUser={currentUser}
         onConfirmCierre={async (totalFisico, dif, resp) => {
           const res = await onCloseCaja(totalFisico, dif, resp);
+          if (res && res.success) {
+            if (onRefreshCaja) onRefreshCaja();
+          }
           return res;
         }}
       />
