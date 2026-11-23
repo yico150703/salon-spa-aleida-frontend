@@ -334,28 +334,34 @@ export default function App() {
     } catch (_) {}
   };
 
-  // DS_CU10: Arqueo y cierre de caja (Persistencia total en PostgreSQL + Reporte Z)
+  // DS_CU10: Arqueo y cierre de caja (Diagrama de Secuencia BCE Oficial con PostgreSQL)
   const handleCloseCaja = async (totalFisico, diferencia, responsable) => {
     const numFisico = parseFloat(totalFisico) || 0;
-    const numDif = parseFloat(diferencia) || 0;
     const resp = responsable || currentUser?.nombre || 'Personal de Mostrador';
 
-    // 1. Actualización optimista
-    setCaja(prev => ({ ...prev, arqueo_fisico: numFisico, diferencia: numDif, estado: 'Cerrada' }));
-    setCajaAbierta(false);
-
     try {
+      // Paso 8: Calcular saldo teórico vs total físico contado (:FormArqueo -> :CajaService)
       const res = await api.cerrarCaja({
         conteo_fisico: numFisico,
         responsable: resp
       });
+
+      // Rama [Discrepancia != 0.00] (Pasos 13 y 14)
+      if (res && res.success === false) {
+        showToast(res.error || res.mensaje || 'Paso 13: Discrepancia detectada en arqueo.');
+        return res;
+      }
+
+      // Rama [Discrepancia = 0.00] (Pasos 9, 10, 11, 12)
+      setCajaAbierta(false);
       const cajaActual = await api.getCaja();
       if (cajaActual) setCaja(cajaActual);
-      showToast(`[CIERRE] Arqueo completado y cerrado en Base de Datos. Reporte Z emitido.`);
+      showToast(res?.message || `Paso 10: Arqueo conciliado al 100% y sesión cerrada en base de datos.`);
       return res;
     } catch (err) {
       console.error('Error cerrando caja en backend:', err);
-      showToast('[ERROR] No se pudo guardar el cierre en base de datos.');
+      showToast('[ERROR] No se pudo procesar el cierre en base de datos.');
+      return { success: false, error: 'Error de conexión al procesar cierre de caja.' };
     }
   };
 

@@ -360,7 +360,15 @@ export const api = {
     }
   },
 
-  // CUS10: Arqueo y Cierre de Caja
+  // CUS10: Arqueo y Cierre de Caja (Diagrama BCE Oficial)
+  async getSaldoTeorico() {
+    try {
+      const res = await fetch(`${API_BASE}/caja/saldo-teorico`);
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return null;
+  },
+
   async cerrarCaja(cierreData) {
     try {
       const res = await fetch(`${API_BASE}/caja/cierre`, {
@@ -368,9 +376,21 @@ export const api = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(cierreData)
       });
-      if (res.ok) return await res.json();
-    } catch (_) {}
-    return { success: true, message: 'Arqueo y cierre procesado localmente' };
+      const data = await res.json().catch(() => null);
+      if (res.ok) {
+        return data || { success: true, message: 'Arqueo y cierre procesado exitosamente' };
+      } else {
+        return {
+          success: false,
+          error: data?.error || data?.mensaje || `Error HTTP ${res.status}`,
+          paso: data?.paso || 13,
+          discrepancia: data?.discrepancia,
+          alerta: data?.alerta
+        };
+      }
+    } catch (_) {
+      return { success: false, error: 'Error de conexión con el servidor al procesar arqueo.' };
+    }
   }
 };
 

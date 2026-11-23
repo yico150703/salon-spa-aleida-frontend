@@ -2183,15 +2183,15 @@ export default function Dashboard({
           </section>
         )}
 
-        {/* TAB 5: OPERACIONES DE CAJA */}
+        {/* TAB 5: OPERACIONES DE CAJA (CUS-10: Arqueo y Cierre de Caja) */}
         {activeTab === 'operaciones-caja' && (
           <section className="admin-tab">
             <div className="tab-header">
               <div>
-                <span className="badge-tag gold">Gestión de Caja &amp; Arqueo Diario</span>
-                <h3>Control Integral de Caja &amp; Arqueo Diario</h3>
+                <span className="badge-tag gold">CUS-10 BCE Oficial</span>
+                <h3>Arqueo y Cierre de Caja &amp; Emisión de Reporte Z</h3>
                 <small style={{ color: 'var(--color-text-muted)' }}>
-                  Apertura con fondo de sencillo, registro de salidas justificadas y conciliación física con emisión de Reporte Z.
+                  Alineado estrictamente a los 14 pasos del Diagrama de Secuencia Oficial BCE: consulta de saldo teórico, desglosador físico y conciliación sin discrepancias.
                 </small>
               </div>
               <span className={`badge-status ${caja.estado === 'Abierta' ? 'open' : 'closed'}`}>
@@ -2200,7 +2200,19 @@ export default function Dashboard({
             </div>
             <div className="pos-layout">
               <div className="pos-register">
-                <h3>Balance Consolidado en PostgreSQL</h3>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <h3 style={{ margin: 0 }}>Saldo Teórico Acumulado (PostgreSQL)</h3>
+                  {onRefreshCaja && (
+                    <button 
+                      type="button" 
+                      className="btn-outline" 
+                      onClick={onRefreshCaja}
+                      style={{ fontSize: '0.78rem', padding: '3px 8px' }}
+                    >
+                      Sincronizar Caja
+                    </button>
+                  )}
+                </div>
                 <div className="register-summary">
                   <div className="reg-row">
                     <span>Fondo de Apertura (Sencillo):</span>
@@ -2225,7 +2237,17 @@ export default function Dashboard({
                   </div>
                 </div>
 
-                <div className="reg-actions">
+                <div className="reg-actions" style={{ flexDirection: 'column', gap: '8px', marginTop: '14px' }}>
+                  {/* Paso 1: Solicitar fin de turno y conteo físico (:Cajero -> :FormArqueo) */}
+                  <button 
+                    id="btn-iniciar-arqueo"
+                    className="btn-action primary" 
+                    onClick={() => setIsCashAuditOpen(true)}
+                    style={{ width: '100%', padding: '12px', fontWeight: 700, fontSize: '0.92rem' }}
+                  >
+                    Paso 1: Solicitar Fin de Turno y Conteo Físico (:FormArqueo)
+                  </button>
+
                   <button 
                     className="btn-outline" 
                     onClick={() => {
@@ -2233,14 +2255,9 @@ export default function Dashboard({
                       const motivo = prompt('Motivo justificado del egreso:', 'Compra de café y artículos de limpieza para salón');
                       if (monto) onExpense(parseFloat(monto) || 0, motivo);
                     }}
+                    style={{ width: '100%', fontSize: '0.85rem' }}
                   >
-                    - Registrar Egreso Justificado
-                  </button>
-                  <button 
-                    className="btn-action primary" 
-                    onClick={() => setIsCashAuditOpen(true)}
-                  >
-                    Abrir Calculadora de Arqueo Físico
+                    - Registrar Egreso Menor Justificado
                   </button>
                 </div>
               </div>
@@ -2248,13 +2265,13 @@ export default function Dashboard({
               <div className="pos-checkout">
                 <h3>Auditoría y Control de Cuadre</h3>
                 <div style={{ background: '#E8F5E9', border: '1px solid #A5D6A7', padding: '16px', borderRadius: '8px', marginBottom: '14px' }}>
-                  <strong style={{ color: 'var(--color-success)' }}>Auditoría Diaria de Cuadre:</strong>
+                  <strong style={{ color: 'var(--color-success)' }}>Auditoría Diaria de Cuadre (Discrepancia = 0.00):</strong>
                   <p style={{ fontSize: '0.85rem', color: '#2E7D32', marginTop: '4px' }}>
-                    El sistema concilia en tiempo real el efectivo y las transferencias contra los comprobantes emitidos antes del cierre y emisión del Reporte Z.
+                    Según la regla de negocio del diagrama de secuencia, el cierre de sesión y la emisión del Reporte Z sólo se autorizan cuando el arqueo físico coincide al 100% con el saldo teórico de PostgreSQL.
                   </p>
                 </div>
                 <div style={{ fontSize: '0.84rem', color: 'var(--color-text-muted)' }}>
-                  <strong>Movimientos Oficiales Registrados (caja_movimientos):</strong>
+                  <strong>Movimientos Oficiales Registrados (MovimientoCaja):</strong>
                   <div style={{ maxHeight: '180px', overflowY: 'auto', marginTop: '6px', paddingRight: '4px' }}>
                     {(caja.movimientos && caja.movimientos.length > 0) ? (
                       <ul style={{ paddingLeft: '18px', margin: 0, lineHeight: '1.7' }}>
