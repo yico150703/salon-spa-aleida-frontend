@@ -25,11 +25,11 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
   const [credencialesGeneradas, setCredencialesGeneradas] = useState(null);
   const [cargando, setCargando] = useState(false);
 
-  const ROLES = ['Administrador', 'Recepcionista', 'Cajero', 'Terapeuta'];
+  const ROLES = ['Recepcionista', 'Cajero', 'Administrador', 'Terapeuta'];
   const PERMISOS_ROL = {
-    'Administrador': 'Control total del sistema, seguridad y parámetros',
     'Recepcionista': 'Agenda de citas (CUS04), clientes (CUS03) y POS mostrador',
-    'Cajero': 'Cobros, caja y comprobantes (CUS08 y CUS10)',
+    'Cajero': 'Cobranzas (CUS08), arqueo de caja (CUS10) y comprobantes',
+    'Administrador': 'Control total del sistema, gestión de personal, seguridad y parámetros',
     'Terapeuta': 'Consulta de agenda de cabinas y atenciones de spa'
   };
 
@@ -42,29 +42,31 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
     e.preventDefault();
     setErrorAlerta(null);
 
-    // Validación preliminar en cliente
+    // Paso 5: Validar formato y solicitar registro
     if (!form.nombre.trim() || !form.dni.trim() || !form.rol) {
-      setErrorAlerta('Alerta de error en pantalla: Datos incompletos. Ingrese DNI, nombre completo y rol.');
+      setErrorAlerta('Paso 12: Mostrar alerta de error en pantalla · Datos incompletos. Ingrese DNI, nombre completo y rol.');
       return;
     }
 
     if (form.dni.trim().length < 8) {
-      setErrorAlerta('Alerta de error en pantalla: El DNI debe contener al menos 8 dígitos numéricos.');
+      setErrorAlerta('Paso 12: Mostrar alerta de error en pantalla · El DNI debe contener al menos 8 dígitos numéricos válidos.');
       return;
     }
 
     setCargando(true);
     try {
+      // Paso 5 -> :UsuarioController -> Paso 6: Verificar unicidad de DNI -> :Usuario
       const res = await onAddPersonal({
         ...form,
         permisos: PERMISOS_ROL[form.rol]
       });
 
       if (res && res.success) {
-        // Diagrama de secuencia CUS02:
-        // 1. Confirmación de almacenamiento exitoso
-        // 2. Confirmación de personal registrado
-        // 3. Mostrar mensaje de registro exitoso y credenciales temporales
+        // [DNI NO REGISTRADO Y DATOS VALIDOS]
+        // Paso 7: Guardar nuevo registro de personal en :Usuario
+        // Paso 8: Confirmar almacenamiento exitoso
+        // Paso 9: Enviar confirmación de personal registrado
+        // Paso 10: Mostrar mensaje de registro exitoso
         setCredencialesGeneradas(res.credenciales_temporales || {
           usuario: res.personal?.usuario || form.usuario || `user_${form.dni}`,
           password_temporal: res.personal?.password_temporal || `SpaAleida_${form.dni.slice(-4)}!`,
@@ -74,14 +76,15 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
         showToast(res.confirmacion || 'Personal registrado con éxito.');
         setForm({ nombre: '', usuario: '', password: '', rol: 'Recepcionista', dni: '', telefono: '', email: '' });
       } else {
-        // Diagrama de secuencia CUS02:
-        // Notificar rechazo por DNI duplicado o datos incompletos -> Mostrar alerta de error en pantalla
-        const errorMsg = res?.error || 'Rechazo: DNI duplicado o personal ya registrado en el sistema.';
-        setErrorAlerta(errorMsg);
+        // [DNI DUPLICADO O DATOS NO VALIDOS]
+        // Paso 11: Notificar rechazo por DNI duplicado o datos incompletos
+        // Paso 12: Mostrar alerta de error en pantalla
+        const errorMsg = res?.error || 'Paso 11: Notificar rechazo por DNI duplicado o datos incompletos.';
+        setErrorAlerta(`Paso 12: Mostrar alerta de error en pantalla · ${errorMsg}`);
         showToast(`⚠️ ${errorMsg}`);
       }
     } catch (err) {
-      setErrorAlerta('Error de comunicación con el servidor al registrar personal.');
+      setErrorAlerta('Paso 12: Mostrar alerta de error en pantalla · Error de comunicación con el servidor al registrar personal.');
     } finally {
       setCargando(false);
     }
@@ -91,10 +94,12 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
     <div className="uc-module">
       <div className="uc-module__header">
         <div>
-          <span className="uc-badge">Gestión de Personal y Seguridad</span>
-          <h2 className="uc-module__title">Registrar Personal (Colaboradores del Spa)</h2>
+          <span className="uc-badge" style={{ background: '#E8F5E9', color: '#1B5E20', border: '1px solid #C8E6C9' }}>
+            CUS-02: Registrar Personal · Patrón BCE (:Administrador → :FormPersonal → :UsuarioController → :Usuario)
+          </span>
+          <h2 className="uc-module__title">Gestión de Personal (Colaboradores del Spa)</h2>
           <p className="uc-module__subtitle">
-            Alta en Base de Datos (PostgreSQL), verificación de DNI único y entrega de credenciales temporales
+            Alta en Base de Datos (PostgreSQL), verificación de unicidad de DNI y asignación de credenciales temporales
           </p>
         </div>
         <button
@@ -106,11 +111,11 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
             setMode(mode === 'form' ? 'list' : 'form');
           }}
         >
-          {mode === 'form' ? '← Ver Lista de Colaboradores' : '+ Nuevo Colaborador'}
+          {mode === 'form' ? '← Ver Lista de Colaboradores' : '+ 1: Solicitar nuevo registro de personal'}
         </button>
       </div>
 
-      {/* Modal / Banner de Credenciales Temporales de Acceso */}
+      {/* Modal / Banner de Éxito (Paso 10: Mostrar mensaje de registro exitoso) */}
       {credencialesGeneradas && (
         <div style={{
           background: '#E8F5E9',
@@ -121,13 +126,16 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
           boxShadow: '0 4px 14px rgba(46, 125, 50, 0.15)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-            <span style={{ fontSize: '1.5rem' }}>✓</span>
+            <span style={{ fontSize: '1.6rem', color: '#2E7D32' }}>✓</span>
             <div>
+              <div style={{ display: 'inline-block', background: '#2E7D32', color: '#FFF', fontSize: '0.72rem', padding: '2px 8px', borderRadius: '4px', fontWeight: 'bold', marginBottom: '4px' }}>
+                Paso 10: Mostrar mensaje de registro exitoso
+              </div>
               <h3 style={{ margin: 0, color: '#1B5E20', fontSize: '1.2rem' }}>
                 Confirmación de Almacenamiento Exitoso · Personal Registrado con Éxito
               </h3>
               <p style={{ margin: '4px 0 0', color: '#2E7D32', fontSize: '0.88rem' }}>
-                El colaborador ha sido persistido en PostgreSQL. Entregue las siguientes credenciales de acceso temporales:
+                El colaborador ha sido persistido en PostgreSQL (tabla <code>Usuario</code>). Entregue las siguientes credenciales de acceso temporales:
               </p>
             </div>
           </div>
@@ -161,7 +169,7 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
               </strong>
             </div>
             <div>
-              <span style={{ fontSize: '0.75rem', color: '#666', textTransform: 'uppercase', fontWeight: 600 }}>Permisos:</span>
+              <span style={{ fontSize: '0.75rem', color: '#666', textTransform: 'uppercase', fontWeight: 600 }}>Permisos Asignados:</span>
               <span style={{ display: 'block', fontSize: '0.85rem', color: '#4A5568' }}>
                 {credencialesGeneradas.permisos}
               </span>
@@ -193,39 +201,63 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
         </div>
       )}
 
-      {/* Alerta de Error en Pantalla (Rechazo por DNI duplicado o datos incompletos) */}
+      {/* Alerta de Error en Pantalla (Paso 12: Mostrar alerta de error en pantalla) */}
       {errorAlerta && (
         <div style={{
           background: '#FFEBEE',
-          border: '1px solid #EF5350',
+          border: '2px solid #EF5350',
           borderRadius: '8px',
-          padding: '12px 18px',
+          padding: '14px 18px',
           marginBottom: '18px',
           color: '#C62828',
           display: 'flex',
           alignItems: 'center',
-          gap: '10px'
+          gap: '12px'
         }}>
-          <span style={{ fontSize: '1.3rem' }}>⚠️</span>
+          <span style={{ fontSize: '1.4rem' }}>⚠️</span>
           <div style={{ flex: 1, fontSize: '0.92rem', fontWeight: 600 }}>
             {errorAlerta}
           </div>
           <button
             type="button"
             onClick={() => setErrorAlerta(null)}
-            style={{ background: 'none', border: 'none', color: '#C62828', cursor: 'pointer', fontWeight: 'bold' }}
+            style={{ background: 'none', border: 'none', color: '#C62828', cursor: 'pointer', fontWeight: 'bold', fontSize: '1.1rem' }}
           >
             ✕
           </button>
         </div>
       )}
 
+      {/* Formulario :FormPersonal (Paso 2: Presentar campos de datos y roles) */}
       {mode === 'form' && (
         <form onSubmit={handleSubmit} className="uc-form" id="form-registrar-personal">
-          <h3 className="uc-form__title">Formulario de Registro de Nuevo Personal</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+            <div>
+              <div style={{ display: 'inline-block', background: '#D4AF37', color: '#1B3D2B', fontSize: '0.72rem', padding: '2px 8px', borderRadius: '4px', fontWeight: 'bold', marginBottom: '4px' }}>
+                :FormPersonal · Paso 2: Presentar campos de datos y roles
+              </div>
+              <h3 className="uc-form__title" style={{ margin: 0 }}>Formulario de Registro de Nuevo Personal</h3>
+            </div>
+            <button type="button" className="btn-secondary" onClick={() => setMode('list')}>
+              ← Cancelar
+            </button>
+          </div>
+
           <div className="uc-form__grid">
             <div className="form-field">
-              <label htmlFor="personal-nombre">Nombre Completo *</label>
+              <label htmlFor="personal-dni">DNI (8 dígitos) *</label>
+              <input
+                id="personal-dni"
+                name="dni"
+                value={form.dni}
+                onChange={handleChange}
+                placeholder="Ej: 45910284"
+                maxLength={8}
+                required
+              />
+            </div>
+            <div className="form-field">
+              <label htmlFor="personal-nombre">Nombres y Apellidos *</label>
               <input
                 id="personal-nombre"
                 name="nombre"
@@ -236,25 +268,13 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
               />
             </div>
             <div className="form-field">
-              <label htmlFor="personal-dni">DNI (8 dígitos) *</label>
-              <input
-                id="personal-dni"
-                name="dni"
-                value={form.dni}
-                onChange={handleChange}
-                placeholder="12345678"
-                maxLength={8}
-                required
-              />
-            </div>
-            <div className="form-field">
-              <label htmlFor="personal-rol">Rol en el Sistema *</label>
+              <label htmlFor="personal-rol">Cargo / Rol en el Spa *</label>
               <select id="personal-rol" name="rol" value={form.rol} onChange={handleChange}>
                 {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
               </select>
             </div>
             <div className="form-field">
-              <label htmlFor="personal-usuario">Usuario del Sistema (Opcional - auto)</label>
+              <label htmlFor="personal-usuario">Credencial: Usuario del Sistema (Opcional - auto)</label>
               <input
                 id="personal-usuario"
                 name="usuario"
@@ -264,14 +284,14 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
               />
             </div>
             <div className="form-field">
-              <label htmlFor="personal-password">Contraseña Inicial (Opcional - auto)</label>
+              <label htmlFor="personal-password">Credencial: Contraseña Inicial (Opcional - auto)</label>
               <input
                 id="personal-password"
                 name="password"
                 type="text"
                 value={form.password}
                 onChange={handleChange}
-                placeholder="Se generará contraseña temporal si está vacía"
+                placeholder="Temporal (ej: SpaAleida_2026!)"
               />
             </div>
             <div className="form-field">
@@ -284,7 +304,7 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
                 placeholder="987654321"
               />
             </div>
-            <div className="form-field">
+            <div className="form-field" style={{ gridColumn: 'span 2' }}>
               <label htmlFor="personal-email">Correo Electrónico</label>
               <input
                 id="personal-email"
@@ -296,14 +316,14 @@ export function PersonalManager({ usuarios, onAddPersonal, showToast }) {
               />
             </div>
           </div>
-          <div className="uc-form__permisos-preview">
-            <span className="uc-form__permisos-label">Permisos del Sistema Asignados:</span>
-            <span className="uc-form__permisos-value">{PERMISOS_ROL[form.rol]}</span>
+          <div className="uc-form__permisos-preview" style={{ marginTop: '14px', background: '#F8FBF9', border: '1px solid #C2E0C6', padding: '10px 14px', borderRadius: '6px' }}>
+            <span className="uc-form__permisos-label" style={{ fontWeight: 600, color: '#1B3D2B' }}>Permisos del Sistema Asignados para {form.rol}: </span>
+            <span className="uc-form__permisos-value" style={{ color: '#2E7D32' }}>{PERMISOS_ROL[form.rol]}</span>
           </div>
-          <div className="uc-form__actions">
+          <div className="uc-form__actions" style={{ marginTop: '18px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
             <button type="button" className="btn-secondary" onClick={() => setMode('list')}>Cancelar</button>
-            <button type="submit" className="btn-gold" id="btn-guardar-personal" disabled={cargando}>
-              {cargando ? 'Validando y Guardando...' : 'Registrar Personal'}
+            <button type="submit" className="btn-gold" id="btn-registrar-personal" disabled={cargando}>
+              {cargando ? '5: Validando formato y solicitando registro...' : '4: Presionar botón: Registrar Personal'}
             </button>
           </div>
         </form>
