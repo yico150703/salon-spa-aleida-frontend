@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { api } from '../api';
 import CashAuditModal from './CashAuditModal';
 import ElectronicReceiptModal from './ElectronicReceiptModal';
@@ -585,6 +585,7 @@ export default function Dashboard({
 
   // POS State
   const [posClient, setPosClient] = useState('Patricia Valdivia');
+  const [posDni, setPosDni] = useState('45910284');
   const [posService, setPosService] = useState('Facial Rejuvenecedor con Oro');
   const [posAmount, setPosAmount] = useState('450.00');
   const [posExtraProduct, setPosExtraProduct] = useState('0'); // 0, 45 (Serum), 70 (Ampolla)
@@ -618,63 +619,74 @@ export default function Dashboard({
   }, [posClient]);
 
   // CUS-09: Anular Venta con Nota de Crédito (Diagrama BCE Oficial)
-  const [annulTicket, setAnnulTicket] = useState('B001-0004820');
+  const [annulTicket, setAnnulTicket] = useState('');
   const [annulPin, setAnnulPin] = useState('1234');
   const [annulMotivo, setAnnulMotivo] = useState('Error en digitación de importe');
-  const [annulCliente, setAnnulCliente] = useState('Mariana Torres');
-  const [annulMonto, setAnnulMonto] = useState('280.00');
+  const [annulCliente, setAnnulCliente] = useState('');
+  const [annulMonto, setAnnulMonto] = useState('0.00');
   const [annulMedio, setAnnulMedio] = useState('Efectivo');
-  const [annulServicio, setAnnulServicio] = useState('Masaje Relajante Aleida');
-  const [annulItems, setAnnulItems] = useState([
-    { item: 1, codigo: 'SRV-01', descripcion: 'Masaje Relajante Aleida', cantidad: 1, precio: 280.0, subtotal: 280.0 }
-  ]);
+  const [annulServicio, setAnnulServicio] = useState('');
+  const [annulItems, setAnnulItems] = useState([]);
   const [annulLoading, setAnnulLoading] = useState(false);
   const [alertaPinInvalido, setAlertaPinInvalido] = useState('');
   const [mensajePaso13, setMensajePaso13] = useState('');
   const [busquedaError, setBusquedaError] = useState('');
-  const [annulHistory, setAnnulHistory] = useState([
-    { fecha: '2026-10-06 10:15', boleta: 'B001-0004810', nota_credito: 'NC-012', nc: 'NC-012', monto: 120.0, cliente: 'Rosa Quispe', servicio: 'Manicure Spa', motivo: 'Devolución por insatisfacción', autorizado_por: 'Aleida Flores (Gerente General)' }
-  ]);
+  const [annulHistory, setAnnulHistory] = useState([]);
 
-  // Lista unificada de boletas emitidas disponibles para anular
-  const boletasDisponibles = [
-    ...(ventas || []).map(v => ({
-      numero_boleta: v.numero_boleta,
-      cliente: v.cliente,
-      servicio: v.servicio,
-      monto: v.total,
-      medio_pago: v.medio_pago,
-      fecha: v.fecha,
-      estado: v.estado
-    })),
-    ...(salesHistory || []).map(s => ({
-      numero_boleta: s.numero_boleta,
-      cliente: s.cliente,
-      servicio: s.servicio,
-      monto: s.total,
-      medio_pago: s.medio_pago,
-      fecha: s.fecha,
-      estado: 'Emitida'
-    })),
-    {
-      numero_boleta: 'B001-0004820',
-      cliente: 'Mariana Torres',
-      servicio: 'Masaje Relajante Aleida',
-      monto: 280.0,
-      medio_pago: 'Efectivo',
-      fecha: '09:45 AM',
-      estado: 'Emitida'
-    },
-    {
-      numero_boleta: 'B001-0004821',
-      cliente: 'Patricia Valdivia',
-      servicio: 'Facial Rejuvenecedor con Oro',
-      monto: 450.0,
-      medio_pago: 'Yape/Plin',
-      fecha: '11:30 AM',
-      estado: 'Emitida'
+  // Lista unificada y sin duplicados de boletas emitidas disponibles para anular
+  const boletasDisponibles = useMemo(() => {
+    const mapa = new Map();
+
+    // 1. Ventas reales sincronizadas desde PostgreSQL / SQLite
+    (ventas || []).forEach(v => {
+      if (v.numero_boleta && !mapa.has(v.numero_boleta)) {
+        mapa.set(v.numero_boleta, {
+          numero_boleta: v.numero_boleta,
+          cliente: v.cliente || 'Cliente General',
+          servicio: v.servicio || 'Tratamiento Spa Aleida',
+          monto: parseFloat(v.total || v.monto || 0),
+          medio_pago: v.medio_pago || 'Efectivo',
+          fecha: v.fecha || 'Hoy',
+          estado: v.estado || 'Emitida'
+        });
+      }
+    });
+
+    // 2. Ventas generadas en la sesión actual
+    (salesHistory || []).forEach(s => {
+      if (s.numero_boleta && !mapa.has(s.numero_boleta)) {
+        mapa.set(s.numero_boleta, {
+          numero_boleta: s.numero_boleta,
+          cliente: s.cliente || 'Cliente General',
+          servicio: s.servicio || 'Tratamiento Spa Aleida',
+          monto: parseFloat(s.total || s.monto || 0),
+          medio_pago: s.medio_pago || 'Efectivo',
+          fecha: s.fecha || 'Hoy',
+          estado: 'Emitida'
+        });
+      }
+    });
+
+    return Array.from(mapa.values());
+  }, [ventas, salesHistory]);
+
+  // Auto-cargar la primera boleta emitida si no hay una seleccionada
+  useEffect(() => {
+    if (boletasDisponibles.length > 0) {
+      const existe = boletasDisponibles.find(b => b.numero_boleta === annulTicket);
+      const target = existe || boletasDisponibles[0];
+      if (target && (!annulTicket || !existe)) {
+        setAnnulTicket(target.numero_boleta);
+        setAnnulCliente(target.cliente || 'Cliente General');
+        setAnnulMonto(parseFloat(target.monto || 0).toFixed(2));
+        setAnnulMedio(target.medio_pago || 'Efectivo');
+        setAnnulServicio(target.servicio || 'Servicio Spa');
+        setAnnulItems([
+          { item: 1, codigo: 'SRV-01', descripcion: target.servicio || 'Servicio Spa', cantidad: 1, precio: parseFloat(target.monto || 0), subtotal: parseFloat(target.monto || 0) }
+        ]);
+      }
     }
-  ];
+  }, [boletasDisponibles]);
 
   // Filtrado reactivo de clientes para el padrón
   const filteredClientes = clientes.filter(cl => {
@@ -703,6 +715,7 @@ export default function Dashboard({
     setAlertaInsuficiente(null);
     setSelectedCitaId(cita.id);
     setPosClient(cita.cliente);
+    setPosDni(cita.dni || '');
     setPosService(cita.servicio);
     setPosAmount(cita.monto.toString());
     setCashGiven(cita.monto.toString());
@@ -760,6 +773,7 @@ export default function Dashboard({
       const res = await onProcessPayment({
         cita_id: selectedCitaId,
         cliente: posClient,
+        dni: posDni || '',
         servicio: extraPrice > 0 ? `${posService} + Insumo de Reventa` : posService,
         monto: totalFacturado,
         monto_ingresado: montoIngresado,
@@ -2084,7 +2098,7 @@ export default function Dashboard({
                           <td>{a.fecha ? a.fecha.slice(0, 16) : 'Hoy'}</td>
                           <td><strong>{a.boleta}</strong></td>
                           <td><span className="tag attended">{a.nota_credito}</span></td>
-                          <td>{a.cliente || 'Mariana Torres'}</td>
+                          <td>{a.cliente || a.cliente_nombre || 'Cliente General'}</td>
                           <td style={{ color: '#C53030', fontWeight: 'bold' }}>- S/ {parseFloat(a.monto || 0).toFixed(2)}</td>
                           <td>
                             <button 
