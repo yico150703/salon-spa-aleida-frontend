@@ -31,19 +31,46 @@ export default function App() {
   // DS_CU07: Estado apertura de caja
   const [cajaAbierta, setCajaAbierta] = useState(false);
 
+  // Sincronización continua en tiempo real con PostgreSQL (Render API REST)
   useEffect(() => {
-    api.getCitas().then(data => { if (data && data.length) setCitas(data); });
-    api.getClientes().then(data => { if (data && data.length) setClientes(data); });
-    api.getPersonal().then(data => { if (data && data.length) setUsuarios(data); });
-    api.getCatalogo().then(data => { if (data && data.length) setCatalogo(data); });
-    api.getCaja().then(data => { 
-      if (data) {
-        setCaja(data);
-        if (data.estado === 'Abierta') setCajaAbierta(true);
+    let isMounted = true;
+    const sincronizarTodo = async () => {
+      try {
+        const [citasData, clientesData, personalData, catalogoData, cajaData, ventasData, anulacionesData] = await Promise.all([
+          api.getCitas(),
+          api.getClientes(),
+          api.getPersonal(),
+          api.getCatalogo(),
+          api.getCaja(),
+          api.getVentas(),
+          api.getAnulaciones()
+        ]);
+
+        if (!isMounted) return;
+
+        if (citasData && Array.isArray(citasData)) setCitas(citasData);
+        if (clientesData && Array.isArray(clientesData)) setClientes(clientesData);
+        if (personalData && Array.isArray(personalData)) setUsuarios(personalData);
+        if (catalogoData && Array.isArray(catalogoData)) setCatalogo(catalogoData);
+        if (cajaData && typeof cajaData === 'object' && cajaData.saldo_teorico !== undefined) {
+          setCaja(cajaData);
+          if (cajaData.estado === 'Abierta') setCajaAbierta(true);
+          else if (cajaData.estado === 'Cerrada') setCajaAbierta(false);
+        }
+        if (ventasData && Array.isArray(ventasData)) setVentas(ventasData);
+        if (anulacionesData && Array.isArray(anulacionesData)) setAnulaciones(anulacionesData);
+      } catch (err) {
+        // En caso de latencia de red, mantener estado sin interrumpir
       }
-    });
-    api.getVentas().then(data => { if (data && data.length) setVentas(data); });
-    api.getAnulaciones().then(data => { if (data && data.length) setAnulaciones(data); });
+    };
+
+    sincronizarTodo();
+    const intervalId = setInterval(sincronizarTodo, 2500); // Polling cada 2.5 segundos
+
+    return () => {
+      isMounted = false;
+      clearInterval(intervalId);
+    };
   }, []);
 
   const showToast = (msg) => {

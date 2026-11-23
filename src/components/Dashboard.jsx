@@ -901,6 +901,10 @@ export default function Dashboard({
             />
           </div>
           <div className="header-status">
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#E8F5E9', border: '1px solid #A5D6A7', padding: '5px 11px', borderRadius: '12px', fontSize: '0.78rem', color: '#1B5E20' }}>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#2E7D32', display: 'inline-block', boxShadow: '0 0 6px #2E7D32' }}></span>
+              <strong>PostgreSQL Render (En Vivo)</strong>
+            </div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#F4F7F5', border: '1px solid #D1E7DD', padding: '5px 12px', borderRadius: '8px', fontSize: '0.82rem' }}>
               <span style={{ color: '#555' }}>Fecha:</span> <strong style={{ color: '#1B3D2B' }}>{caja.fecha || todayStr}</strong>
               <span style={{ color: '#CCC' }}>|</span>
