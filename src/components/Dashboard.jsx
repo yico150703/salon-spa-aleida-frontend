@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { api } from '../api';
 import CashAuditModal from './CashAuditModal';
 import ElectronicReceiptModal from './ElectronicReceiptModal';
 import ClientFileModal from './ClientFileModal';
@@ -616,7 +617,7 @@ export default function Dashboard({
     }
   }, [posClient]);
 
-  // Annulment State
+  // CUS-09: Anular Venta con Nota de Crédito (Diagrama BCE Oficial)
   const [annulTicket, setAnnulTicket] = useState('B001-0004820');
   const [annulPin, setAnnulPin] = useState('1234');
   const [annulMotivo, setAnnulMotivo] = useState('Error en digitación de importe');
@@ -624,6 +625,13 @@ export default function Dashboard({
   const [annulMonto, setAnnulMonto] = useState('280.00');
   const [annulMedio, setAnnulMedio] = useState('Efectivo');
   const [annulServicio, setAnnulServicio] = useState('Masaje Relajante Aleida');
+  const [annulItems, setAnnulItems] = useState([
+    { item: 1, codigo: 'SRV-01', descripcion: 'Masaje Relajante Aleida', cantidad: 1, precio: 280.0, subtotal: 280.0 }
+  ]);
+  const [annulLoading, setAnnulLoading] = useState(false);
+  const [alertaPinInvalido, setAlertaPinInvalido] = useState('');
+  const [mensajePaso13, setMensajePaso13] = useState('');
+  const [busquedaError, setBusquedaError] = useState('');
   const [annulHistory, setAnnulHistory] = useState([
     { fecha: '2026-10-06 10:15', boleta: 'B001-0004810', nota_credito: 'NC-012', nc: 'NC-012', monto: 120.0, cliente: 'Rosa Quispe', servicio: 'Manicure Spa', motivo: 'Devolución por insatisfacción', autorizado_por: 'Aleida Mendoza (Gerente General)' }
   ]);
@@ -804,12 +812,65 @@ export default function Dashboard({
     }
   };
 
-  const handleExecuteAnnulment = async (e) => {
-    e.preventDefault();
-    if (annulPin !== '1234') {
-      showToast('Acceso denegado: PIN de autorización incorrecto (debe ingresar 1234).');
+  // =========================================================================
+  // CUS-09: ANULAR VENTA CON NOTA DE CRÉDITO (Diagrama de Secuencia BCE Oficial)
+  // Pasos 1, 2, 3, 4, 5: Búsqueda de Comprobante por número correlativo
+  // =========================================================================
+  const handleBuscarComprobante = async (ticketNum) => {
+    const num = (ticketNum || annulTicket || '').trim();
+    if (!num) {
+      setBusquedaError('Ingrese o seleccione un número de comprobante para buscar.');
       return;
     }
+    setBusquedaError('');
+    setAlertaPinInvalido('');
+    setMensajePaso13('');
+    setAnnulLoading(true);
+    try {
+      // Paso 2: Solicitar detalle de comprobante emitido (:FormAnulacion -> :VentaService)
+      // Pasos 3 y 4 en backend: Obtener ítems y montos cobrados (:VentaService -> :VentaComprobante)
+      // Paso 5: Enviar datos del comprobante a formulario (:VentaService -> :FormAnulacion)
+      const res = await api.getDetalleComprobante(num);
+      if (res && res.success && res.comprobante) {
+        const c = res.comprobante;
+        setAnnulTicket(c.numero_boleta || num);
+        setAnnulCliente(c.cliente || 'Cliente General');
+        setAnnulMonto((c.total || 0).toFixed(2));
+        setAnnulMedio(c.medio_pago || 'Efectivo');
+        setAnnulServicio(c.items?.[0]?.descripcion || 'Servicio Spa');
+        setAnnulItems(c.items && c.items.length > 0 ? c.items : [
+          { item: 1, codigo: 'SRV-01', descripcion: c.items?.[0]?.descripcion || 'Servicio Spa', cantidad: 1, precio: c.total, subtotal: c.total }
+        ]);
+        showToast(`Paso 5: Comprobante ${num} obtenido. Total a devolver: S/ ${(c.total || 0).toFixed(2)}.`);
+      } else {
+        const encontrada = boletasDisponibles.find(b => b.numero_boleta?.toLowerCase() === num.toLowerCase());
+        if (encontrada) {
+          setAnnulTicket(encontrada.numero_boleta);
+          setAnnulCliente(encontrada.cliente || 'Cliente General');
+          setAnnulMonto(parseFloat(encontrada.monto || 0).toFixed(2));
+          setAnnulMedio(encontrada.medio_pago || 'Efectivo');
+          setAnnulServicio(encontrada.servicio || 'Servicio Spa');
+          setAnnulItems([
+            { item: 1, codigo: 'SRV-01', descripcion: encontrada.servicio || 'Servicio Spa', cantidad: 1, precio: parseFloat(encontrada.monto || 0), subtotal: parseFloat(encontrada.monto || 0) }
+          ]);
+          showToast(`Paso 5: Comprobante ${num} cargado desde el registro de caja.`);
+        } else {
+          setBusquedaError(`Comprobante "${num}" no encontrado en el sistema.`);
+          showToast(`No se encontró el comprobante ${num}.`);
+        }
+      }
+    } catch (err) {
+      setBusquedaError('Error de red al consultar detalle de comprobante.');
+    } finally {
+      setAnnulLoading(false);
+    }
+  };
+
+  // Pasos 7, 8, 9, 10, 11, 12, 13 (o 14, 15 si PIN incorrecto)
+  const handleExecuteAnnulment = async (e) => {
+    e.preventDefault();
+    setAlertaPinInvalido('');
+    setMensajePaso13('');
 
     const montoNum = parseFloat(annulMonto) || 0;
     if (montoNum <= 0) {
@@ -817,6 +878,7 @@ export default function Dashboard({
       return;
     }
 
+    // Paso 7: Ingresar motivo de anulación y PIN de autorización (:Administrador -> :FormAnulacion)
     const payload = {
       boleta: annulTicket,
       pin: annulPin,
@@ -828,33 +890,55 @@ export default function Dashboard({
       autorizado_por: currentUser?.nombre ? `${currentUser.nombre} (${currentUser.rol})` : 'Aleida Mendoza (Gerente General)'
     };
 
-    const res = await onProcessAnnulment(payload);
-    const ncNumero = res?.anulacion?.nota_credito || `NC-0${(anulaciones?.length || 0) + annulHistory.length + 13}`;
+    setAnnulLoading(true);
+    try {
+      // Paso 8: Validar PIN de gerencia y registrar motivo (:FormAnulacion -> :VentaService)
+      const res = await onProcessAnnulment(payload);
 
-    const now = new Date();
-    const todayDateStr = now.toISOString().slice(0, 10);
-    const nowTimeStr = now.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
-    const fullFechaStr = `${todayDateStr} ${nowTimeStr}`;
+      // Si PIN de gerencia incorrecto: Pasos 14 y 15
+      if (res && res.success === false) {
+        if (res.paso === 14 || res.alerta || res.error?.includes('PIN') || res.error?.includes('14')) {
+          setAlertaPinInvalido(res.error || 'Paso 15: Mostrar alerta de PIN no autorizado y reintentar. PIN de gerencia incorrecto (requiere PIN 1234).');
+        } else {
+          showToast(`⚠️ ${res.error || 'Error al procesar la anulación'}`);
+        }
+        return;
+      }
 
-    const newNC = {
-      fecha: fullFechaStr,
-      boleta: annulTicket,
-      nota_credito: ncNumero,
-      nc: ncNumero,
-      monto: montoNum,
-      cliente: annulCliente,
-      servicio: annulServicio || 'Tratamiento revertido por auditoría',
-      motivo: annulMotivo,
-      medio_pago: annulMedio,
-      autorizado_por: payload.autorizado_por
-    };
+      // Si PIN correcto: Pasos 9, 10, 11, 12, 13
+      const ncNumero = res?.anulacion?.nota_credito || `NC-0${(anulaciones?.length || 0) + annulHistory.length + 13}`;
 
-    setAnnulHistory(prev => [newNC, ...prev]);
-    setReceiptData(newNC);
-    setReceiptType('nota_credito');
-    setIsReceiptOpen(true);
+      const now = new Date();
+      const todayDateStr = now.toISOString().slice(0, 10);
+      const nowTimeStr = now.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+      const fullFechaStr = `${todayDateStr} ${nowTimeStr}`;
 
-    showToast(`Anulación aprobada. Se emitió ${ncNumero} y se reversó S/ ${montoNum.toFixed(2)} en PostgreSQL.`);
+      const newNC = {
+        fecha: fullFechaStr,
+        boleta: annulTicket,
+        nota_credito: ncNumero,
+        nc: ncNumero,
+        monto: montoNum,
+        cliente: annulCliente,
+        servicio: annulServicio || 'Tratamiento revertido por auditoría',
+        motivo: annulMotivo,
+        medio_pago: annulMedio,
+        autorizado_por: payload.autorizado_por
+      };
+
+      setAnnulHistory(prev => [newNC, ...prev]);
+      setReceiptData(newNC);
+      setReceiptType('nota_credito');
+      setIsReceiptOpen(true);
+
+      // Paso 13: Devolver dinero al cliente y registrar constancia
+      setMensajePaso13(`Paso 13: Devolver dinero en ${annulMedio} (S/ ${montoNum.toFixed(2)}) al cliente ${annulCliente} y registrar constancia física.`);
+      showToast(res?.message || `Paso 12: Notificar anulación exitosa. Se emitió ${ncNumero} y se reversó S/ ${montoNum.toFixed(2)} en PostgreSQL.`);
+    } catch (err) {
+      showToast('Error inesperado al conectar con el servidor.');
+    } finally {
+      setAnnulLoading(false);
+    }
   };
 
   const handleOpenClientFile = (cliente) => {
@@ -1850,81 +1934,113 @@ export default function Dashboard({
 
             <div className="pos-layout">
               <div className="pos-checkout">
-                <h3>Formulario de Anulación de Comprobante</h3>
-                <form onSubmit={handleExecuteAnnulment}>
-                  {/* Selector Rápido de Boletas Emitidas */}
-                  <div className="form-group">
-                    <label>Seleccionar Boleta Emitida:</label>
-                    <select 
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                  <h3 style={{ margin: 0 }}>:FormAnulacion — Emisión de Nota de Crédito</h3>
+                  <span className="badge-tag" style={{ background: '#FBE9E7', color: '#D32F2F', fontWeight: 600 }}>CUS-09 BCE Oficial</span>
+                </div>
+
+                {/* Paso 1: Buscar comprobante por número correlativo (:Administrador -> :FormAnulacion) */}
+                <div style={{ background: '#F8F9FA', border: '1px solid #E0E0E0', borderRadius: '8px', padding: '12px', marginBottom: '16px' }}>
+                  <label style={{ fontWeight: 600, display: 'block', marginBottom: '6px', color: '#1B3D2B' }}>
+                    1: Buscar comprobante por número correlativo:
+                  </label>
+                  <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+                    <input 
+                      type="text" 
+                      id="input-buscar-boleta"
                       value={annulTicket} 
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setAnnulTicket(val);
-                        const encontrada = boletasDisponibles.find(b => b.numero_boleta === val);
-                        if (encontrada) {
-                          setAnnulCliente(encontrada.cliente || 'Cliente General');
-                          setAnnulMonto((encontrada.monto || 280.0).toString());
-                          setAnnulMedio(encontrada.medio_pago || 'Efectivo');
-                          setAnnulServicio(encontrada.servicio || 'Servicio Spa');
-                          showToast(`Boleta ${val} cargada: S/ ${encontrada.monto} (${encontrada.cliente})`);
-                        }
-                      }}
-                      style={{ fontWeight: 600, color: '#1B3D2B' }}
+                      onChange={(e) => setAnnulTicket(e.target.value)} 
+                      placeholder="Ej. B001-0004820"
+                      style={{ flex: 1, padding: '8px 12px', fontWeight: 600 }}
+                    />
+                    <button 
+                      type="button" 
+                      id="btn-buscar-comprobante"
+                      className="btn-action primary"
+                      disabled={annulLoading}
+                      onClick={() => handleBuscarComprobante(annulTicket)}
+                      style={{ padding: '8px 16px', fontSize: '0.85rem' }}
                     >
-                      <option value="">-- Seleccione una boleta de la lista --</option>
-                      {boletasDisponibles.map((b, idx) => (
-                        <option key={idx} value={b.numero_boleta}>
-                          {b.numero_boleta} · {b.cliente} · S/ {parseFloat(b.monto || 0).toFixed(2)} ({b.medio_pago})
-                        </option>
+                      {annulLoading ? 'Buscando...' : 'Buscar Comprobante'}
+                    </button>
+                  </div>
+
+                  {/* Selector Rápido de Boletas Emitidas */}
+                  <label style={{ fontSize: '0.78rem', color: '#666', display: 'block', marginBottom: '4px' }}>
+                    O seleccionar directamente de ventas recientes:
+                  </label>
+                  <select 
+                    value={annulTicket} 
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setAnnulTicket(val);
+                      if (val) handleBuscarComprobante(val);
+                    }}
+                    style={{ width: '100%', fontWeight: 500, color: '#1B3D2B', fontSize: '0.85rem' }}
+                  >
+                    <option value="">-- Seleccione una boleta de la lista --</option>
+                    {boletasDisponibles.map((b, idx) => (
+                      <option key={idx} value={b.numero_boleta}>
+                        {b.numero_boleta} · {b.cliente} · S/ {parseFloat(b.monto || 0).toFixed(2)} ({b.medio_pago}) - {b.estado || 'Emitida'}
+                      </option>
+                    ))}
+                  </select>
+
+                  {busquedaError && (
+                    <div style={{ color: '#D32F2F', fontSize: '0.8rem', marginTop: '6px', fontWeight: 600 }}>
+                      ⚠️ {busquedaError}
+                    </div>
+                  )}
+                </div>
+
+                {/* Paso 6: Mostrar detalle de ítems y monto a devolver (:FormAnulacion -> :Administrador) */}
+                <div style={{ background: '#FFFDE7', border: '1px solid #FFE082', borderRadius: '8px', padding: '12px', marginBottom: '16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <strong style={{ color: '#795548', fontSize: '0.88rem' }}>
+                      Paso 6: Detalle de ítems y monto a devolver ({annulTicket || 'Sin comprobante'})
+                    </strong>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1B3D2B' }}>
+                      Cliente: {annulCliente}
+                    </span>
+                  </div>
+
+                  <table style={{ width: '100%', fontSize: '0.8rem', borderCollapse: 'collapse', marginBottom: '8px' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid #E0E0E0', textAlign: 'left', color: '#555' }}>
+                        <th style={{ padding: '4px 6px' }}>#</th>
+                        <th style={{ padding: '4px 6px' }}>Descripción del Ítem</th>
+                        <th style={{ padding: '4px 6px', textAlign: 'center' }}>Cant.</th>
+                        <th style={{ padding: '4px 6px', textAlign: 'right' }}>P. Unit</th>
+                        <th style={{ padding: '4px 6px', textAlign: 'right' }}>Subtotal</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {annulItems.map((it, idx) => (
+                        <tr key={idx} style={{ borderBottom: '1px dashed #EEE' }}>
+                          <td style={{ padding: '4px 6px' }}>{it.item || idx + 1}</td>
+                          <td style={{ padding: '4px 6px' }}><strong>{it.descripcion}</strong></td>
+                          <td style={{ padding: '4px 6px', textAlign: 'center' }}>{it.cantidad || 1}</td>
+                          <td style={{ padding: '4px 6px', textAlign: 'right' }}>S/ {parseFloat(it.precio || 0).toFixed(2)}</td>
+                          <td style={{ padding: '4px 6px', textAlign: 'right', fontWeight: 600 }}>S/ {parseFloat(it.subtotal || 0).toFixed(2)}</td>
+                        </tr>
                       ))}
-                    </select>
-                  </div>
+                    </tbody>
+                  </table>
 
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label>N° Boleta a Anular *</label>
-                      <input 
-                        type="text" 
-                        value={annulTicket} 
-                        onChange={(e) => setAnnulTicket(e.target.value)} 
-                        placeholder="B001-0004820"
-                        required 
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Cliente Titular</label>
-                      <input 
-                        type="text" 
-                        value={annulCliente} 
-                        onChange={(e) => setAnnulCliente(e.target.value)} 
-                        required 
-                      />
-                    </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '6px', borderTop: '1px solid #FFE082' }}>
+                    <span style={{ fontSize: '0.82rem', color: '#5D4037' }}>
+                      Medio Cobrado: <strong>{annulMedio}</strong>
+                    </span>
+                    <span style={{ fontSize: '1rem', fontWeight: 800, color: '#C62828' }}>
+                      Monto a Devolver: S/ {parseFloat(annulMonto || 0).toFixed(2)}
+                    </span>
                   </div>
+                </div>
 
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label>Importe a Devolver (S/) *</label>
-                      <input 
-                        type="number" 
-                        step="0.01" 
-                        value={annulMonto} 
-                        onChange={(e) => setAnnulMonto(e.target.value)} 
-                        required 
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Medio Original de Pago</label>
-                      <select value={annulMedio} onChange={(e) => setAnnulMedio(e.target.value)}>
-                        <option value="Efectivo">Efectivo en Mostrador</option>
-                        <option value="Yape/Plin">Billetera Digital (Yape / Plin)</option>
-                        <option value="Tarjeta POS">Tarjeta Crédito / Débito POS</option>
-                      </select>
-                    </div>
-                  </div>
-
+                <form onSubmit={handleExecuteAnnulment}>
+                  {/* Paso 7: Ingresar motivo de anulación y PIN de autorización (:Administrador -> :FormAnulacion) */}
                   <div className="form-group">
-                    <label>Motivo Obligatorio de Anulación *</label>
+                    <label>7: Motivo Obligatorio de Anulación *</label>
                     <select value={annulMotivo} onChange={(e) => setAnnulMotivo(e.target.value)}>
                       <option value="Error en digitación de importe">Error en digitación de importe</option>
                       <option value="Devolución por insatisfacción con tratamiento">Devolución por insatisfacción con tratamiento</option>
@@ -1933,27 +2049,59 @@ export default function Dashboard({
                     </select>
                   </div>
 
-                  <div className="form-group">
-                    <label>
-                      PIN de Autorización Gerencial (Auditoría) * 
-                      <span style={{ color: '#B38B28', fontWeight: 600, marginLeft: '6px' }}>(PIN demo: 1234)</span>
-                    </label>
-                    <input 
-                      type="password" 
-                      value={annulPin} 
-                      onChange={(e) => setAnnulPin(e.target.value)} 
-                      placeholder="1234" 
-                      required 
-                    />
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>
+                        7: PIN de Autorización Gerencial * 
+                        <span style={{ color: '#B38B28', fontWeight: 600, marginLeft: '6px' }}>(PIN Demo: 1234)</span>
+                      </label>
+                      <input 
+                        type="password" 
+                        value={annulPin} 
+                        onChange={(e) => setAnnulPin(e.target.value)} 
+                        placeholder="Ingrese PIN de 4 dígitos" 
+                        required 
+                        style={{ fontSize: '1.05rem', letterSpacing: '2px', fontWeight: 700 }}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Medio de Devolución Contable</label>
+                      <select value={annulMedio} onChange={(e) => setAnnulMedio(e.target.value)}>
+                        <option value="Efectivo">Efectivo en Mostrador</option>
+                        <option value="Yape/Plin">Billetera Digital (Yape / Plin)</option>
+                        <option value="Tarjeta POS">Tarjeta Crédito / Débito POS</option>
+                      </select>
+                    </div>
                   </div>
+
+                  {/* Paso 14 & 15: Alerta si el PIN es incorrecto */}
+                  {alertaPinInvalido && (
+                    <div className="alert-box error" style={{ background: '#FFEBEE', border: '1px solid #FFCDD2', color: '#C62828', padding: '12px', borderRadius: '8px', marginBottom: '14px', fontSize: '0.85rem' }}>
+                      <strong>⚠️ {alertaPinInvalido}</strong>
+                    </div>
+                  )}
+
+                  {/* Paso 13: Devolver dinero al cliente y registrar constancia física */}
+                  {mensajePaso13 && (
+                    <div className="alert-box success" style={{ background: '#E8F5E9', border: '1px solid #C8E6C9', color: '#2E7D32', padding: '12px', borderRadius: '8px', marginBottom: '14px', fontSize: '0.85rem' }}>
+                      <strong>✅ {mensajePaso13}</strong>
+                    </div>
+                  )}
 
                   {/* Resumen contable de la reversión */}
-                  <div style={{ background: '#FFFDE7', border: '1px solid #FFE082', borderRadius: '8px', padding: '12px', marginBottom: '14px', fontSize: '0.82rem', color: '#795548' }}>
-                    <strong>Impacto Contable:</strong> Al confirmar, se deducirá automáticamente <strong>S/ {parseFloat(annulMonto || 0).toFixed(2)}</strong> del balance de <strong>{annulMedio}</strong> en PostgreSQL y se emitirá la Nota de Crédito correlativa para SUNAT.
+                  <div style={{ background: '#F1F8E9', border: '1px solid #C5E1A5', borderRadius: '8px', padding: '10px 12px', marginBottom: '14px', fontSize: '0.82rem', color: '#33691E' }}>
+                    <strong>Reversión Contable Automática:</strong> Se cambiará el estado de la boleta a <code>Anulada</code>, se registrará la Nota de Crédito en SUNAT y se deducirá <strong>S/ {parseFloat(annulMonto || 0).toFixed(2)}</strong> del balance de <strong>{annulMedio}</strong> en PostgreSQL.
                   </div>
 
-                  <button type="submit" className="btn-action danger" style={{ width: '100%', padding: '12px', fontWeight: 700 }}>
-                    Autorizar Anulación y Emitir Nota de Crédito
+                  {/* Paso 8: Validar PIN de gerencia y registrar motivo (:FormAnulacion -> :VentaService) */}
+                  <button 
+                    type="submit" 
+                    id="btn-autorizar-anulacion"
+                    className="btn-action danger" 
+                    disabled={annulLoading}
+                    style={{ width: '100%', padding: '14px', fontWeight: 700, fontSize: '0.95rem' }}
+                  >
+                    {annulLoading ? 'Validando con Servidor...' : 'Paso 8: Validar PIN de Gerencia y Autorizar Anulación'}
                   </button>
                 </form>
               </div>

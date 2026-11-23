@@ -274,18 +274,9 @@ export default function App() {
 
   // DS_CU09: Anular venta con nota de crédito (Persistencia total en PostgreSQL)
   const handleProcessAnnulment = async (anulacionPayload) => {
-    // Si recibe solo un número por compatibilidad anterior
     const data = typeof anulacionPayload === 'object' ? anulacionPayload : { monto: anulacionPayload };
     const numMonto = parseFloat(data.monto) || 0;
-    const medio = data.medio_pago || 'Digital';
-
-    // 1. Actualización optimista en caja
-    setCaja(prev => {
-      const nuevoEfectivo = medio === 'Efectivo' ? Math.max(0, prev.efectivo - numMonto) : prev.efectivo;
-      const nuevoDigital = medio !== 'Efectivo' ? Math.max(0, prev.digital - numMonto) : prev.digital;
-      const total = (prev.apertura || 0) + nuevoEfectivo + nuevoDigital - (prev.egresos || 0);
-      return { ...prev, efectivo: nuevoEfectivo, digital: nuevoDigital, total_teorico: total, saldo_teorico: total };
-    });
+    const medio = data.medio_pago || 'Efectivo';
 
     try {
       const res = await api.processAnulacion({
@@ -298,12 +289,12 @@ export default function App() {
         autorizado_por: currentUser?.nombre ? `${currentUser.nombre} (${currentUser.rol})` : 'Aleida Mendoza (Gerente General)'
       });
 
-      if (res && res.error) {
-        showToast(`[ERROR] ${res.error}`);
+      if (res && res.success === false) {
+        showToast(`⚠️ ${res.error || res.mensaje || 'Error al procesar anulación'}`);
         return res;
       }
 
-      // Sincronizar estado global desde base de datos
+      // Sincronizar estado global desde base de datos PostgreSQL
       const [cajaActual, anulacionesActuales, ventasActuales, citasActuales] = await Promise.all([
         api.getCaja(),
         api.getAnulaciones(),
@@ -315,11 +306,12 @@ export default function App() {
       if (ventasActuales) setVentas(ventasActuales);
       if (citasActuales) setCitas(citasActuales);
 
-      showToast(`[ANULACIÓN] Reversión contable aplicada y registrada en Base de Datos.`);
+      showToast(res?.message || `[ANULACIÓN] Reversión contable aplicada y registrada en Base de Datos.`);
       return res;
     } catch (err) {
       console.error('Error procesando anulación:', err);
       showToast('[ERROR] Ocurrió un error al comunicar la anulación con el servidor.');
+      return { success: false, error: 'Error de red al procesar anulación.' };
     }
   };
 

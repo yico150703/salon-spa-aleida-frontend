@@ -318,7 +318,7 @@ export const api = {
     }
   },
 
-  // CUS09: Anular Venta con Nota de Crédito
+  // CUS09: Anular Venta con Nota de Crédito (Diagrama BCE Oficial)
   async getAnulaciones() {
     try {
       const res = await fetch(`${API_BASE}/anulaciones`);
@@ -329,6 +329,14 @@ export const api = {
     ];
   },
 
+  async getDetalleComprobante(numeroBoleta) {
+    try {
+      const res = await fetch(`${API_BASE}/anulaciones/comprobante/${numeroBoleta}`);
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return null;
+  },
+
   async processAnulacion(anulacionData) {
     try {
       const res = await fetch(`${API_BASE}/anulaciones`, {
@@ -336,9 +344,20 @@ export const api = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(anulacionData)
       });
-      return await res.json();
-    } catch (_) {}
-    return { success: true, message: 'Anulación procesada con Nota de Crédito' };
+      const data = await res.json().catch(() => null);
+      if (res.ok) {
+        return data || { success: true, message: 'Anulación procesada con Nota de Crédito' };
+      } else {
+        return {
+          success: false,
+          error: data?.error || data?.mensaje || `Error HTTP ${res.status}`,
+          paso: data?.paso || 14,
+          alerta: data?.alerta
+        };
+      }
+    } catch (err) {
+      return { success: false, error: 'Servidor no disponible para procesar anulación.' };
+    }
   },
 
   // CUS10: Arqueo y Cierre de Caja
@@ -354,3 +373,5 @@ export const api = {
     return { success: true, message: 'Arqueo y cierre procesado localmente' };
   }
 };
+
+export default api;

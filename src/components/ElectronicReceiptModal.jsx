@@ -25,7 +25,11 @@ export default function ElectronicReceiptModal({ isOpen, onClose, ventaData, tip
             <p><strong>DNI/Documento:</strong> {ventaData.dni || '45910284'}</p>
             <p><strong>Forma de Pago:</strong> {ventaData.medio_pago || 'Billetera Digital (Yape)'}</p>
             {tipo === 'nota_credito' && (
-              <p><strong>Motivo NC:</strong> {ventaData.motivo || 'Devolución por insatisfacción'}</p>
+              <>
+                <p><strong>Comprobante Modificado:</strong> {ventaData.boleta || 'B001-0004820'}</p>
+                <p><strong>Motivo NC:</strong> {ventaData.motivo || 'Devolución por insatisfacción'}</p>
+                <p><strong>Autorizado por:</strong> {ventaData.autorizado_por || 'Gerencia General'}</p>
+              </>
             )}
           </div>
 
